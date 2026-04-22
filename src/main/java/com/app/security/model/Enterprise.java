@@ -3,17 +3,17 @@ package com.app.security.model;
 import java.util.Date;
 
 public class Enterprise {
-    private String companyId;
+    private String enterprise_id;
     private String name;
     private Date createdAt;
     private Date updatedAt;
 
-    public String getCompanyId() {
-        return companyId;
+    public String getEnterprise_id() {
+        return enterprise_id;
     }
 
-    public void setCompanyId(String companyId) {
-        this.companyId = companyId;
+    public void setEnterprise_id(String enterprise_id) {
+        this.enterprise_id = enterprise_id;
     }
 
     public String getName() {

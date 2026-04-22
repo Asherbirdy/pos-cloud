@@ -2,9 +2,12 @@ package com.app.security.dao;
 
 import com.app.security.model.Enterprise;
 
-public interface EnterpriseDao {
-    Enterprise getAllEnterprise();
-    Enterprise editEnterpriseById(String id);
+import java.util.List;
 
-    Enterprise createEnterprise(Enterprise enterprise);
+public interface EnterpriseDao {
+    List<Enterprise> getAllEnterprise();
+
+    void createEnterprise(Enterprise enterprise);
+
+    void editEnterpriseById(String enterpriseId, String name);
 }
