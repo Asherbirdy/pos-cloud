@@ -80,7 +80,8 @@ public class MySecurityConfig {
                         // 註冊和登入不需要認證
                         .requestMatchers(
                                 "/auth/**",
-                                "/enterprise/**"
+                                "/enterprise/**",
+                                "/error" // 顯示特定Error需
                         ).permitAll()
 
                         // 登出和查詢目前使用者需要認證
