@@ -1,22 +1,33 @@
 package com.app.security.service.impl;
 
-import com.app.security.dto.Enterprise.EnterpriseCreateRequest;
+import com.app.security.dao.EnterpriseDao;
+import com.app.security.model.Enterprise;
 import com.app.security.service.EnterpriseService;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.List;
 
 @Component
 public class EnterpriseServiceImpl implements EnterpriseService {
 
-    @Override
-    public Map<Object,String> getAll() {};
+    private final EnterpriseDao enterpriseDao;
+
+    public EnterpriseServiceImpl(EnterpriseDao enterpriseDao) {
+        this.enterpriseDao = enterpriseDao;
+    }
 
     @Override
-    public Map<Object,String> create(String request) {}
+    public List<Enterprise> getAll() {
+        return enterpriseDao.getAllEnterprise();
+    }
 
+    @Override
+    public void create(String name) {
+        enterpriseDao.createEnterprise(name);
+    }
 
-    public void edit() {}
-
-
+    @Override
+    public void edit(String enterpriseId, String name) {
+        enterpriseDao.editEnterpriseById(enterpriseId, name);
+    }
 }

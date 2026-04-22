@@ -4,12 +4,14 @@ import com.app.security.dao.EnterpriseDao;
 import com.app.security.model.Enterprise;
 import com.app.security.rowmapper.EnterpriseRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Component
 public class EnterpriseDaoImpl implements EnterpriseDao {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;

@@ -1,10 +1,13 @@
 package com.app.security.service;
 
-import java.util.Map;
+import com.app.security.model.Enterprise;
+
+import java.util.List;
 
 public interface EnterpriseService {
-    Map<Object, String> getAll();
-    Map<Object, String> create(String id);
-    Map<Object, String> edit(String name);
+    List<Enterprise> getAll();
 
+    void create(String name);
+
+    void edit(String enterpriseId, String name);
 }
