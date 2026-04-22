@@ -36,7 +36,21 @@ CREATE table enterprise
     name          VARCHAR(255) NOT NULL,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
+CREATE TABLE store
+(
+    store_id       VARCHAR(64) PRIMARY KEY,
+    enterprise_id  VARCHAR(64) NOT NULL,
+    name           VARCHAR(255) NOT NULL,
+    is_active      BOOLEAN DEFAULT TRUE,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_store_enterprise
+        FOREIGN KEY (enterprise_id)
+            REFERENCES enterprise (enterprise_id)
+            ON DELETE CASCADE
+);
 
 ```
