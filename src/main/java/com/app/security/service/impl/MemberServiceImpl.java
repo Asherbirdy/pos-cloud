@@ -1,7 +1,7 @@
 package com.app.security.service.impl;
 
 import com.app.security.dao.MemberDao;
-import com.app.security.dto.MemberInfoResponse;
+import com.app.security.dto.Member.MemberInfoResponse;
 import com.app.security.model.Member;
 import com.app.security.service.MemberService;
 import org.springframework.http.HttpStatus;

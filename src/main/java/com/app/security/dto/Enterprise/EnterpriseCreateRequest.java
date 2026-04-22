@@ -1,4 +1,4 @@
-package com.app.security.dto;
+package com.app.security.dto.Enterprise;
 
 import jakarta.validation.constraints.NotBlank;
 

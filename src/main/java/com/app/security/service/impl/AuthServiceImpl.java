@@ -2,10 +2,10 @@ package com.app.security.service.impl;
 
 import com.app.security.dao.MemberDao;
 import com.app.security.dao.TokenDao;
-import com.app.security.dto.AuthLoginResponse;
-import com.app.security.dto.AuthRegisterResponse;
-import com.app.security.dto.LoginRequest;
-import com.app.security.dto.RegisterRequest;
+import com.app.security.dto.Auth.AuthLoginResponse;
+import com.app.security.dto.Auth.AuthRegisterResponse;
+import com.app.security.dto.Auth.LoginRequest;
+import com.app.security.dto.Auth.RegisterRequest;
 import com.app.security.model.Member;
 import com.app.security.model.Token;
 import com.app.security.security.JwtUtil;

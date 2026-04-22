@@ -1,7 +1,6 @@
 package com.app.security.controller;
 
-import com.app.security.dto.EnterpriseCreateRequest;
-import com.app.security.model.Enterprise;
+import com.app.security.dto.Enterprise.EnterpriseCreateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

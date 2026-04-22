@@ -1,11 +1,11 @@
-package com.app.security.dto;
+package com.app.security.dto.Auth;
 
-public class AuthLoginResponse {
+public class AuthRegisterResponse {
     private final String name;
     private final String memberId;
     private final String role;
 
-    public AuthLoginResponse(String name, String memberId, String role) {
+    public AuthRegisterResponse(String name, String memberId, String role) {
         this.name = name;
         this.memberId = memberId;
         this.role = role;
