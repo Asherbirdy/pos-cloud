@@ -3,27 +3,27 @@ package com.app.security.model;
 import java.util.Date;
 
 public class Store {
-    private String storeId;
-    private String enterpriseId;
+    private String store_id;
+    private String enterprise_id;
     private String name;
     private Boolean isActive;
     private Date createdAt;
     private Date updatedAt;
 
-    public String getStoreId() {
-        return storeId;
+    public String getStore_id() {
+        return store_id;
     }
 
-    public void setStoreId(String storeId) {
-        this.storeId = storeId;
+    public void setStore_id(String store_id) {
+        this.store_id = store_id;
     }
 
-    public String getEnterpriseId() {
-        return enterpriseId;
+    public String getEnterprise_id() {
+        return enterprise_id;
     }
 
-    public void setEnterpriseId(String enterpriseId) {
-        this.enterpriseId = enterpriseId;
+    public void setEnterprise_id(String enterprise_id) {
+        this.enterprise_id = enterprise_id;
     }
 
     public String getName() {
