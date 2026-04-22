@@ -1,6 +1,6 @@
 package com.app.security.controller;
 
-import com.app.security.dto.MemberInfoResponse;
+import com.app.security.dto.Member.MemberInfoResponse;
 import com.app.security.service.AuthService;
 import com.app.security.service.MemberService;
 import org.springframework.http.HttpStatus;

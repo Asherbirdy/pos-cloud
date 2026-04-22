@@ -78,10 +78,21 @@ public class MySecurityConfig {
 
                 .authorizeHttpRequests(request -> request
                         // 註冊和登入不需要認證
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(
+                                "/auth/**",
+                                "/error" // 顯示特定Error需
+                        ).permitAll()
+
+                        // 只有 ADMIN 才能訪問
+                        .requestMatchers(
+                                "/enterprise/**")
+                        .hasAuthority("admin")
 
                         // 登出和查詢目前使用者需要認證
-                        .requestMatchers("/logout", "/me", "/member/**").authenticated()
+                        .requestMatchers(
+                                "/logout",
+                                "/member/**"
+                        ).authenticated()
 
                         .anyRequest().denyAll()
                 )
