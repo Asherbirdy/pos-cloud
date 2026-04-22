@@ -28,7 +28,6 @@ public class EnterpriseDaoImpl implements EnterpriseDao {
                 """;
 
         Map<String, Object> map = new HashMap<>();
-
         return namedParameterJdbcTemplate.query(sql, map, new EnterpriseRowMapper());
     }
 
@@ -61,7 +60,6 @@ public class EnterpriseDaoImpl implements EnterpriseDao {
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
         map.put("enterprise_id", enterprise_id);
-
         namedParameterJdbcTemplate.update(sql, map);
 
     }
