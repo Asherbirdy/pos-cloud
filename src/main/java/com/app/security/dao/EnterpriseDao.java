@@ -7,7 +7,7 @@ import java.util.List;
 public interface EnterpriseDao {
     List<Enterprise> getAllEnterprise();
 
-    void createEnterprise(Enterprise enterprise);
+    void createEnterprise(String name);
 
     void editEnterpriseById(String enterpriseId, String name);
 }
