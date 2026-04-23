@@ -2,6 +2,7 @@ package com.app.security.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AuthServiceImplTest {
+class EnterpriseServiceImplTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -27,24 +28,10 @@ public class AuthServiceImplTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    public void login() throws Exception {
-        Map<String, String> loginRequest = Map.of(
-                "email", "admin@gmail.com",
-                "password", "password"
-        );
 
-        RequestBuilder requestBuilder = post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest));
-
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().isOk())
-                .andExpect(cookie().exists("accessToken"))
-                .andExpect(cookie().exists("refreshToken"));
-    }
 
     @Test
+    @DisplayName("Check Enterprise Role Permission")
     public void checkRolePermit() throws Exception {
         // admin 登入 -> 訪問 /enterprise/ 應得 200
         Cookie adminAccessToken = loginAndGetAccessToken("admin@gmail.com", "password");
