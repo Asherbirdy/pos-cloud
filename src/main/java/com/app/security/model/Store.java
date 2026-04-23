@@ -7,8 +7,17 @@ public class Store {
     private String enterprise_id;
     private String name;
     private Boolean isActive;
+    private Integer running_devices_limit;
     private Date createdAt;
     private Date updatedAt;
+
+    public Integer getRunning_devices_limit() {
+        return running_devices_limit;
+    }
+
+    public void setRunning_devices_limit(Integer running_devices_limit) {
+        this.running_devices_limit = running_devices_limit;
+    }
 
     public String getStore_id() {
         return store_id;

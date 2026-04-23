@@ -43,7 +43,7 @@ CREATE TABLE store
     store_id       VARCHAR(64) PRIMARY KEY,
     enterprise_id  VARCHAR(64) NOT NULL,
     name           VARCHAR(255) NOT NULL,
-    running_devices INT DEFAULT 1,
+    running_devices_limit INT DEFAULT 1,
     is_active      BOOLEAN DEFAULT TRUE,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
