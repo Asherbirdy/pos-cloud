@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(mvn compile:*)",
-      "Bash(ls /Users/riversoft/Desktop/SP/java-mvc-sample/*.gradle*)"
+      "Bash(ls /Users/riversoft/Desktop/SP/java-mvc-sample/*.gradle*)",
+      "Bash(./mvnw test:*)",
+      "Bash(ls mvnw* pom.xml)",
+      "Bash(ls /Users/riversoft/Desktop/SP/pos-cloud/mvnw*)",
+      "Read(//usr/local/bin/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//Users/riversoft/**)"
     ]
   }
 }
