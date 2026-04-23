@@ -31,16 +31,18 @@ public class EnterpriseServiceImplTest extends BaseTest {
 
 
     @Test
-    @DisplayName("Check Enterprise Role Permission")
-    public void checkRolePermit() throws Exception {
-        // admin 登入 -> 訪問 /enterprise/ 應得 200
+    @DisplayName("admin 登入 -> 訪問 [GET] /enterprise/ 應得 200")
+    public void checkAdminRolePermit() throws Exception {
         mockMvc.perform(get("/enterprise/")
                 .cookie(adminAccessToken))
                 .andExpect(status().isOk());
+    }
 
-        // user 登入 -> 訪問 /enterprise/ 應得 403
+    @Test
+    @DisplayName("user 登入 -> 訪問 [GET] /enterprise/ 應得 403")
+    public void checkUserRolePermit() throws Exception {
         mockMvc.perform(get("/enterprise/")
-                .cookie(userAccessToken))
+                        .cookie(userAccessToken))
                 .andExpect(status().isForbidden());
     }
 
