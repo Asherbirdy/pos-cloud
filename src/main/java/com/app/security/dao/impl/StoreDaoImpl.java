@@ -26,7 +26,7 @@ public class StoreDaoImpl implements StoreDao {
     @Override
     public List<Store> getAllStoreByEnterpriseId(String enterpriseId) {
         String sql = """
-                SELECT store_id, enterprise_id, name, is_active, created_at, updated_at
+                SELECT store_id, enterprise_id, name, is_active, running_devices_limit, created_at, updated_at
                 FROM store
                 WHERE enterprise_id = :enterpriseId
                 """;
@@ -54,16 +54,19 @@ public class StoreDaoImpl implements StoreDao {
     }
 
     @Override
-    public void editStore(String store_id, String name) {
+    public void editStore(String store_id, String name, Boolean isActive, Integer runningDevicesLimit) {
         String sql = """
                 UPDATE store
-                SET name = :name
+                SET name = :name, 
+                    is_active = :isActive, 
+                    running_devices_limit = :runningDevicesLimit
                 WHERE store_id = :storeId
                 """;
         Map<String, Object> map = new HashMap<>();
         map.put("storeId", store_id);
         map.put("name", name);
+        map.put("isActive", isActive);
+        map.put("runningDevicesLimit", runningDevicesLimit);
         namedParameterJdbcTemplate.update(sql, map);
-
     }
 }

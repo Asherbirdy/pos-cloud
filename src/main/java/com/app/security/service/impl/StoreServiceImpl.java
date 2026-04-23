@@ -27,7 +27,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void edit(String storeId, String name) {
-        storeDao.editStore(storeId, name);
+    public void edit(String storeId, String name, Boolean isActive, Integer runningDevicesLimit) {
+        storeDao.editStore(storeId, name, isActive, runningDevicesLimit);
     }
 }

@@ -17,6 +17,7 @@ public class StoreRowMapper implements RowMapper<Store> {
         store.setEnterprise_id(resultSet.getString("enterprise_id"));
         store.setName(resultSet.getString("name"));
         store.setActive(resultSet.getBoolean("is_active"));
+        store.setRunning_devices_limit(resultSet.getInt("running_devices_limit"));
         store.setCreatedAt(resultSet.getTimestamp("created_at"));
         store.setUpdatedAt(resultSet.getTimestamp("updated_at"));
 
