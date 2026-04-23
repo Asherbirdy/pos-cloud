@@ -1,6 +1,6 @@
 package com.app.security.service.impl;
 
-import com.app.security.BaseTest;
+import com.app.security.AuthTestSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class AuthServiceImplTest extends BaseTest {
+public class AuthServiceImplTest extends AuthTestSupport {
 
     @Test
     public void login() throws Exception {

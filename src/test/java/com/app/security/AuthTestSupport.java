@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public abstract class BaseTest {
+public abstract class AuthTestSupport {
 
     @Autowired
     protected MockMvc mockMvc;
