@@ -54,3 +54,25 @@ CREATE TABLE store
 );
 
 ```
+
+### Roles
+- ADMIN
+- MANAGER
+- STAFF
+
+### 開戶流程
+- ADMIN 幫忙申請 ENTERPRISE
+- ADMIN 幫忙 ENTERPRISE 申請 STORE
+- 開發者幫忙 STORE 申請 MANAGER 帳號
+- MANAGER 幫忙 STAFF申請 開班帳號
+
+### 開店流程
+- 開發者請MANAGER登入POS系統（需要EMAIL驗證）
+- MANAGER設定STORE可以同時開班的次數
+- MANAGER 幫忙 STAFF創建帳號
+
+### 開班
+- 每個store都有自己獨立的帳號
+- STAFF 登入帳號 
+- STAFF 開班 (並記錄LOG)
+- STAFF 關班 (並記錄LOG)
