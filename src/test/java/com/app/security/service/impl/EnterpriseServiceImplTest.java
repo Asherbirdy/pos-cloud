@@ -1,5 +1,6 @@
 package com.app.security.service.impl;
 
+import com.app.security.BaseTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class EnterpriseServiceImplTest {
+public class EnterpriseServiceImplTest extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -29,35 +30,18 @@ class EnterpriseServiceImplTest {
     private ObjectMapper objectMapper;
 
 
-
     @Test
     @DisplayName("Check Enterprise Role Permission")
     public void checkRolePermit() throws Exception {
         // admin 登入 -> 訪問 /enterprise/ 應得 200
-        Cookie adminAccessToken = loginAndGetAccessToken("admin@gmail.com", "password");
-
-        mockMvc.perform(get("/enterprise/").cookie(adminAccessToken))
+        mockMvc.perform(get("/enterprise/")
+                .cookie(adminAccessToken))
                 .andExpect(status().isOk());
 
         // user 登入 -> 訪問 /enterprise/ 應得 403
-        Cookie userAccessToken = loginAndGetAccessToken("user@gmail.com", "password");
-
-        mockMvc.perform(get("/enterprise/").cookie(userAccessToken))
+        mockMvc.perform(get("/enterprise/")
+                .cookie(userAccessToken))
                 .andExpect(status().isForbidden());
     }
 
-    private Cookie loginAndGetAccessToken(String email, String password) throws Exception {
-        Map<String, String> loginRequest = Map.of(
-                "email", email,
-                "password", password
-        );
-
-        MvcResult result = mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        return result.getResponse().getCookie("accessToken");
-    }
 }
