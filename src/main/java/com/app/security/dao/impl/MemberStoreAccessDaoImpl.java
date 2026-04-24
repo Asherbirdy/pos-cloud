@@ -23,27 +23,14 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     }
 
     @Override
-    public void createMemberByIds(String memberId, String storeId) {
+    public void createMemberByIds(MemberStoreAccessCreateRequest memberStoreAccessCreateRequest) {
 
     }
 
     @Override
-    public void getAccessByStoreId(MemberStoreAccessCreateRequest memberStoreAccessCreateRequest) {
+    public void getAccessMemberByStoreId(String memberId, String storeId) {
 
-        String sql = """
-                SELECT member_id, store_id, role
-                FROM member_store_access
-                WHERE store_id = :storeId AND member_id = :memberId
-                """;
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("memberId", memberStoreAccessCreateRequest.getMemberId());
-        map.put("storeId", memberStoreAccessCreateRequest.getStoreId());
-        map.put("role", memberStoreAccessCreateRequest.getRole());
-
-        List<MemberStoreAccess> list = namedParameterJdbcTemplate.query(sql, map, memberStoreAccessRowMapper);
     }
-
 
     @Override
     public void editMemberByStoreId(String memberId, String storeId) {

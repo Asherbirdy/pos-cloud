@@ -4,7 +4,7 @@ import com.app.security.dto.MemberStoreAccess.MemberStoreAccessCreateRequest;
 
 public interface MemberStoreAccessDao {
 
-    void createMemberByIds(String memberId, String storeId);
-    void getAccessByStoreId(MemberStoreAccessCreateRequest memberStoreAccessCreateRequest);
+    void createMemberByIds(MemberStoreAccessCreateRequest memberStoreAccessCreateRequest);
+    void getAccessMemberByStoreId(String memberId, String storeId);
     void editMemberByStoreId(String memberId, String storeId);
 }
