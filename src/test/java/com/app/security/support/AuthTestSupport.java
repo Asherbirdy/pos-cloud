@@ -1,4 +1,4 @@
-package com.app.security;
+package com.app.security.support;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;

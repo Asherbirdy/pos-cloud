@@ -1,7 +1,6 @@
 package com.app.security.service.impl;
 
-import com.app.security.AuthTestSupport;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.app.security.support.AuthTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

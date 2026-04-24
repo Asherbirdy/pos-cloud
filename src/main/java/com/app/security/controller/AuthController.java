@@ -4,6 +4,7 @@ import com.app.security.dto.Auth.AuthLoginResponse;
 import com.app.security.dto.Auth.AuthRegisterResponse;
 import com.app.security.dto.Auth.LoginRequest;
 import com.app.security.dto.Auth.RegisterRequest;
+import com.app.security.dto.Response;
 import com.app.security.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,5 +35,10 @@ public class AuthController {
     public ResponseEntity<AuthLoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         AuthLoginResponse user = authService.login(loginRequest);
         return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    @PostMapping("/register-admin")
+    public Response<Void> registerAdmin() {
+        return new Response<>("Success Register Admin", null, HttpStatus.CREATED);
     }
 }
