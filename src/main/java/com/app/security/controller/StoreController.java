@@ -2,6 +2,7 @@ package com.app.security.controller;
 
 import com.app.security.dto.Response;
 import com.app.security.dto.Store.StoreCreateRequest;
+import com.app.security.dto.Store.StoreEditRequest;
 import com.app.security.model.Store;
 import com.app.security.service.StoreService;
 import jakarta.validation.Valid;
@@ -35,10 +36,9 @@ public class StoreController {
 
     @PatchMapping("/{store_id}")
     public Response<Void> edit(@PathVariable String store_id,
-                               @Valid @RequestBody StoreCreateRequest request,
-                               @PathVariable String enterpriseId
-    ) {
-        storeService.edit(store_id, request.getName());
+                               @Valid @RequestBody StoreEditRequest request,
+                               @PathVariable String enterpriseId) {
+        storeService.edit(store_id, request.getName(), request.getIsActive(), request.getRunning_devices_limit());
         return new Response<>("Store Edit", null, HttpStatus.OK);
     }
 }

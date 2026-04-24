@@ -35,12 +35,13 @@ CREATE table IF NOT EXISTS enterprise
 
 CREATE TABLE IF NOT EXISTS store
 (
-    store_id       VARCHAR(64) PRIMARY KEY,
-    enterprise_id  VARCHAR(64) NOT NULL,
-    name           VARCHAR(255) NOT NULL,
-    is_active      BOOLEAN DEFAULT TRUE,
-    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    store_id              VARCHAR(64) PRIMARY KEY,
+    enterprise_id         VARCHAR(64)  NOT NULL,
+    name                  VARCHAR(255) NOT NULL,
+    running_devices_limit INT       DEFAULT 1,
+    is_active             BOOLEAN   DEFAULT TRUE,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_store_enterprise
         FOREIGN KEY (enterprise_id)

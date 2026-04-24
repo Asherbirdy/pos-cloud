@@ -9,5 +9,5 @@ public interface StoreService {
 
     void create(String enterpriseId, String name);
 
-    void edit(String storeId, String name);
+    void edit(String storeId, String name, Boolean isActive, Integer runningDevicesLimit);
 }
