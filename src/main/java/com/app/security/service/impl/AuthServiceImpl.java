@@ -139,10 +139,10 @@ public class AuthServiceImpl implements AuthService {
         String email = registerRequest.getEmail();
         String password = registerRequest.getPassword();
 
-        // 檢查 email 是否已被註冊
-        Member existingMember = memberDao.getMemberByEmail(email);
-        if (existingMember != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "EMAIL_ALREADY_USED");
+        // 檢查是否已有 admin
+        List<Member> existingAdmins = memberDao.getRoleMembers("admin");
+        if (!existingAdmins.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ADMIN_ALREADY_EXISTS");
         }
 
         // hash 密碼並建立 admin
