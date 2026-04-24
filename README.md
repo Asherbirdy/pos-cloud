@@ -60,7 +60,7 @@ CREATE TABLE member_store_access
     member_id     VARCHAR(36) NOT NULL,
     enterprise_id VARCHAR(64) NOT NULL,
     store_id      VARCHAR(64) NOT NULL,
-    role          VARCHAR(50) DEFAULT 'STAFF', -- 可選：每個 store 有不同角色                                                                                                          
+    role          VARCHAR(50) DEFAULT 'STORE_STAFF', -- 可選：每個 store 有不同角色                                                                                                          
     created_at    TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_msa_member FOREIGN KEY (member_id) REFERENCES member (member_id),
     CONSTRAINT fk_msa_enterprise FOREIGN KEY (enterprise_id) REFERENCES enterprise (enterprise_id),
@@ -74,6 +74,10 @@ CREATE TABLE member_store_access
 - ADMIN
 - MANAGER
 - STAFF
+
+## STORE_ROLE
+- STORE_MANAGER
+- STORE_STAFF
 
 ### 啟動專案流程
 - 創建TABLE至資料庫
