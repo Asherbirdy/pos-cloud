@@ -90,8 +90,8 @@ CREATE TABLE member_store_access
 - STORE_MANAGER 幫忙 STORE_STAFF申請 開班帳號
 
 ### 開店流程
-- 開發者請MANAGER登入POS系統（需要EMAIL驗證）
-- MANAGER設定STORE可以同時開班的次數
+- 開發者請 MANAGER 登入POS系統（需要EMAIL驗證）
+- MANAGER 設定 STORE 可以同時開班的次數
 - MANAGER 幫忙 STAFF創建帳號
 
 ### 開班
