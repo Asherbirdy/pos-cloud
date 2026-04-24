@@ -1,6 +1,8 @@
 package com.app.security.controller;
 
+import com.app.security.dto.MemberStoreAccess.MemberStoreAccessCreateRequest;
 import com.app.security.dto.Response;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberStoreAccessController {
 
     @PostMapping("/")
-    public Response<String> create() {
+    public Response<String> create(@Valid @RequestBody MemberStoreAccessCreateRequest request) {
         return new Response<>("Create Member Store Access", null, HttpStatus.CREATED);
     }
 
