@@ -13,18 +13,13 @@ public class MemberStoreAccessController {
         return new Response<>("Create Member Store Access", null, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public Response<String> getById(@PathVariable String id) {
+    @GetMapping("/{storeId}")
+    public Response<String> getAccessByStoreId(@PathVariable String storeId) {
         return new Response<>("Get Member Store Access", null, HttpStatus.OK);
     }
 
-    @GetMapping("/member/{memberId}")
-    public Response<String> getByMemberId(@PathVariable String memberId) {
-        return new Response<>("Get Member Store Access By MemberId", null, HttpStatus.OK);
-    }
-
-    @PatchMapping("/{id}")
-    public Response<String> update(@PathVariable String id) {
+    @PatchMapping("/{memberStoreAccessId}")
+    public Response<String> update(@PathVariable String memberStoreAccessId) {
         return new Response<>("Update Member Store Access", null, HttpStatus.OK);
     }
 }

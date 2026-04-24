@@ -85,7 +85,9 @@ public class MySecurityConfig {
 
                         // 只有 ADMIN 才能訪問
                         .requestMatchers(
-                                "/enterprise/**")
+                                "/enterprise/**",
+                                "/member-store-access/**"
+                        )
                         .hasAuthority("admin")
 
                         // 登出和查詢目前使用者需要認證
