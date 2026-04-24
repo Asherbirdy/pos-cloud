@@ -68,7 +68,7 @@ CREATE TABLE store
 ### 企業開戶流程
 - ADMIN 幫忙申請 ENTERPRISE
 - ADMIN 幫忙 ENTERPRISE 申請 STORE
-- 開發者幫忙 STORE 申請 MANAGER 帳號
+- ADMIN 幫忙 STORE 申請 MANAGER 帳號
 - MANAGER 幫忙 STAFF申請 開班帳號
 
 ### 開店流程
