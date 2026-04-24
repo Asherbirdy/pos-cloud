@@ -22,6 +22,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -130,6 +131,37 @@ public class AuthServiceImpl implements AuthService {
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(0);
         response.addCookie(refreshCookie);
+    }
+
+    @Override
+    public AuthRegisterResponse registerAdmin(RegisterRequest registerRequest){
+        String name = registerRequest.getName();
+        String email = registerRequest.getEmail();
+        String password = registerRequest.getPassword();
+
+        // 檢查 email 是否已被註冊
+        Member existingMember = memberDao.getMemberByEmail(email);
+        if (existingMember != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "EMAIL_ALREADY_USED");
+        }
+
+        // hash 密碼並建立 admin
+        String hashedPassword = passwordEncoder.encode(password);
+        Member member = new Member();
+        member.setName(name);
+        member.setEmail(email);
+        member.setPassword(hashedPassword);
+        member.setRole("admin");
+
+        String memberId = memberDao.createMember(member);
+
+        // 建立 refresh token 並存入資料庫
+        String refreshTokenStr = createRefreshToken(memberId);
+
+        // 產生 JWT 並設定 Cookie
+        attachCookieToResponse(memberId, name, email, "admin", refreshTokenStr);
+
+        return new AuthRegisterResponse(name, memberId, "admin");
     }
 
     private ServletRequestAttributes getRequestAttributes() {

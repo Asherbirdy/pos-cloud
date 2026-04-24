@@ -12,4 +12,6 @@ public interface AuthService {
     AuthLoginResponse login(LoginRequest loginRequest);
 
     void logout();
+
+    AuthRegisterResponse registerAdmin(RegisterRequest registerRequest);
 }

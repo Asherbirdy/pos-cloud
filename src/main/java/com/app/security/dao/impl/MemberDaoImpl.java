@@ -79,6 +79,17 @@ public class MemberDaoImpl implements MemberDao {
     }
 
     @Override
+    public List<Member> getRoleMembers(String role) {
+        String sql = "SELECT member_id, name, email, password, role, created_at, updated_at "
+                + "FROM member WHERE role = :role";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("role", role);
+
+        return namedParameterJdbcTemplate.query(sql, map, memberRowMapper);
+    }
+
+    @Override
     public void updateRole(String memberId, String role) {
         String sql = "UPDATE member SET role = :role, updated_at = NOW() WHERE member_id = :memberId";
 
