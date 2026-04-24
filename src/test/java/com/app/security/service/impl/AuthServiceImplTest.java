@@ -1,6 +1,6 @@
 package com.app.security.service.impl;
 
-import com.app.security.AuthTestSupport;
+import com.app.security.support.AuthTestSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.RequestBuilder;

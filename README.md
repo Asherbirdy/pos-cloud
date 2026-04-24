@@ -61,7 +61,11 @@ CREATE TABLE store
 - MANAGER
 - STAFF
 
-### 開戶流程
+### 啟動專案流程
+- 創建TABLE至資料庫
+- 打DEV_REGISTER 建立ADMIN帳號
+
+### 企業開戶流程
 - ADMIN 幫忙申請 ENTERPRISE
 - ADMIN 幫忙 ENTERPRISE 申請 STORE
 - 開發者幫忙 STORE 申請 MANAGER 帳號
