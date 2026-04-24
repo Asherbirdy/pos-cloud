@@ -8,7 +8,8 @@
       "Bash(ls /Users/riversoft/Desktop/SP/pos-cloud/mvnw*)",
       "Read(//usr/local/bin/**)",
       "Read(//opt/homebrew/bin/**)",
-      "Read(//Users/riversoft/**)"
+      "Read(//Users/riversoft/**)",
+      "Bash(./mvnw compile:*)"
     ]
   }
 }
