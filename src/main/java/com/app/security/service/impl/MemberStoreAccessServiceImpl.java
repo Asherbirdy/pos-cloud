@@ -24,8 +24,7 @@ public class MemberStoreAccessServiceImpl implements MemberStoreAccessService {
 
     @Override
     public List<MemberStoreAccess> getByStoreId(String storeId) {
-        // TODO: implement with DAO
-        return List.of();
+        return memberStoreAccessDao.getAccessByStoreId(storeId);
     }
 
     @Override

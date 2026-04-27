@@ -2,11 +2,13 @@ package com.app.security.dao.impl;
 
 import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.enums.StoreRole;
+import com.app.security.model.MemberStoreAccess;
 import com.app.security.rowmapper.MemberStoreAccessRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -45,8 +47,17 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     }
 
     @Override
-    public void getAccessMemberByStoreId(String memberId, String storeId) {
+    public List<MemberStoreAccess> getAccessByStoreId(String storeId) {
+        String sql = """
+                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, status, created_at
+                FROM member_store_access
+                WHERE store_id = :storeId
+                """;
 
+        Map<String, Object> map = new HashMap<>();
+        map.put("storeId", storeId);
+
+        return namedParameterJdbcTemplate.query(sql, map, memberStoreAccessRowMapper);
     }
 
     @Override
