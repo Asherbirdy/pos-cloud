@@ -1,6 +1,8 @@
 package com.app.security.dto.MemberStoreAccess;
 
+import com.app.security.enums.StoreRole;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class MemberStoreAccessCreateRequest {
 
@@ -10,8 +12,8 @@ public class MemberStoreAccessCreateRequest {
     @NotBlank
     private String storeId;
 
-    @NotBlank
-    private String role;
+    @NotNull
+    private StoreRole role;
 
     public String getMemberId() {
         return memberId;
@@ -29,11 +31,11 @@ public class MemberStoreAccessCreateRequest {
         this.storeId = storeId;
     }
 
-    public String getRole() {
+    public StoreRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(StoreRole role) {
         this.role = role;
     }
 }

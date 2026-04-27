@@ -9,7 +9,9 @@
       "Read(//usr/local/bin/**)",
       "Read(//opt/homebrew/bin/**)",
       "Read(//Users/riversoft/**)",
-      "Bash(./mvnw compile:*)"
+      "Bash(./mvnw compile:*)",
+      "Bash(xargs ls:*)",
+      "Bash(mvn clean:*)"
     ]
   }
 }

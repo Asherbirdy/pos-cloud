@@ -1,23 +1,25 @@
 package com.app.security.model;
 
+import com.app.security.enums.StoreRole;
+
 import java.util.Date;
 
 public class MemberStoreAccess {
 
-    private String id;
+    private String memberStoreAccessId;
     private String memberId;
     private String enterpriseId;
     private String storeId;
-    private String role;
+    private StoreRole role;
     private String status;
     private Date createdAt;
 
-    public String getId() {
-        return id;
+    public String getMemberStoreAccessId() {
+        return memberStoreAccessId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setMemberStoreAccessId(String memberStoreAccessId) {
+        this.memberStoreAccessId = memberStoreAccessId;
     }
 
     public String getMemberId() {
@@ -44,11 +46,11 @@ public class MemberStoreAccess {
         this.storeId = storeId;
     }
 
-    public String getRole() {
+    public StoreRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(StoreRole role) {
         this.role = role;
     }
 

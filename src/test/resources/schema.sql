@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS store
 
 CREATE TABLE IF NOT EXISTS member_store_access
 (
-    id            VARCHAR(36) PRIMARY KEY,
+    member_store_access_id VARCHAR(36) PRIMARY KEY,
     member_id     VARCHAR(36)  NOT NULL,
     enterprise_id VARCHAR(64)  NOT NULL,
     store_id      VARCHAR(64)  NOT NULL,
