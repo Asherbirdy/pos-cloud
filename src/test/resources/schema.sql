@@ -48,3 +48,26 @@ CREATE TABLE IF NOT EXISTS store
             REFERENCES enterprise (enterprise_id)
             ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS member_store_access
+(
+    member_store_access_id VARCHAR(36) PRIMARY KEY,
+    member_id     VARCHAR(36)  NOT NULL,
+    enterprise_id VARCHAR(64)  NOT NULL,
+    store_id      VARCHAR(64)  NOT NULL,
+    role          VARCHAR(50)  DEFAULT 'STORE_STAFF',
+    is_active     BOOLEAN      DEFAULT TRUE,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_msa_member
+        FOREIGN KEY (member_id)
+            REFERENCES member (member_id),
+    CONSTRAINT fk_msa_enterprise
+        FOREIGN KEY (enterprise_id)
+            REFERENCES enterprise (enterprise_id),
+    CONSTRAINT fk_msa_store
+        FOREIGN KEY (store_id)
+            REFERENCES store (store_id),
+    CONSTRAINT uk_member_store
+        UNIQUE (member_id, store_id)
+);
