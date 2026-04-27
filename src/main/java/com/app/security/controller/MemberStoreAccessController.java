@@ -37,7 +37,7 @@ public class MemberStoreAccessController {
     public Response<Void> update(@PathVariable String memberStoreAccessId,
                                  @Valid @RequestBody MemberStoreAccessUpdateRequest request) {
         System.out.println("memberStoreAccessId" + memberStoreAccessId);
-        memberStoreAccessService.update(memberStoreAccessId, request.getRole(), request.getStatus());
+        memberStoreAccessService.update(memberStoreAccessId, request.getRole(), request.getIsActive());
         return new Response<>("Update Member Store Access", null, HttpStatus.OK);
     }
 }

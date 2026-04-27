@@ -11,5 +11,5 @@ public interface MemberStoreAccessService {
 
     List<MemberStoreAccess> getByStoreId(String storeId);
 
-    void update(String memberStoreAccessId, StoreRole role, String status);
+    void update(String memberStoreAccessId, StoreRole role, Boolean isActive);
 }

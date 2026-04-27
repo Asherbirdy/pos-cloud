@@ -28,7 +28,7 @@ public class MemberStoreAccessServiceImpl implements MemberStoreAccessService {
     }
 
     @Override
-    public void update(String memberStoreAccessId, StoreRole role, String status) {
-        memberStoreAccessDao.updateById(memberStoreAccessId, role, status);
+    public void update(String memberStoreAccessId, StoreRole role, Boolean isActive) {
+        memberStoreAccessDao.updateById(memberStoreAccessId, role, isActive);
     }
 }

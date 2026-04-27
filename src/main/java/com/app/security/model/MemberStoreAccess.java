@@ -11,7 +11,7 @@ public class MemberStoreAccess {
     private String enterpriseId;
     private String storeId;
     private StoreRole role;
-    private String status;
+    private Boolean isActive;
     private Date createdAt;
 
     public String getMemberStoreAccessId() {
@@ -54,12 +54,12 @@ public class MemberStoreAccess {
         this.role = role;
     }
 
-    public String getStatus() {
-        return status;
+    public Boolean getIsActive() {
+        return isActive;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
     public Date getCreatedAt() {

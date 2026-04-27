@@ -52,7 +52,7 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     @Override
     public List<MemberStoreAccess> getAccessByStoreId(String storeId) {
         String sql = """
-                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, status, created_at
+                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, is_active, created_at
                 FROM member_store_access
                 WHERE store_id = :storeId
                 """;
@@ -64,20 +64,18 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     }
 
     @Override
-    public void updateById(String memberStoreAccessId, StoreRole role, String status) {
+    public void updateById(String memberStoreAccessId, StoreRole role, Boolean isActive) {
         String sql = """
                 UPDATE member_store_access
-                SET role   = :role,
-                    status = :status
+                SET role      = :role,
+                    is_active = :isActive
                 WHERE member_store_access_id = :memberStoreAccessId
                 """;
 
-        System.out.println(sql);
         Map<String, Object> map = new HashMap<>();
         map.put("memberStoreAccessId", memberStoreAccessId);
         map.put("role", role == null ? null : role.name());
-        map.put("status", status);
-        System.out.println("noa" + map);
+        map.put("isActive", isActive);
 
         namedParameterJdbcTemplate.update(sql, map);
     }
