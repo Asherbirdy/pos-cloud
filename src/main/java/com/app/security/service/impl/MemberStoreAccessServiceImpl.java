@@ -29,6 +29,6 @@ public class MemberStoreAccessServiceImpl implements MemberStoreAccessService {
 
     @Override
     public void update(String memberStoreAccessId, StoreRole role, String status) {
-        // TODO: implement with DAO
+        memberStoreAccessDao.updateById(memberStoreAccessId, role, status);
     }
 }

@@ -9,5 +9,5 @@ public interface MemberStoreAccessDao {
 
     void createMemberByIds(String memberId, String storeId, StoreRole role);
     List<MemberStoreAccess> getAccessByStoreId(String storeId);
-    void editMemberByStoreId(String memberId, String storeId);
+    void updateById(String memberStoreAccessId, StoreRole role, String status);
 }

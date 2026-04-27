@@ -1,6 +1,7 @@
 package com.app.security.controller;
 
 import com.app.security.dto.MemberStoreAccess.MemberStoreAccessCreateRequest;
+import com.app.security.dto.MemberStoreAccess.MemberStoreAccessUpdateRequest;
 import com.app.security.dto.Response;
 import com.app.security.model.MemberStoreAccess;
 import com.app.security.service.MemberStoreAccessService;
@@ -33,8 +34,10 @@ public class MemberStoreAccessController {
     }
 
     @PatchMapping("/{memberStoreAccessId}")
-    public Response<Void> update(@PathVariable String memberStoreAccessId) {
-        memberStoreAccessService.update(memberStoreAccessId, null, null);
+    public Response<Void> update(@PathVariable String memberStoreAccessId,
+                                 @Valid @RequestBody MemberStoreAccessUpdateRequest request) {
+        System.out.println("memberStoreAccessId" + memberStoreAccessId);
+        memberStoreAccessService.update(memberStoreAccessId, request.getRole(), request.getStatus());
         return new Response<>("Update Member Store Access", null, HttpStatus.OK);
     }
 }

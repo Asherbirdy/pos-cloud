@@ -4,6 +4,8 @@ import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.enums.StoreRole;
 import com.app.security.model.MemberStoreAccess;
 import com.app.security.rowmapper.MemberStoreAccessRowMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
 
 
+    private static final Logger log = LoggerFactory.getLogger(MemberStoreAccessDaoImpl.class);
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final MemberStoreAccessRowMapper memberStoreAccessRowMapper;
@@ -61,7 +64,21 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     }
 
     @Override
-    public void editMemberByStoreId(String memberId, String storeId) {
+    public void updateById(String memberStoreAccessId, StoreRole role, String status) {
+        String sql = """
+                UPDATE member_store_access
+                SET role   = :role,
+                    status = :status
+                WHERE member_store_access_id = :memberStoreAccessId
+                """;
 
+        System.out.println(sql);
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberStoreAccessId", memberStoreAccessId);
+        map.put("role", role == null ? null : role.name());
+        map.put("status", status);
+        System.out.println("noa" + map);
+
+        namedParameterJdbcTemplate.update(sql, map);
     }
 }
