@@ -23,6 +23,8 @@
 - 開發者請 MANAGER 登入POS系統（需要EMAIL驗證）
 - MANAGER 設定 STORE 可以同時開班的次數
 - MANAGER 幫忙 STAFF創建帳號
+- MemberStoreAccess 可以看自己有哪些權限
+
 
 ### 開班
 - 每個store都有自己獨立的帳號
