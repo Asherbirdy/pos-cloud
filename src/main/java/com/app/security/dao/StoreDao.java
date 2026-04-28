@@ -8,6 +8,8 @@ public interface StoreDao {
 
     List<Store> getAllStoreByEnterpriseId(String enterpriseId);
 
+    Store getStoreById(String storeId);
+
     void createStore(String enterpriseId, String name);
 
     void editStore(String store_id, String name, Boolean isActive, Integer runningDevicesLimit);

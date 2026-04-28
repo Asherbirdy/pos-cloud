@@ -39,6 +39,21 @@ public class StoreDaoImpl implements StoreDao {
     }
 
     @Override
+    public Store getStoreById(String storeId) {
+        String sql = """
+                SELECT store_id, enterprise_id, name, is_active, running_devices_limit, created_at, updated_at
+                FROM store
+                WHERE store_id = :storeId
+                """;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("storeId", storeId);
+
+        List<Store> list = namedParameterJdbcTemplate.query(sql, map, rowMapper);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    @Override
     public void createStore(String enterpriseId, String name) {
         String storeId = UUID.randomUUID().toString();
         String sql = """
