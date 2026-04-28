@@ -85,3 +85,18 @@ CREATE TABLE IF NOT EXISTS store_product_category
             REFERENCES store (store_id)
             ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS store_product_item
+(
+    store_product_item_id     VARCHAR(36) PRIMARY KEY,
+    store_product_category_id VARCHAR(36)    NOT NULL,
+    name                      VARCHAR(255)   NOT NULL,
+    current_price             DECIMAL(10, 2) NOT NULL,
+    created_at                TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at                TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_store_product_item_category
+        FOREIGN KEY (store_product_category_id)
+            REFERENCES store_product_category (product_category_id)
+            ON DELETE CASCADE
+);
