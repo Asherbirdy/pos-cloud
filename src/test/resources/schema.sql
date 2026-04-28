@@ -100,3 +100,24 @@ CREATE TABLE IF NOT EXISTS store_product_item
             REFERENCES store_product_category (product_category_id)
             ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS store_shift
+(
+    store_shift_id VARCHAR(36) PRIMARY KEY,
+    store_id       VARCHAR(64) NOT NULL,
+    member_id      VARCHAR(36) NOT NULL,
+    date           DATE        NOT NULL,
+    status         VARCHAR(20) NOT NULL DEFAULT 'OPEN',
+    open_time      TIMESTAMP,
+    close_time     TIMESTAMP,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_store_shift_store
+        FOREIGN KEY (store_id)
+            REFERENCES store (store_id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_store_shift_member
+        FOREIGN KEY (member_id)
+            REFERENCES member (member_id)
+);
