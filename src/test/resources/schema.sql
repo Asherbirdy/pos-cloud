@@ -121,3 +121,46 @@ CREATE TABLE IF NOT EXISTS store_shift
         FOREIGN KEY (member_id)
             REFERENCES member (member_id)
 );
+
+CREATE TABLE IF NOT EXISTS store_checkout
+(
+    store_checkout_id VARCHAR(36) PRIMARY KEY,
+    store_id          VARCHAR(64)    NOT NULL,
+    store_shift_id    VARCHAR(36)    NOT NULL,
+    member_id         VARCHAR(36)    NOT NULL,
+    settle_price      DECIMAL(10, 2) NOT NULL,
+    order_status      VARCHAR(20)    NOT NULL DEFAULT 'COMPLETED',
+    checkout_at       TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
+    created_at        TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_store_checkout_store
+        FOREIGN KEY (store_id)
+            REFERENCES store (store_id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_store_checkout_shift
+        FOREIGN KEY (store_shift_id)
+            REFERENCES store_shift (store_shift_id),
+    CONSTRAINT fk_store_checkout_member
+        FOREIGN KEY (member_id)
+            REFERENCES member (member_id)
+);
+
+CREATE TABLE IF NOT EXISTS store_checkout_item
+(
+    store_checkout_item_id VARCHAR(36) PRIMARY KEY,
+    store_checkout_id      VARCHAR(36)    NOT NULL,
+    store_product_item_id  VARCHAR(36)    NOT NULL,
+    quantity               INT            NOT NULL DEFAULT 1,
+    unit_price             DECIMAL(10, 2) NOT NULL,
+    subtotal               DECIMAL(10, 2) NOT NULL,
+    created_at             TIMESTAMP               DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_store_checkout_item_checkout
+        FOREIGN KEY (store_checkout_id)
+            REFERENCES store_checkout (store_checkout_id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_store_checkout_item_product
+        FOREIGN KEY (store_product_item_id)
+            REFERENCES store_product_item (store_product_item_id)
+);
