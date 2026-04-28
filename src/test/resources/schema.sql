@@ -71,3 +71,17 @@ CREATE TABLE IF NOT EXISTS member_store_access
     CONSTRAINT uk_member_store
         UNIQUE (member_id, store_id)
 );
+
+CREATE TABLE IF NOT EXISTS store_product_category
+(
+    product_category_id VARCHAR(36) PRIMARY KEY,
+    name                VARCHAR(255) NOT NULL,
+    store_id            VARCHAR(64)  NOT NULL,
+    created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_store_product_category_store
+        FOREIGN KEY (store_id)
+            REFERENCES store (store_id)
+            ON DELETE CASCADE
+);
