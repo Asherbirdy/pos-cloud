@@ -1,8 +1,8 @@
-package com.app.security.dto.ProductCategory;
+package com.app.security.dto.StoreProductCategory;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class ProductCategoryCreateRequest {
+public class StoreProductCategoryCreateRequest {
 
     @NotBlank
     private String name;

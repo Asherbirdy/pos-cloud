@@ -25,6 +25,16 @@ Controller → Service (interface + impl) → DAO (interface + impl) → Postgre
 
 All code lives under `com.app.security`. DAO layer uses `NamedParameterJdbcTemplate` with raw SQL and `RowMapper` classes for result mapping.
 
+### Model / RowMapper / schema.sql 同步規則
+
+當改動到下列任一檔案時，必須同步檢查並更新另外兩個，保持三者一致：
+
+- `src/main/java/com/app/security/model/*.java`（model 欄位、型別）
+- `src/main/java/com/app/security/rowmapper/*.java`（DB 欄位 → model setter 的對應）
+- `src/test/resources/schema.sql`（DB 表結構、欄位名、型別、約束）
+
+慣例：DB 欄位用 snake_case（如 `product_category_id`），Java model 欄位用 camelCase（如 `productCategoryId`），RowMapper 負責橋接兩者。新增欄位、改名、改型別、加減約束時都要三邊一起改。
+
 ### Authentication & Security
 
 - Stateless JWT auth with HttpOnly cookie-based token transport

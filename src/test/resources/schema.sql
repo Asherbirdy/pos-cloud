@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS member_store_access
         UNIQUE (member_id, store_id)
 );
 
-CREATE TABLE IF NOT EXISTS product_category
+CREATE TABLE IF NOT EXISTS store_product_category
 (
     product_category_id VARCHAR(36) PRIMARY KEY,
     name                VARCHAR(255) NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS product_category
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_product_category_store
+    CONSTRAINT fk_store_product_category_store
         FOREIGN KEY (store_id)
             REFERENCES store (store_id)
             ON DELETE CASCADE
