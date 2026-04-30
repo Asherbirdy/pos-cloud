@@ -99,7 +99,8 @@ public class MySecurityConfig {
                         .requestMatchers(
                                 "/logout",
                                 "/member/**",
-                                "/storeShift/**"
+                                "/storeShift/**",
+                                "/product-category/**"
                         ).authenticated()
 
                         .anyRequest().denyAll()

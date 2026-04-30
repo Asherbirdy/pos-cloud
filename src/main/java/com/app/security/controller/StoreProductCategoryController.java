@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/store/{storeId}/product-category")
+@RequestMapping("/product-category")
 public class StoreProductCategoryController {
 
     private final StoreProductCategoryService storeProductCategoryService;
@@ -29,7 +29,7 @@ public class StoreProductCategoryController {
      */
     @GetMapping("/")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<List<StoreProductCategory>> getAll(@PathVariable String storeId) {
+    public Response<List<StoreProductCategory>> getAll(@RequestParam String storeId) {
         List<StoreProductCategory> list = storeProductCategoryService.getAllByStoreId(storeId);
         return new Response<>("Success", list, HttpStatus.OK);
     }
@@ -39,7 +39,7 @@ public class StoreProductCategoryController {
      */
     @GetMapping("/{productCategoryId}")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<StoreProductCategory> getById(@PathVariable String storeId,
+    public Response<StoreProductCategory> getById(@RequestParam String storeId,
                                                   @PathVariable String productCategoryId) {
         StoreProductCategory storeProductCategory = storeProductCategoryService.getById(productCategoryId);
         return new Response<>("Success", storeProductCategory, HttpStatus.OK);
@@ -51,7 +51,7 @@ public class StoreProductCategoryController {
      */
     @PostMapping("/")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<Void> create(@PathVariable String storeId,
+    public Response<Void> create(@RequestParam String storeId,
                                  @Valid @RequestBody StoreProductCategoryCreateRequest request) {
         storeProductCategoryService.create(storeId, request.getName());
         return new Response<>("StoreProductCategory Create", null, HttpStatus.CREATED);
@@ -63,7 +63,7 @@ public class StoreProductCategoryController {
      */
     @PatchMapping("/{productCategoryId}")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<Void> update(@PathVariable String storeId,
+    public Response<Void> update(@RequestParam String storeId,
                                  @PathVariable String productCategoryId,
                                  @Valid @RequestBody StoreProductCategoryUpdateRequest request) {
         storeProductCategoryService.update(productCategoryId, request.getName());
@@ -76,7 +76,7 @@ public class StoreProductCategoryController {
      */
     @DeleteMapping("/{productCategoryId}")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<Void> delete(@PathVariable String storeId,
+    public Response<Void> delete(@RequestParam String storeId,
                                  @PathVariable String productCategoryId) {
         storeProductCategoryService.delete(productCategoryId);
         return new Response<>("StoreProductCategory Delete", null, HttpStatus.OK);
