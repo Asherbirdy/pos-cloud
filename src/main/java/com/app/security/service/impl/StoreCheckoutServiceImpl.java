@@ -76,7 +76,6 @@ public class StoreCheckoutServiceImpl implements StoreCheckoutService {
         if (shift.getStatus() != ShiftStatus.OPEN) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "SHIFT_NOT_OPEN");
         }
-
         StoreProductItem[] products = new StoreProductItem[items.size()];
         for (int i = 0; i < items.size(); i++) {
             StoreProductItem product = storeProductItemDao.getById(items.get(i).getStoreProductItemId());
