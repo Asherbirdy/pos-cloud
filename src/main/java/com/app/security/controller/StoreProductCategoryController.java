@@ -39,8 +39,8 @@ public class StoreProductCategoryController {
      */
     @GetMapping("/{productCategoryId}")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<StoreProductCategory> getById(@RequestParam String storeId,
-                                                  @PathVariable String productCategoryId) {
+    public Response<StoreProductCategory> getById(
+            @PathVariable String productCategoryId) {
         StoreProductCategory storeProductCategory = storeProductCategoryService.getById(productCategoryId);
         return new Response<>("Success", storeProductCategory, HttpStatus.OK);
     }
@@ -63,8 +63,7 @@ public class StoreProductCategoryController {
      */
     @PatchMapping("/{productCategoryId}")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<Void> update(@RequestParam String storeId,
-                                 @PathVariable String productCategoryId,
+    public Response<Void> update(@PathVariable String productCategoryId,
                                  @Valid @RequestBody StoreProductCategoryUpdateRequest request) {
         storeProductCategoryService.update(productCategoryId, request.getName());
         return new Response<>("StoreProductCategory Update", null, HttpStatus.OK);
@@ -76,8 +75,7 @@ public class StoreProductCategoryController {
      */
     @DeleteMapping("/{productCategoryId}")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<Void> delete(@RequestParam String storeId,
-                                 @PathVariable String productCategoryId) {
+    public Response<Void> delete(@PathVariable String productCategoryId) {
         storeProductCategoryService.delete(productCategoryId);
         return new Response<>("StoreProductCategory Delete", null, HttpStatus.OK);
     }

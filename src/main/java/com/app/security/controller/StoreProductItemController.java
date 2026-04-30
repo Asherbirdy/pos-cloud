@@ -1,8 +1,10 @@
 package com.app.security.controller;
 
+import com.app.security.aspect.RequireStoreRole;
 import com.app.security.dto.Response;
 import com.app.security.dto.StoreProductItem.StoreProductItemCreateRequest;
 import com.app.security.dto.StoreProductItem.StoreProductItemUpdateRequest;
+import com.app.security.enums.StoreRole;
 import com.app.security.model.StoreProductItem;
 import com.app.security.service.StoreProductItemService;
 import jakarta.validation.Valid;
@@ -26,7 +28,8 @@ public class StoreProductItemController {
      * 用於 POS 點餐畫面顯示商品列、後台商品管理。
      */
     @GetMapping("/")
-    public Response<List<StoreProductItem>> getAll(@PathVariable String productCategoryId) {
+    @RequireStoreRole({StoreRole.STORE_MANAGER})
+    public Response<List<StoreProductItem>> getAll(@RequestParam String productCategoryId) {
         List<StoreProductItem> list = storeProductItemService.getAllByCategoryId(productCategoryId);
         return new Response<>("Success", list, HttpStatus.OK);
     }
@@ -35,6 +38,7 @@ public class StoreProductItemController {
      * 查詢單一商品詳細資料。
      */
     @GetMapping("/{storeProductItemId}")
+    @RequireStoreRole({StoreRole.STORE_MANAGER})
     public Response<StoreProductItem> getById(@PathVariable String storeProductItemId) {
         StoreProductItem item = storeProductItemService.getById(storeProductItemId);
         return new Response<>("Success", item, HttpStatus.OK);
@@ -45,7 +49,8 @@ public class StoreProductItemController {
      * 用於後台建立菜單品項。
      */
     @PostMapping("/")
-    public Response<Void> create(@PathVariable String productCategoryId,
+    @RequireStoreRole({StoreRole.STORE_MANAGER})
+    public Response<Void> create(@RequestParam String productCategoryId,
                                  @Valid @RequestBody StoreProductItemCreateRequest request) {
         storeProductItemService.create(productCategoryId, request.getName(), request.getCurrentPrice());
         return new Response<>("StoreProductItem Create", null, HttpStatus.CREATED);
@@ -56,6 +61,7 @@ public class StoreProductItemController {
      * 用於改名、調整售價；歷史結帳單會保留當下單價，不受影響。
      */
     @PatchMapping("/{storeProductItemId}")
+    @RequireStoreRole({StoreRole.STORE_MANAGER})
     public Response<Void> update(@PathVariable String storeProductItemId,
                                  @Valid @RequestBody StoreProductItemUpdateRequest request) {
         storeProductItemService.update(storeProductItemId, request.getName(), request.getCurrentPrice());
@@ -67,6 +73,7 @@ public class StoreProductItemController {
      * 用於下架不再販售的商品。
      */
     @DeleteMapping("/{storeProductItemId}")
+    @RequireStoreRole({StoreRole.STORE_MANAGER})
     public Response<Void> delete(@PathVariable String storeProductItemId) {
         storeProductItemService.delete(storeProductItemId);
         return new Response<>("StoreProductItem Delete", null, HttpStatus.OK);

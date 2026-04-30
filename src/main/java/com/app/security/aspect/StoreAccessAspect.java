@@ -1,7 +1,11 @@
 package com.app.security.aspect;
 
+import com.app.security.dao.StoreProductCategoryDao;
+import com.app.security.dao.StoreProductItemDao;
 import com.app.security.dao.StoreShiftDao;
 import com.app.security.enums.StoreRole;
+import com.app.security.model.StoreProductCategory;
+import com.app.security.model.StoreProductItem;
 import com.app.security.model.StoreShift;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,9 +25,15 @@ import java.util.Map;
 public class StoreAccessAspect {
 
     private final StoreShiftDao storeShiftDao;
+    private final StoreProductCategoryDao storeProductCategoryDao;
+    private final StoreProductItemDao storeProductItemDao;
 
-    public StoreAccessAspect(StoreShiftDao storeShiftDao) {
+    public StoreAccessAspect(StoreShiftDao storeShiftDao,
+                             StoreProductCategoryDao storeProductCategoryDao,
+                             StoreProductItemDao storeProductItemDao) {
         this.storeShiftDao = storeShiftDao;
+        this.storeProductCategoryDao = storeProductCategoryDao;
+        this.storeProductItemDao = storeProductItemDao;
     }
 
     @Before("@annotation(requireStoreRole)")
@@ -76,6 +86,28 @@ public class StoreAccessAspect {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "STORE_SHIFT_NOT_FOUND");
                 }
                 return shift.getStoreId();
+            }
+        }
+        for (int i = 0; i < paramNames.length; i++) {
+            if ("productCategoryId".equals(paramNames[i]) && args[i] != null) {
+                StoreProductCategory category = storeProductCategoryDao.getById((String) args[i]);
+                if (category == null) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "STORE_PRODUCT_CATEGORY_NOT_FOUND");
+                }
+                return category.getStoreId();
+            }
+        }
+        for (int i = 0; i < paramNames.length; i++) {
+            if ("storeProductItemId".equals(paramNames[i]) && args[i] != null) {
+                StoreProductItem item = storeProductItemDao.getById((String) args[i]);
+                if (item == null) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "STORE_PRODUCT_ITEM_NOT_FOUND");
+                }
+                StoreProductCategory category = storeProductCategoryDao.getById(item.getStoreProductCategoryId());
+                if (category == null) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "STORE_PRODUCT_CATEGORY_NOT_FOUND");
+                }
+                return category.getStoreId();
             }
         }
         return null;
