@@ -100,7 +100,8 @@ public class MySecurityConfig {
                                 "/logout",
                                 "/member/**",
                                 "/storeShift/**",
-                                "/product-category/**"
+                                "/product-category/**",
+                                "/product-item/**"
                         ).authenticated()
 
                         .anyRequest().denyAll()
