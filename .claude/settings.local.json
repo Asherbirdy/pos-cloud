@@ -13,7 +13,9 @@
       "Bash(xargs ls:*)",
       "Bash(mvn clean:*)",
       "Bash(mvn test *)",
-      "Bash(mvn -q -Dtest=StoreShiftControllerTest test)"
+      "Bash(mvn -q -Dtest=StoreShiftControllerTest test)",
+      "Bash(mvn -q test -Dtest=StoreProductCategoryControllerTest)",
+      "Bash(find /Users/asherlien/Desktop/project/pos-cloud/src/main -name \"MySecurityConfig.java\" -exec cat {} \\\\;)"
     ]
   }
 }
