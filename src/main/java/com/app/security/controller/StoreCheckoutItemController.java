@@ -41,7 +41,7 @@ public class StoreCheckoutItemController {
 
     /**
      * 新增一筆結帳明細到指定結帳單。
-     * unitPrice 為當下交易單價（保留歷史價格），subtotal 由 service 以 unitPrice * quantity 計算。
+     * unitPrice 為當下交易單價（保留歷史價格）。
      * 若結帳單不存在回傳 404 STORE_CHECKOUT_NOT_FOUND。
      */
     @PostMapping("/")

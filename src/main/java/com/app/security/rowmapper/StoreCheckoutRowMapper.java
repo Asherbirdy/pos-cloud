@@ -18,7 +18,6 @@ public class StoreCheckoutRowMapper implements RowMapper<StoreCheckout> {
         checkout.setStoreId(resultSet.getString("store_id"));
         checkout.setStoreShiftId(resultSet.getString("store_shift_id"));
         checkout.setMemberId(resultSet.getString("member_id"));
-        checkout.setSettlePrice(resultSet.getBigDecimal("settle_price"));
         checkout.setOrderStatus(OrderStatus.valueOf(resultSet.getString("order_status")));
         checkout.setCheckoutAt(resultSet.getTimestamp("checkout_at"));
         checkout.setCreatedAt(resultSet.getTimestamp("created_at"));

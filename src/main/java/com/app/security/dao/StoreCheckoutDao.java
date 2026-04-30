@@ -2,7 +2,6 @@ package com.app.security.dao;
 
 import com.app.security.model.StoreCheckout;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface StoreCheckoutDao {
@@ -13,7 +12,7 @@ public interface StoreCheckoutDao {
 
     StoreCheckout getById(String storeCheckoutId);
 
-    String create(String storeId, String storeShiftId, String memberId, BigDecimal settlePrice);
+    String create(String storeId, String storeShiftId, String memberId);
 
     void cancel(String storeCheckoutId);
 }

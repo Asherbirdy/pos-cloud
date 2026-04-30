@@ -1,5 +1,6 @@
 package com.app.security.rowmapper;
 
+import com.app.security.enums.OrderStatus;
 import com.app.security.model.StoreCheckoutItem;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ public class StoreCheckoutItemRowMapper implements RowMapper<StoreCheckoutItem> 
         item.setStoreProductItemId(resultSet.getString("store_product_item_id"));
         item.setQuantity(resultSet.getInt("quantity"));
         item.setUnitPrice(resultSet.getBigDecimal("unit_price"));
-        item.setSubtotal(resultSet.getBigDecimal("subtotal"));
+        item.setStatus(OrderStatus.valueOf(resultSet.getString("status")));
         item.setCreatedAt(resultSet.getTimestamp("created_at"));
         return item;
     }

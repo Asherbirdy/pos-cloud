@@ -1,6 +1,7 @@
 package com.app.security.dao.impl;
 
 import com.app.security.dao.StoreCheckoutItemDao;
+import com.app.security.enums.OrderStatus;
 import com.app.security.model.StoreCheckoutItem;
 import com.app.security.rowmapper.StoreCheckoutItemRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Component
 public class StoreCheckoutItemDaoImpl implements StoreCheckoutItemDao {
 
-    private static final String COLUMNS = "store_checkout_item_id, store_checkout_id, store_product_item_id, quantity, unit_price, subtotal, created_at";
+    private static final String COLUMNS = "store_checkout_item_id, store_checkout_id, store_product_item_id, quantity, unit_price, status, created_at";
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -45,11 +46,11 @@ public class StoreCheckoutItemDaoImpl implements StoreCheckoutItemDao {
     }
 
     @Override
-    public String create(String storeCheckoutId, String storeProductItemId, Integer quantity, BigDecimal unitPrice, BigDecimal subtotal) {
+    public String create(String storeCheckoutId, String storeProductItemId, Integer quantity, BigDecimal unitPrice) {
         String storeCheckoutItemId = UUID.randomUUID().toString();
         String sql = """
-                INSERT INTO store_checkout_item(store_checkout_item_id, store_checkout_id, store_product_item_id, quantity, unit_price, subtotal, created_at)
-                VALUES (:storeCheckoutItemId, :storeCheckoutId, :storeProductItemId, :quantity, :unitPrice, :subtotal, NOW())
+                INSERT INTO store_checkout_item(store_checkout_item_id, store_checkout_id, store_product_item_id, quantity, unit_price, status, created_at)
+                VALUES (:storeCheckoutItemId, :storeCheckoutId, :storeProductItemId, :quantity, :unitPrice, :status, NOW())
                 """;
         Map<String, Object> map = new HashMap<>();
         map.put("storeCheckoutItemId", storeCheckoutItemId);
@@ -57,7 +58,7 @@ public class StoreCheckoutItemDaoImpl implements StoreCheckoutItemDao {
         map.put("storeProductItemId", storeProductItemId);
         map.put("quantity", quantity);
         map.put("unitPrice", unitPrice);
-        map.put("subtotal", subtotal);
+        map.put("status", OrderStatus.COMPLETED.name());
         namedParameterJdbcTemplate.update(sql, map);
         return storeCheckoutItemId;
     }

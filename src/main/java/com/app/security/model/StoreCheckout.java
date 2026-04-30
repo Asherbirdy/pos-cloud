@@ -2,7 +2,6 @@ package com.app.security.model;
 
 import com.app.security.enums.OrderStatus;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class StoreCheckout {
@@ -10,7 +9,6 @@ public class StoreCheckout {
     private String storeId;
     private String storeShiftId;
     private String memberId;
-    private BigDecimal settlePrice;
     private OrderStatus orderStatus;
     private Date checkoutAt;
     private Date createdAt;
@@ -46,14 +44,6 @@ public class StoreCheckout {
 
     public void setMemberId(String memberId) {
         this.memberId = memberId;
-    }
-
-    public BigDecimal getSettlePrice() {
-        return settlePrice;
-    }
-
-    public void setSettlePrice(BigDecimal settlePrice) {
-        this.settlePrice = settlePrice;
     }
 
     public OrderStatus getOrderStatus() {

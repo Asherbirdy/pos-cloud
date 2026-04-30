@@ -52,7 +52,7 @@ public class StoreCheckoutController {
     /**
      * 建立結帳單（出單結帳），同筆交易內一併寫入所有明細。
      * 須帶入目前 OPEN 狀態的 store_shift_id 與至少一筆 checkoutItem。
-     * 單價以該商品當下 currentPrice 為準，settlePrice 由後端 sum(subtotal) 計算。
+     * 每筆明細以該商品當下 currentPrice 寫入 unit_price，status 預設 COMPLETED。
      * 結帳人取自登入 member。任何明細不存在或班別異常會整筆 rollback。
      */
     @PostMapping("/")

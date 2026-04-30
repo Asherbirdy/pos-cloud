@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Component
@@ -78,33 +77,24 @@ public class StoreCheckoutServiceImpl implements StoreCheckoutService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "SHIFT_NOT_OPEN");
         }
 
-        BigDecimal settlePrice = BigDecimal.ZERO;
         StoreProductItem[] products = new StoreProductItem[items.size()];
-        BigDecimal[] subtotals = new BigDecimal[items.size()];
-
         for (int i = 0; i < items.size(); i++) {
-            StoreCheckoutCreateRequest.CheckoutItemLine line = items.get(i);
-            StoreProductItem product = storeProductItemDao.getById(line.getStoreProductItemId());
+            StoreProductItem product = storeProductItemDao.getById(items.get(i).getStoreProductItemId());
             if (product == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "STORE_PRODUCT_ITEM_NOT_FOUND");
             }
-            BigDecimal subtotal = product.getCurrentPrice().multiply(BigDecimal.valueOf(line.getQuantity()));
             products[i] = product;
-            subtotals[i] = subtotal;
-            settlePrice = settlePrice.add(subtotal);
         }
 
         String memberId = currentMemberId();
-        String storeCheckoutId = storeCheckoutDao.create(storeId, storeShiftId, memberId, settlePrice);
+        String storeCheckoutId = storeCheckoutDao.create(storeId, storeShiftId, memberId);
 
         for (int i = 0; i < items.size(); i++) {
-            StoreCheckoutCreateRequest.CheckoutItemLine line = items.get(i);
             storeCheckoutItemDao.create(
                     storeCheckoutId,
                     products[i].getStoreProductItemId(),
-                    line.getQuantity(),
-                    products[i].getCurrentPrice(),
-                    subtotals[i]);
+                    items.get(i).getQuantity(),
+                    products[i].getCurrentPrice());
         }
 
         return storeCheckoutId;
