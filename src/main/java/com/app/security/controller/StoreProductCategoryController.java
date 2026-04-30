@@ -39,7 +39,7 @@ public class StoreProductCategoryController {
      */
     @GetMapping("/{productCategoryId}")
     @RequireStoreRole({StoreRole.STORE_MANAGER})
-    public Response<StoreProductCategory> getById(@RequestParam String storeId,
+    public Response<StoreProductCategory> getById(@RequestParam String storeId,// 需要storeId 給 RequireStoreRole 驗證
                                                   @PathVariable String productCategoryId) {
         StoreProductCategory storeProductCategory = storeProductCategoryService.getById(productCategoryId);
         return new Response<>("Success", storeProductCategory, HttpStatus.OK);

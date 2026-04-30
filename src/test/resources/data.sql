@@ -27,3 +27,8 @@ VALUES
     ('a1b2c3d4-0001-4000-8000-000000000001','e00324b8-8c07-481b-8bce-dc4242c6678a','fdda207b-e2be-4384-aa1c-6e2bcf1e5a16','acceeb7d-59da-4edf-b543-514d728d46c8','STORE_MANAGER',true,now()),
 --     USER -> STORE_STAFF
     ('a1b2c3d4-0002-4000-8000-000000000002','92c14284-b0a8-4e2b-8dce-1f6e918b8374','fdda207b-e2be-4384-aa1c-6e2bcf1e5a16','acceeb7d-59da-4edf-b543-514d728d46c8','STORE_STAFF',true,now());
+
+-- STORE PRODUCT CATEGORY (用於 STAFF 權限測試: 真實存在的分類，aspect 可反查 storeId 後再判定角色)
+INSERT INTO store_product_category (product_category_id, name, store_id, created_at, updated_at)
+VALUES
+    ('c1d2e3f4-0001-4000-8000-000000000001','飲料','acceeb7d-59da-4edf-b543-514d728d46c8',now(),now());

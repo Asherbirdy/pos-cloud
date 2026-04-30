@@ -16,6 +16,7 @@ public class StoreProductCategoryControllerTest extends AuthTestSupport {
 
     private static final String STORE_ID = "acceeb7d-59da-4edf-b543-514d728d46c8";
     private static final String NON_EXISTENT_CATEGORY_ID = "00000000-0000-0000-0000-000000000000";
+    private static final String EXISTING_CATEGORY_ID = "c1d2e3f4-0001-4000-8000-000000000001";
     private static final String BASE_URL = "/product-category";
 
     // ===== [GET] /product-category/?storeId=... =====
@@ -66,13 +67,14 @@ public class StoreProductCategoryControllerTest extends AuthTestSupport {
     }
 
     /**
-     * 驗證：user 為 STORE_STAFF，不在允許名單內，
-     * 應被 aspect 擋下回傳 403 (INSUFFICIENT_STORE_ROLE)。
+     * 驗證：user 為 STORE_STAFF，不在允許名單內。
+     * 用真實存在的 productCategoryId，讓 aspect 反查 storeId 成功後進入角色檢查，
+     * 應被擋下回傳 403 (INSUFFICIENT_STORE_ROLE)。
      */
     @Test
     @DisplayName("user (STORE_STAFF) 登入 -> [GET] /product-category/{id} 應得 403")
     public void getByIdWithStoreStaffShouldBeForbidden() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/" + NON_EXISTENT_CATEGORY_ID)
+        mockMvc.perform(get(BASE_URL + "/" + EXISTING_CATEGORY_ID)
                         .param("storeId", STORE_ID)
                         .cookie(userAccessToken))
                 .andExpect(status().isForbidden());
@@ -129,13 +131,14 @@ public class StoreProductCategoryControllerTest extends AuthTestSupport {
     }
 
     /**
-     * 驗證：user 為 STORE_STAFF，不在允許名單內，
-     * 應被 aspect 擋下回傳 403 (INSUFFICIENT_STORE_ROLE)。
+     * 驗證：user 為 STORE_STAFF，不在允許名單內。
+     * 用真實存在的 productCategoryId，讓 aspect 反查 storeId 成功後進入角色檢查，
+     * 應被擋下回傳 403 (INSUFFICIENT_STORE_ROLE)。
      */
     @Test
     @DisplayName("user (STORE_STAFF) 登入 -> [PATCH] /product-category/{id} 應得 403")
     public void updateWithStoreStaffShouldBeForbidden() throws Exception {
-        mockMvc.perform(patch(BASE_URL + "/" + NON_EXISTENT_CATEGORY_ID)
+        mockMvc.perform(patch(BASE_URL + "/" + EXISTING_CATEGORY_ID)
                         .param("storeId", STORE_ID)
                         .cookie(userAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -160,13 +163,14 @@ public class StoreProductCategoryControllerTest extends AuthTestSupport {
     }
 
     /**
-     * 驗證：user 為 STORE_STAFF，不在允許名單內，
-     * 應被 aspect 擋下回傳 403 (INSUFFICIENT_STORE_ROLE)。
+     * 驗證：user 為 STORE_STAFF，不在允許名單內。
+     * 用真實存在的 productCategoryId，讓 aspect 反查 storeId 成功後進入角色檢查，
+     * 應被擋下回傳 403 (INSUFFICIENT_STORE_ROLE)。
      */
     @Test
     @DisplayName("user (STORE_STAFF) 登入 -> [DELETE] /product-category/{id} 應得 403")
     public void deleteWithStoreStaffShouldBeForbidden() throws Exception {
-        mockMvc.perform(delete(BASE_URL + "/" + NON_EXISTENT_CATEGORY_ID)
+        mockMvc.perform(delete(BASE_URL + "/" + EXISTING_CATEGORY_ID)
                         .param("storeId", STORE_ID)
                         .cookie(userAccessToken))
                 .andExpect(status().isForbidden());
