@@ -12,6 +12,8 @@ public interface StoreShiftDao {
 
     int countOpenByStoreId(String storeId);
 
+    List<StoreShift> getOpenByStoreId(String storeId);
+
     String openShift(String storeId, String memberId);
 
     void closeShift(String storeShiftId);

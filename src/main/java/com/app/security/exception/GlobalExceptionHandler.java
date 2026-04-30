@@ -20,6 +20,16 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(ShiftLimitReachedException.class)
+    public ResponseEntity<Map<String, Object>> handleShiftLimitReached(ShiftLimitReachedException ex) {
+        return ResponseEntity.status(ex.getStatusCode()).body(Map.of(
+                "status", ex.getStatusCode().value(),
+                "error", "SHIFT_LIMIT_REACHED",
+                "message", "已超過能開的班",
+                "openShifts", ex.getOpenShifts()
+        ));
+    }
+
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<Map<String, Object>> handleDataAccessException(DataAccessException ex) {
         String message = ex.getMostSpecificCause().getMessage();
