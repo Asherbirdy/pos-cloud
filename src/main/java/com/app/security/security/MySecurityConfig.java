@@ -80,6 +80,7 @@ public class MySecurityConfig {
                         // 註冊和登入不需要認證
                         .requestMatchers(
                                 "/auth/**",
+                                "/storeShift",
                                 "/error" // 顯示特定Error需
                         ).permitAll()
 
