@@ -24,8 +24,8 @@ public class StoreShiftController {
      * 取得指定 store 的所有班別紀錄（依開班時間新到舊排序）。
      * 用於後台檢視班表、稽核未關班的紀錄。
      */
-    @RequireStoreRole({StoreRole.STORE_MANAGER})
     @GetMapping("/")
+    @RequireStoreRole({StoreRole.STORE_MANAGER})
     public Response<List<StoreShift>> getAll(@RequestParam String storeId) {
         List<StoreShift> list = storeShiftService.getAllByStoreId(storeId);
         return new Response<>("Success", list, HttpStatus.OK);
@@ -34,8 +34,8 @@ public class StoreShiftController {
     /**
      * 查詢單筆班別詳細資料。
      */
-    @RequireStoreRole({StoreRole.STORE_MANAGER})
     @GetMapping("/{storeShiftId}")
+    @RequireStoreRole({StoreRole.STORE_MANAGER})
     public Response<StoreShift> getById(@PathVariable String storeShiftId) {
         StoreShift shift = storeShiftService.getById(storeShiftId);
         return new Response<>("Success", shift, HttpStatus.OK);
@@ -46,8 +46,8 @@ public class StoreShiftController {
      * 開班前會檢查該 store 目前 OPEN 數量是否已達 store.running_devices_limit，
      * 若已達上限則回傳 409 SHIFT_LIMIT_REACHED。
      */
-    @RequireStoreRole({StoreRole.STORE_MANAGER, StoreRole.STORE_STAFF})
     @PostMapping("/open")
+    @RequireStoreRole({StoreRole.STORE_MANAGER, StoreRole.STORE_STAFF})
     public Response<String> openShift(@RequestParam String storeId) {
         String storeShiftId = storeShiftService.openShift(storeId);
         return new Response<>("Shift Open", storeShiftId, HttpStatus.CREATED);
@@ -58,8 +58,8 @@ public class StoreShiftController {
      * 若有人忘記關班，可由 STORE_MANAGER 代為關班。
      * 已 CLOSED 的班別會回傳 409 SHIFT_ALREADY_CLOSED。
      */
-    @RequireStoreRole({StoreRole.STORE_MANAGER, StoreRole.STORE_STAFF})
     @PostMapping("/{storeShiftId}/close")
+    @RequireStoreRole({StoreRole.STORE_MANAGER, StoreRole.STORE_STAFF})
     public Response<Void> closeShift(@PathVariable String storeShiftId) {
         storeShiftService.closeShift(storeShiftId);
         return new Response<>("Shift Close", null, HttpStatus.OK);
