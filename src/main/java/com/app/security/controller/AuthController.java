@@ -25,18 +25,30 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * 一般使用者註冊（role = user）。
+     * 用於前台會員自助註冊流程。
+     */
     @PostMapping("/register")
     public ResponseEntity<AuthRegisterResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
         AuthRegisterResponse user = authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
+    /**
+     * 使用 email + 密碼登入，成功後將 access / refresh token 寫入 HttpOnly cookie。
+     * 用於前台、後台共用登入入口。
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthLoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         AuthLoginResponse user = authService.login(loginRequest);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
+    /**
+     * 建立 admin 帳號（role = admin）。
+     * 用於系統初始化或內部建立後台管理員。
+     */
     @PostMapping("/register-admin")
     public ResponseEntity<AuthRegisterResponse> registerAdmin(@Valid @RequestBody RegisterRequest registerRequest) {
         AuthRegisterResponse admin = authService.registerAdmin(registerRequest);

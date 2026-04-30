@@ -21,18 +21,29 @@ public class StoreProductCategoryController {
         this.storeProductCategoryService = storeProductCategoryService;
     }
 
+    /**
+     * 取得指定門市的所有商品分類。
+     * 用於 POS 點餐畫面分類列、後台分類管理。
+     */
     @GetMapping("/")
     public Response<List<StoreProductCategory>> getAll(@PathVariable String storeId) {
         List<StoreProductCategory> list = storeProductCategoryService.getAllByStoreId(storeId);
         return new Response<>("Success", list, HttpStatus.OK);
     }
 
+    /**
+     * 查詢單一商品分類詳細資料。
+     */
     @GetMapping("/{productCategoryId}")
     public Response<StoreProductCategory> getById(@PathVariable String productCategoryId) {
         StoreProductCategory storeProductCategory = storeProductCategoryService.getById(productCategoryId);
         return new Response<>("Success", storeProductCategory, HttpStatus.OK);
     }
 
+    /**
+     * 為指定門市新增商品分類。
+     * 用於後台建立菜單分類（飲料、餐點…）。
+     */
     @PostMapping("/")
     public Response<Void> create(@PathVariable String storeId,
                                  @Valid @RequestBody StoreProductCategoryCreateRequest request) {
@@ -40,6 +51,10 @@ public class StoreProductCategoryController {
         return new Response<>("StoreProductCategory Create", null, HttpStatus.CREATED);
     }
 
+    /**
+     * 更新商品分類名稱。
+     * 用於後台改名分類。
+     */
     @PatchMapping("/{productCategoryId}")
     public Response<Void> update(@PathVariable String productCategoryId,
                                  @Valid @RequestBody StoreProductCategoryUpdateRequest request) {
@@ -47,6 +62,10 @@ public class StoreProductCategoryController {
         return new Response<>("StoreProductCategory Update", null, HttpStatus.OK);
     }
 
+    /**
+     * 刪除商品分類。
+     * 用於後台清除不再使用的分類。
+     */
     @DeleteMapping("/{productCategoryId}")
     public Response<Void> delete(@PathVariable String productCategoryId) {
         storeProductCategoryService.delete(productCategoryId);
