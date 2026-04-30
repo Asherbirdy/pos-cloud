@@ -23,12 +23,20 @@ public class MemberController {
         this.authService = authService;
     }
 
+    /**
+     * 取得目前登入會員的個人資料。
+     * 用於前端顯示登入狀態、個人資訊頁。
+     */
     @GetMapping("/showMe")
     public Response<MemberInfoResponse> showMe() {
         MemberInfoResponse memberInfo = memberService.showMemberInfo();
         return new Response<>("Success", memberInfo, HttpStatus.OK);
     }
 
+    /**
+     * 登出：清除 token cookie 並使 refresh token 失效。
+     * 用於使用者主動登出。
+     */
     @PostMapping("/logout")
     public Response<Void> logout() {
         authService.logout();
