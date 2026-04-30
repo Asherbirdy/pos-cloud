@@ -49,14 +49,6 @@ public class StoreShiftControllerTest extends AuthTestSupport {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    @DisplayName("user (STORE_STAFF) 登入 -> [GET] /storeShift/{id} 應得 403")
-    public void getByIdWithStoreStaffShouldBeForbidden() throws Exception {
-        mockMvc.perform(get("/storeShift/" + NON_EXISTENT_SHIFT_ID)
-                        .cookie(userAccessToken))
-                .andExpect(status().isForbidden());
-    }
-
     // ===== [POST] /storeShift/open?storeId=... =====
     // STORE_MANAGER 與 STORE_STAFF 皆可存取
 

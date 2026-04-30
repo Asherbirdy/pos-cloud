@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 /**
  * 標註於 controller method，表示此 endpoint 需要該 store 的 MemberStoreAccess，
  * 且 storeRole 須在 value() 列出的角色之內。
- *
  * Aspect 會從 method 參數讀取 storeId（@RequestParam）或 storeShiftId（@PathVariable），
  * 以 storeShiftId 反查所屬 storeId，再驗證當前登入 member 的 store role。
  */
