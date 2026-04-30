@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/store/{storeId}/shift")
+@RequestMapping("/storeShift")
 public class StoreShiftController {
 
     private final StoreShiftService storeShiftService;
@@ -23,7 +23,7 @@ public class StoreShiftController {
      * 用於後台檢視班表、稽核未關班的紀錄。
      */
     @GetMapping("/")
-    public Response<List<StoreShift>> getAll(@PathVariable String storeId) {
+    public Response<List<StoreShift>> getAll(@RequestParam String storeId) {
         List<StoreShift> list = storeShiftService.getAllByStoreId(storeId);
         return new Response<>("Success", list, HttpStatus.OK);
     }
@@ -43,7 +43,7 @@ public class StoreShiftController {
      * 若已達上限則回傳 409 SHIFT_LIMIT_REACHED。
      */
     @PostMapping("/open")
-    public Response<String> openShift(@PathVariable String storeId) {
+    public Response<String> openShift(@RequestParam String storeId) {
         String storeShiftId = storeShiftService.openShift(storeId);
         return new Response<>("Shift Open", storeShiftId, HttpStatus.CREATED);
     }
