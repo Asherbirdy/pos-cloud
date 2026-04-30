@@ -72,6 +72,22 @@ public class StoreShiftDaoImpl implements StoreShiftDao {
     }
 
     @Override
+    public List<StoreShift> getOpenByStoreId(String storeId) {
+        String sql = """
+                SELECT store_shift_id, store_id, member_id, date, status, open_time, close_time, created_at, updated_at
+                FROM store_shift
+                WHERE store_id = :storeId AND status = :status
+                ORDER BY open_time DESC
+                """;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("storeId", storeId);
+        map.put("status", ShiftStatus.OPEN.name());
+
+        return namedParameterJdbcTemplate.query(sql, map, rowMapper);
+    }
+
+    @Override
     public String openShift(String storeId, String memberId) {
         String storeShiftId = UUID.randomUUID().toString();
         String sql = """

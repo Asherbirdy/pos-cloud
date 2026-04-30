@@ -35,6 +35,17 @@ All code lives under `com.app.security`. DAO layer uses `NamedParameterJdbcTempl
 
 慣例：DB 欄位用 snake_case（如 `product_category_id`），Java model 欄位用 camelCase（如 `productCategoryId`），RowMapper 負責橋接兩者。新增欄位、改名、改型別、加減約束時都要三邊一起改。
 
+### Controller 註解排列慣例
+
+Controller 方法上的註解一律將 Spring mapping 註解（`@GetMapping`、`@PostMapping`、`@PutMapping`、`@DeleteMapping` 等）放在最上方，權限相關註解（如 `@RequireStoreRole`）放在下方。
+
+範例：
+
+```java
+@GetMapping("/")
+@RequireStoreRole({StoreRole.STORE_MANAGER})
+```
+
 ### Authentication & Security
 
 - Stateless JWT auth with HttpOnly cookie-based token transport
@@ -61,6 +72,22 @@ All endpoints return `Response<T>` which wraps `ApiResponse<T>` (message + data)
 - `AuthTestSupport` base class provides pre-authenticated `adminAccessToken` and `userAccessToken` helpers
 - Test data seeded via `src/test/resources/data.sql` (admin@gmail.com / user@gmail.com, password: "password")
 - Test suite runner: `ApplicationTest.java` using JUnit 5 Platform Suite
+
+### Test 註解慣例
+
+每個 `@Test` 方法上方都要加一段 Javadoc 註解說明該測試在驗證什麼（前置條件、行為、預期結果），讓人不用讀內容就知道目的。
+
+範例：
+
+```java
+/**
+ * 驗證：openShifts 數量已達 running_devices_limit → 丟 ShiftLimitReachedException，
+ * 且不應呼叫 dao.openShift。
+ */
+@Test
+@DisplayName("openShift: 達到上限應丟 SHIFT_LIMIT_REACHED")
+public void openShift_limitReached_throws() { ... }
+```
 
 ## Roles
 

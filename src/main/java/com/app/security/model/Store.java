@@ -66,4 +66,7 @@ public class Store {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public void setStoreId(String storeId) {
+    }
 }

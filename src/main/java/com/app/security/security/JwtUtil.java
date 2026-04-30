@@ -29,12 +29,14 @@ public class JwtUtil {
     }
 
     // 創建 Access Token
-    public String createAccessToken(String memberId, String name, String email, String role) {
+    public String createAccessToken(String memberId, String name, String email, String role,
+                                    Map<String, String> storeAccess) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("memberId", memberId);
         claims.put("name", name);
         claims.put("email", email);
         claims.put("role", role);
+        claims.put("storeAccess", storeAccess == null ? new HashMap<>() : storeAccess);
 
         return Jwts.builder()
                 .claims(claims)

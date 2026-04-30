@@ -37,6 +37,12 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- 載入 Spring AOP 的功能 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <!-- 載入 Spring JDBC 的功能 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

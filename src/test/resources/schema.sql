@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS member_store_access
     enterprise_id VARCHAR(64)  NOT NULL,
     store_id      VARCHAR(64)  NOT NULL,
     role          VARCHAR(50)  DEFAULT 'STORE_STAFF',
-    is_active     BOOLEAN      DEFAULT TRUE,
+    is_active     BOOLEAN      NOT NULL DEFAULT TRUE,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_msa_member

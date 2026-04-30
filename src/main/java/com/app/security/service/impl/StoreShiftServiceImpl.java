@@ -3,6 +3,7 @@ package com.app.security.service.impl;
 import com.app.security.dao.StoreDao;
 import com.app.security.dao.StoreShiftDao;
 import com.app.security.enums.ShiftStatus;
+import com.app.security.exception.ShiftLimitReachedException;
 import com.app.security.model.Store;
 import com.app.security.model.StoreShift;
 import com.app.security.service.StoreShiftService;
@@ -47,9 +48,9 @@ public class StoreShiftServiceImpl implements StoreShiftService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "STORE_NOT_FOUND");
         }
 
-        int openCount = storeShiftDao.countOpenByStoreId(storeId);
-        if (openCount >= store.getRunning_devices_limit()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "SHIFT_LIMIT_REACHED");
+        List<StoreShift> openShifts = storeShiftDao.getOpenByStoreId(storeId);
+        if (openShifts.size() >= store.getRunning_devices_limit()) {
+            throw new ShiftLimitReachedException(openShifts);
         }
 
         String memberId = currentMemberId();
@@ -65,6 +66,12 @@ public class StoreShiftServiceImpl implements StoreShiftService {
         if (shift.getStatus() == ShiftStatus.CLOSED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "SHIFT_ALREADY_CLOSED");
         }
+
+        // 只有開班本人可以關班
+        if (!currentMemberId().equals(shift.getMemberId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "CANNOT_CLOSE_OTHERS_SHIFT");
+        }
+
         storeShiftDao.closeShift(storeShiftId);
     }
 
