@@ -1,5 +1,6 @@
 package com.app.security.dao;
 
+import com.app.security.dto.Auth.StoreAccessItem;
 import com.app.security.enums.StoreRole;
 import com.app.security.model.MemberStoreAccess;
 
@@ -12,4 +13,5 @@ public interface MemberStoreAccessDao {
     void updateById(String memberStoreAccessId, StoreRole role, Boolean isActive);
     MemberStoreAccess getByMemberAndStore(String memberId, String storeId);
     List<MemberStoreAccess> getActiveAccessByMemberId(String memberId);
+    List<StoreAccessItem> getStoreAccessItemsByMemberId(String memberId);
 }

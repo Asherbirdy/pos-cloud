@@ -8,6 +8,7 @@ import com.app.security.dto.Auth.AuthLoginResponse;
 import com.app.security.dto.Auth.AuthRegisterResponse;
 import com.app.security.dto.Auth.LoginRequest;
 import com.app.security.dto.Auth.RegisterRequest;
+import com.app.security.dto.Auth.StoreAccessItem;
 import com.app.security.model.Member;
 import com.app.security.model.Token;
 import com.app.security.security.JwtUtil;
@@ -116,7 +117,8 @@ public class AuthServiceImpl implements AuthService {
         // 產生 JWT 並設定 Cookie
         attachCookieToResponse(memberId, name, email, role, refreshTokenStr);
 
-        return new AuthLoginResponse(name, memberId, role);
+        List<StoreAccessItem> storeAccessItems = memberStoreAccessDao.getStoreAccessItemsByMemberId(memberId);
+        return new AuthLoginResponse(name, memberId, role, storeAccessItems);
     }
 
     @Override
@@ -230,4 +232,5 @@ public class AuthServiceImpl implements AuthService {
         }
         return map;
     }
+
 }

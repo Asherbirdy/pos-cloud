@@ -1,9 +1,11 @@
 package com.app.security.dao.impl;
 
 import com.app.security.dao.MemberStoreAccessDao;
+import com.app.security.dto.Auth.StoreAccessItem;
 import com.app.security.enums.StoreRole;
 import com.app.security.model.MemberStoreAccess;
 import com.app.security.rowmapper.MemberStoreAccessRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -91,6 +93,35 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
         map.put("memberId", memberId);
 
         return namedParameterJdbcTemplate.query(sql, map, memberStoreAccessRowMapper);
+    }
+
+    @Override
+    public List<StoreAccessItem> getStoreAccessItemsByMemberId(String memberId) {
+        String sql = """
+                SELECT msa.store_id      AS store_id,
+                       msa.enterprise_id AS enterprise_id,
+                       s.name            AS store_name,
+                       s.is_active       AS store_active,
+                       msa.role          AS role,
+                       msa.is_active     AS access_active
+                FROM member_store_access msa
+                LEFT JOIN store s ON s.store_id = msa.store_id
+                WHERE msa.member_id = :memberId AND msa.is_active = TRUE
+                """;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", memberId);
+
+        RowMapper<StoreAccessItem> mapper = (rs, rowNum) -> new StoreAccessItem(
+                rs.getString("store_id"),
+                rs.getString("enterprise_id"),
+                rs.getString("store_name"),
+                rs.getObject("store_active") == null ? null : rs.getBoolean("store_active"),
+                rs.getString("role"),
+                rs.getObject("access_active") == null ? null : rs.getBoolean("access_active")
+        );
+
+        return namedParameterJdbcTemplate.query(sql, map, mapper);
     }
 
     @Override
