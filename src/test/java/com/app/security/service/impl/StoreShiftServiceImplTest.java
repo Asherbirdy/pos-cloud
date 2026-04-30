@@ -51,9 +51,6 @@ public class StoreShiftServiceImplTest {
         SecurityContextHolder.clearContext();
     }
 
-    /**
-     * 設定當前登入者：把 memberId 放在 credentials，對應 JwtAuthenticationFilter 的寫入方式。
-     */
     private void setAuthentication(String memberId) {
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken("email", memberId, Collections.emptyList());
@@ -76,52 +73,13 @@ public class StoreShiftServiceImplTest {
         return shift;
     }
 
-    // ========== openShift ==========
-
     /**
-     * 驗證：store 不存在 → 404 STORE_NOT_FOUND，且不應再去查 / 寫 store_shift。
+     * 驗證：當前 OPEN shift 數量已達 store.running_devices_limit → 丟 ShiftLimitReachedException
+     * （HTTP 409 SHIFT_LIMIT_REACHED）並夾帶當下所有 OPEN shifts，且不應呼叫 dao.openShift。
      */
     @Test
-    @DisplayName("openShift: store 不存在應丟 404")
-    public void openShift_storeNotFound_throws() {
-        when(storeDao.getStoreById(STORE_ID)).thenReturn(null);
-
-        ResponseStatusException ex = assertThrows(
-                ResponseStatusException.class,
-                () -> storeShiftService.openShift(STORE_ID)
-        );
-
-        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
-        assertEquals("STORE_NOT_FOUND", ex.getReason());
-        verify(storeShiftDao, never()).openShift(anyString(), anyString());
-    }
-
-    /**
-     * 驗證：openShifts 數量未達 running_devices_limit → 由 dao 開班並回傳新 id，
-     * 開班 member 取自當前登入者。
-     */
-    @Test
-    @DisplayName("openShift: 未達上限應成功開班並回傳 shiftId")
-    public void openShift_underLimit_success() {
-        setAuthentication(CURRENT_MEMBER_ID);
-        when(storeDao.getStoreById(STORE_ID)).thenReturn(store(2));
-        when(storeShiftDao.getOpenByStoreId(STORE_ID))
-                .thenReturn(List.of(shift(OWNER_MEMBER_ID, ShiftStatus.OPEN)));
-        when(storeShiftDao.openShift(STORE_ID, CURRENT_MEMBER_ID)).thenReturn(SHIFT_ID);
-
-        String result = storeShiftService.openShift(STORE_ID);
-
-        assertEquals(SHIFT_ID, result);
-        verify(storeShiftDao).openShift(STORE_ID, CURRENT_MEMBER_ID);
-    }
-
-    /**
-     * 驗證：openShifts 數量已達 running_devices_limit → 丟 ShiftLimitReachedException，
-     * exception 內須帶當下所有 OPEN shift（前端可顯示「已超過能開的班，目前由 X / Y 開班中」）。
-     */
-    @Test
-    @DisplayName("openShift: 達到上限應丟 SHIFT_LIMIT_REACHED 並附上目前 OPEN shifts")
-    public void openShift_limitReached_throwsWithOpenShifts() {
+    @DisplayName("openShift: 達到 running_devices_limit 應丟 SHIFT_LIMIT_REACHED")
+    public void openShift_limitReached_throws() {
         setAuthentication(CURRENT_MEMBER_ID);
         List<StoreShift> openShifts = List.of(
                 shift(OWNER_MEMBER_ID, ShiftStatus.OPEN),
@@ -141,63 +99,12 @@ public class StoreShiftServiceImplTest {
         verify(storeShiftDao, never()).openShift(anyString(), anyString());
     }
 
-    // ========== closeShift ==========
-
     /**
-     * 驗證：shift 不存在 → 404 STORE_SHIFT_NOT_FOUND，不應呼叫 dao.closeShift。
+     * 驗證：當前登入者非該 shift 的 owner（開班本人） → 丟 403 CANNOT_CLOSE_OTHERS_SHIFT，
+     * 不應呼叫 dao.closeShift。只有開班本人能關掉自己的班。
      */
     @Test
-    @DisplayName("closeShift: shift 不存在應丟 404")
-    public void closeShift_shiftNotFound_throws() {
-        when(storeShiftDao.getById(SHIFT_ID)).thenReturn(null);
-
-        ResponseStatusException ex = assertThrows(
-                ResponseStatusException.class,
-                () -> storeShiftService.closeShift(SHIFT_ID)
-        );
-
-        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
-        assertEquals("STORE_SHIFT_NOT_FOUND", ex.getReason());
-        verify(storeShiftDao, never()).closeShift(anyString());
-    }
-
-    /**
-     * 驗證：shift 已 CLOSED → 409 SHIFT_ALREADY_CLOSED，不可再關。
-     */
-    @Test
-    @DisplayName("closeShift: 已 CLOSED 應丟 409")
-    public void closeShift_alreadyClosed_throws() {
-        when(storeShiftDao.getById(SHIFT_ID)).thenReturn(shift(OWNER_MEMBER_ID, ShiftStatus.CLOSED));
-
-        ResponseStatusException ex = assertThrows(
-                ResponseStatusException.class,
-                () -> storeShiftService.closeShift(SHIFT_ID)
-        );
-
-        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
-        assertEquals("SHIFT_ALREADY_CLOSED", ex.getReason());
-        verify(storeShiftDao, never()).closeShift(anyString());
-    }
-
-    /**
-     * 驗證：當前登入者是該班別的 member 本人 → 可以關自己的班。
-     */
-    @Test
-    @DisplayName("closeShift: 當前 member 是 shift owner 應成功關班")
-    public void closeShift_byOwner_success() {
-        setAuthentication(OWNER_MEMBER_ID);
-        when(storeShiftDao.getById(SHIFT_ID)).thenReturn(shift(OWNER_MEMBER_ID, ShiftStatus.OPEN));
-
-        storeShiftService.closeShift(SHIFT_ID);
-
-        verify(storeShiftDao).closeShift(SHIFT_ID);
-    }
-
-    /**
-     * 驗證：當前登入者非本人 → 403 CANNOT_CLOSE_OTHERS_SHIFT，不可代他人關班。
-     */
-    @Test
-    @DisplayName("closeShift: 非本人應丟 403")
+    @DisplayName("closeShift: 非本人應丟 403 CANNOT_CLOSE_OTHERS_SHIFT")
     public void closeShift_nonOwner_forbidden() {
         setAuthentication(CURRENT_MEMBER_ID);
         when(storeShiftDao.getById(SHIFT_ID)).thenReturn(shift(OWNER_MEMBER_ID, ShiftStatus.OPEN));

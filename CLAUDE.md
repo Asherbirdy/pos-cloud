@@ -73,6 +73,22 @@ All endpoints return `Response<T>` which wraps `ApiResponse<T>` (message + data)
 - Test data seeded via `src/test/resources/data.sql` (admin@gmail.com / user@gmail.com, password: "password")
 - Test suite runner: `ApplicationTest.java` using JUnit 5 Platform Suite
 
+### Test 註解慣例
+
+每個 `@Test` 方法上方都要加一段 Javadoc 註解說明該測試在驗證什麼（前置條件、行為、預期結果），讓人不用讀內容就知道目的。
+
+範例：
+
+```java
+/**
+ * 驗證：openShifts 數量已達 running_devices_limit → 丟 ShiftLimitReachedException，
+ * 且不應呼叫 dao.openShift。
+ */
+@Test
+@DisplayName("openShift: 達到上限應丟 SHIFT_LIMIT_REACHED")
+public void openShift_limitReached_throws() { ... }
+```
+
 ## Roles
 
 System roles: `admin`, `user` (stored in `member.role`)
