@@ -1,7 +1,9 @@
 package com.app.security.service.impl;
 
 import com.app.security.dao.MemberDao;
+import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.dao.TokenDao;
+import com.app.security.model.MemberStoreAccess;
 import com.app.security.dto.Auth.AuthLoginResponse;
 import com.app.security.dto.Auth.AuthRegisterResponse;
 import com.app.security.dto.Auth.LoginRequest;
@@ -22,7 +24,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -32,13 +36,17 @@ public class AuthServiceImpl implements AuthService {
 
     private final TokenDao tokenDao;
 
+    private final MemberStoreAccessDao memberStoreAccessDao;
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtUtil jwtUtil;
 
-    public AuthServiceImpl(MemberDao memberDao, TokenDao tokenDao, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthServiceImpl(MemberDao memberDao, TokenDao tokenDao, MemberStoreAccessDao memberStoreAccessDao,
+                           PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.memberDao = memberDao;
         this.tokenDao = tokenDao;
+        this.memberStoreAccessDao = memberStoreAccessDao;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -196,7 +204,8 @@ public class AuthServiceImpl implements AuthService {
 
     private void attachCookieToResponse(String memberId, String name, String email, String role, String refreshTokenStr) {
         HttpServletResponse response = getCurrentResponse();
-        String accessTokenJwt = jwtUtil.createAccessToken(memberId, name, email, role);
+        Map<String, String> storeAccess = buildStoreAccessMap(memberId);
+        String accessTokenJwt = jwtUtil.createAccessToken(memberId, name, email, role, storeAccess);
         String refreshTokenJwt = jwtUtil.createRefreshToken(memberId, email, refreshTokenStr);
 
         Cookie accessCookie = new Cookie("accessToken", accessTokenJwt);
@@ -211,5 +220,14 @@ public class AuthServiceImpl implements AuthService {
 
         response.addCookie(accessCookie);
         response.addCookie(refreshCookie);
+    }
+
+    private Map<String, String> buildStoreAccessMap(String memberId) {
+        List<MemberStoreAccess> accesses = memberStoreAccessDao.getActiveAccessByMemberId(memberId);
+        Map<String, String> map = new HashMap<>();
+        for (MemberStoreAccess access : accesses) {
+            map.put(access.getStoreId(), access.getRole().name());
+        }
+        return map;
     }
 }

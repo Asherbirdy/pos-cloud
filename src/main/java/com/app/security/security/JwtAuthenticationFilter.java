@@ -1,8 +1,10 @@
 package com.app.security.security;
 
 import com.app.security.dao.MemberDao;
+import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.dao.TokenDao;
 import com.app.security.model.Member;
+import com.app.security.model.MemberStoreAccess;
 import com.app.security.model.Token;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -17,18 +19,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final TokenDao tokenDao;
     private final MemberDao memberDao;
+    private final MemberStoreAccessDao memberStoreAccessDao;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenDao tokenDao, MemberDao memberDao) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenDao tokenDao, MemberDao memberDao,
+                                   MemberStoreAccessDao memberStoreAccessDao) {
         this.jwtUtil = jwtUtil;
         this.tokenDao = tokenDao;
         this.memberDao = memberDao;
+        this.memberStoreAccessDao = memberStoreAccessDao;
     }
 
     @Override
@@ -65,9 +73,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // 從資料庫取得最新的會員資訊
                     Member member = memberDao.getMemberById(memberId);
                     if (member != null) {
+                        // refresh 時重新撈最新 storeAccess，撤權延遲 = access token TTL
+                        Map<String, String> storeAccess = buildStoreAccessMap(memberId);
                         // 重新產生 accessToken 並設定到 Cookie
                         String newAccessToken = jwtUtil.createAccessToken(
-                                memberId, member.getName(), member.getEmail(), member.getRole());
+                                memberId, member.getName(), member.getEmail(), member.getRole(), storeAccess);
 
                         Cookie accessCookie = new Cookie("accessToken", newAccessToken);
                         accessCookie.setHttpOnly(true);
@@ -99,7 +109,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 將 memberId 存在 credentials 中，方便後續使用
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(email, memberId, authorities);
+
+        // 將 storeAccess (storeId -> roleName) 放入 details，供 StoreAccessAspect 讀取
+        @SuppressWarnings("unchecked")
+        Map<String, String> storeAccess = claims.get("storeAccess", Map.class);
+        authentication.setDetails(storeAccess == null ? Collections.<String, String>emptyMap() : storeAccess);
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private Map<String, String> buildStoreAccessMap(String memberId) {
+        List<MemberStoreAccess> accesses = memberStoreAccessDao.getActiveAccessByMemberId(memberId);
+        Map<String, String> map = new HashMap<>();
+        for (MemberStoreAccess access : accesses) {
+            map.put(access.getStoreId(), access.getRole().name());
+        }
+        return map;
     }
 
     private String getCookieValue(HttpServletRequest request, String name) {

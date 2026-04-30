@@ -1,6 +1,7 @@
 package com.app.security.security;
 
 import com.app.security.dao.MemberDao;
+import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.dao.TokenDao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
@@ -31,10 +32,14 @@ public class MySecurityConfig {
 
     private final MemberDao memberDao;
 
-    public MySecurityConfig(JwtUtil jwtUtil, TokenDao tokenDao, MemberDao memberDao) {
+    private final MemberStoreAccessDao memberStoreAccessDao;
+
+    public MySecurityConfig(JwtUtil jwtUtil, TokenDao tokenDao, MemberDao memberDao,
+                            MemberStoreAccessDao memberStoreAccessDao) {
         this.jwtUtil = jwtUtil;
         this.tokenDao = tokenDao;
         this.memberDao = memberDao;
+        this.memberStoreAccessDao = memberStoreAccessDao;
     }
 
     @Bean
@@ -61,7 +66,7 @@ public class MySecurityConfig {
 
                 // 添加 JWT Filter
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtUtil, tokenDao, memberDao),
+                        new JwtAuthenticationFilter(jwtUtil, tokenDao, memberDao, memberStoreAccessDao),
                         UsernamePasswordAuthenticationFilter.class
                 )
 
@@ -80,7 +85,6 @@ public class MySecurityConfig {
                         // 註冊和登入不需要認證
                         .requestMatchers(
                                 "/auth/**",
-                                "/storeShift",
                                 "/error" // 顯示特定Error需
                         ).permitAll()
 
@@ -94,7 +98,8 @@ public class MySecurityConfig {
                         // 登出和查詢目前使用者需要認證
                         .requestMatchers(
                                 "/logout",
-                                "/member/**"
+                                "/member/**",
+                                "/storeShift/**"
                         ).authenticated()
 
                         .anyRequest().denyAll()
