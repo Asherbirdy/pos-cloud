@@ -30,7 +30,12 @@ public class StoreCheckoutItemDaoImpl implements StoreCheckoutItemDao {
 
     @Override
     public List<StoreCheckoutItem> getAllByCheckoutId(String storeCheckoutId) {
-        String sql = "SELECT " + COLUMNS + " FROM store_checkout_item WHERE store_checkout_id = :storeCheckoutId ORDER BY created_at ASC";
+        String sql = """
+                SELECT %s
+                FROM store_checkout_item
+                WHERE store_checkout_id = :storeCheckoutId
+                ORDER BY created_at ASC
+                """.formatted(COLUMNS);
         Map<String, Object> map = new HashMap<>();
         map.put("storeCheckoutId", storeCheckoutId);
         return namedParameterJdbcTemplate.query(sql, map, rowMapper);
@@ -38,7 +43,11 @@ public class StoreCheckoutItemDaoImpl implements StoreCheckoutItemDao {
 
     @Override
     public StoreCheckoutItem getById(String storeCheckoutItemId) {
-        String sql = "SELECT " + COLUMNS + " FROM store_checkout_item WHERE store_checkout_item_id = :storeCheckoutItemId";
+        String sql = """
+                SELECT %s
+                FROM store_checkout_item
+                WHERE store_checkout_item_id = :storeCheckoutItemId
+                """.formatted(COLUMNS);
         Map<String, Object> map = new HashMap<>();
         map.put("storeCheckoutItemId", storeCheckoutItemId);
         List<StoreCheckoutItem> list = namedParameterJdbcTemplate.query(sql, map, rowMapper);
@@ -65,7 +74,10 @@ public class StoreCheckoutItemDaoImpl implements StoreCheckoutItemDao {
 
     @Override
     public void delete(String storeCheckoutItemId) {
-        String sql = "DELETE FROM store_checkout_item WHERE store_checkout_item_id = :storeCheckoutItemId";
+        String sql = """
+                DELETE FROM store_checkout_item
+                WHERE store_checkout_item_id = :storeCheckoutItemId
+                """;
         Map<String, Object> map = new HashMap<>();
         map.put("storeCheckoutItemId", storeCheckoutItemId);
         namedParameterJdbcTemplate.update(sql, map);
