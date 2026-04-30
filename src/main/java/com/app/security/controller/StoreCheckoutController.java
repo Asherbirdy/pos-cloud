@@ -67,7 +67,7 @@ public class StoreCheckoutController {
      * 用於退單、誤結。已 CANCELLED 的單會回傳 409 CHECKOUT_ALREADY_CANCELLED。
      */
     @PostMapping("/{storeCheckoutId}/cancel")
-    public Response<Void> cancel(@PathVariable String storeCheckoutId) {
+    public Response<Void> cancel(@PathVariable String storeCheckoutId, @PathVariable String storeId) {
         storeCheckoutService.cancel(storeCheckoutId);
         return new Response<>("StoreCheckout Cancel", null, HttpStatus.OK);
     }
