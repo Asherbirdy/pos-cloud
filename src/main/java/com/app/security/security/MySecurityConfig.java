@@ -85,6 +85,7 @@ public class MySecurityConfig {
                         // 註冊和登入不需要認證
                         .requestMatchers(
                                 "/auth/**",
+                                "/dev/test",
                                 "/error" // 顯示特定Error需
                         ).permitAll()
 
