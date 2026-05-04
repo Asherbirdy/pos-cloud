@@ -1,0 +1,17 @@
+.pagefade-leave-active {
+  transition: all 0.3s;
+}
+
+.pagefade-enter-active {
+  transition: all 0.3s 0.3s;
+}
+
+.pagefade-enter-from,
+.pagefade-leave-to {
+  opacity: 0;
+}
+
+.pagefade-enter-to,
+.pagefade-leave-from {
+  opacity: 1;
+}
