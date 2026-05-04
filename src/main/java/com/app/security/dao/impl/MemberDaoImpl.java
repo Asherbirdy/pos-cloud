@@ -25,8 +25,11 @@ public class MemberDaoImpl implements MemberDao {
 
     @Override
     public Member getMemberByEmail(String email) {
-        String sql = "SELECT member_id, name, email, password, role, created_at, updated_at "
-                + "FROM member WHERE email = :email";
+        String sql = """
+                SELECT member_id, name, email, password, role, created_at, updated_at
+                FROM member
+                WHERE email = :email
+                """;
 
         Map<String, Object> map = new HashMap<>();
         map.put("email", email);
@@ -43,8 +46,11 @@ public class MemberDaoImpl implements MemberDao {
 
     @Override
     public Member getMemberById(String memberId) {
-        String sql = "SELECT member_id, name, email, password, role, created_at, updated_at "
-                + "FROM member WHERE member_id = :memberId";
+        String sql = """
+                SELECT member_id, name, email, password, role, created_at, updated_at
+                FROM member
+                WHERE member_id = :memberId
+                """;
 
         Map<String, Object> map = new HashMap<>();
         map.put("memberId", memberId);
@@ -63,8 +69,10 @@ public class MemberDaoImpl implements MemberDao {
     public String createMember(Member member) {
         String memberId = UUID.randomUUID().toString();
 
-        String sql = "INSERT INTO member(member_id, name, email, password, role, created_at, updated_at) "
-                + "VALUES (:memberId, :name, :email, :password, :role, NOW(), NOW())";
+        String sql = """
+                INSERT INTO member(member_id, name, email, password, role, created_at, updated_at)
+                VALUES (:memberId, :name, :email, :password, :role, NOW(), NOW())
+                """;
 
         Map<String, Object> map = new HashMap<>();
         map.put("memberId", memberId);
@@ -80,8 +88,11 @@ public class MemberDaoImpl implements MemberDao {
 
     @Override
     public List<Member> getRoleMembers(String role) {
-        String sql = "SELECT member_id, name, email, password, role, created_at, updated_at "
-                + "FROM member WHERE role = :role";
+        String sql = """
+                SELECT member_id, name, email, password, role, created_at, updated_at
+                FROM member
+                WHERE role = :role
+                """;
 
         Map<String, Object> map = new HashMap<>();
         map.put("role", role);
@@ -91,7 +102,12 @@ public class MemberDaoImpl implements MemberDao {
 
     @Override
     public void updateRole(String memberId, String role) {
-        String sql = "UPDATE member SET role = :role, updated_at = NOW() WHERE member_id = :memberId";
+        String sql = """
+                UPDATE member
+                SET role = :role,
+                    updated_at = NOW()
+                WHERE member_id = :memberId
+                """;
 
         Map<String, Object> map = new HashMap<>();
         map.put("memberId", memberId);

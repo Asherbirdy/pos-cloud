@@ -43,8 +43,7 @@ public class StoreCheckoutItemServiceImpl implements StoreCheckoutItemService {
         if (storeCheckoutDao.getById(storeCheckoutId) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "STORE_CHECKOUT_NOT_FOUND");
         }
-        BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
-        return storeCheckoutItemDao.create(storeCheckoutId, storeProductItemId, quantity, unitPrice, subtotal);
+        return storeCheckoutItemDao.create(storeCheckoutId, storeProductItemId, quantity, unitPrice);
     }
 
     @Override

@@ -35,6 +35,28 @@ All code lives under `com.app.security`. DAO layer uses `NamedParameterJdbcTempl
 
 慣例：DB 欄位用 snake_case（如 `product_category_id`），Java model 欄位用 camelCase（如 `productCategoryId`），RowMapper 負責橋接兩者。新增欄位、改名、改型別、加減約束時都要三邊一起改。
 
+### DAO SQL 字串慣例
+
+DAO 內所有 SQL 字串一律使用 Java text block (`"""..."""`)，不要用 `"..." + "..."` 字串串接或單行字串。需要動態插入欄位常數（例如 `COLUMNS`）時用 `.formatted(...)`。
+
+範例：
+
+```java
+String sql = """
+        UPDATE store_checkout
+        SET order_status = :orderStatus,
+            updated_at = NOW()
+        WHERE store_checkout_id = :storeCheckoutId
+        """;
+
+String sql = """
+        SELECT %s
+        FROM store_checkout
+        WHERE store_id = :storeId
+        ORDER BY checkout_at DESC
+        """.formatted(COLUMNS);
+```
+
 ### Controller 註解排列慣例
 
 Controller 方法上的註解一律將 Spring mapping 註解（`@GetMapping`、`@PostMapping`、`@PutMapping`、`@DeleteMapping` 等）放在最上方，權限相關註解（如 `@RequireStoreRole`）放在下方。

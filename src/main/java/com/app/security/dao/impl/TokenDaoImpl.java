@@ -25,8 +25,12 @@ public class TokenDaoImpl implements TokenDao {
 
     @Override
     public Token getValidTokenByMemberId(String memberId) {
-        String sql = "SELECT token_id, refresh_token, ip, user_agent, is_valid, member_id, created_at, updated_at "
-                + "FROM token WHERE member_id = :memberId AND is_valid = true LIMIT 1";
+        String sql = """
+                SELECT token_id, refresh_token, ip, user_agent, is_valid, member_id, created_at, updated_at
+                FROM token
+                WHERE member_id = :memberId AND is_valid = true
+                LIMIT 1
+                """;
 
         Map<String, Object> map = new HashMap<>();
         map.put("memberId", memberId);
@@ -45,8 +49,10 @@ public class TokenDaoImpl implements TokenDao {
     public String createToken(Token token) {
         String tokenId = UUID.randomUUID().toString();
 
-        String sql = "INSERT INTO token(token_id, refresh_token, ip, user_agent, is_valid, member_id, created_at, updated_at) "
-                + "VALUES (:tokenId, :refreshToken, :ip, :userAgent, :isValid, :memberId, NOW(), NOW())";
+        String sql = """
+                INSERT INTO token(token_id, refresh_token, ip, user_agent, is_valid, member_id, created_at, updated_at)
+                VALUES (:tokenId, :refreshToken, :ip, :userAgent, :isValid, :memberId, NOW(), NOW())
+                """;
 
         Map<String, Object> map = new HashMap<>();
         map.put("tokenId", tokenId);
@@ -63,7 +69,10 @@ public class TokenDaoImpl implements TokenDao {
 
     @Override
     public void deleteTokensByMemberId(String memberId) {
-        String sql = "DELETE FROM token WHERE member_id = :memberId";
+        String sql = """
+                DELETE FROM token
+                WHERE member_id = :memberId
+                """;
 
         Map<String, Object> map = new HashMap<>();
         map.put("memberId", memberId);

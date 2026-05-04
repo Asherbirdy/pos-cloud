@@ -1,5 +1,7 @@
 package com.app.security.model;
 
+import com.app.security.enums.OrderStatus;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -9,7 +11,7 @@ public class StoreCheckoutItem {
     private String storeProductItemId;
     private Integer quantity;
     private BigDecimal unitPrice;
-    private BigDecimal subtotal;
+    private OrderStatus status;
     private Date createdAt;
 
     public String getStoreCheckoutItemId() {
@@ -52,12 +54,12 @@ public class StoreCheckoutItem {
         this.unitPrice = unitPrice;
     }
 
-    public BigDecimal getSubtotal() {
-        return subtotal;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setSubtotal(BigDecimal subtotal) {
-        this.subtotal = subtotal;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public Date getCreatedAt() {

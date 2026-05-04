@@ -11,7 +11,7 @@ public interface StoreCheckoutItemDao {
 
     StoreCheckoutItem getById(String storeCheckoutItemId);
 
-    String create(String storeCheckoutId, String storeProductItemId, Integer quantity, BigDecimal unitPrice, BigDecimal subtotal);
+    String create(String storeCheckoutId, String storeProductItemId, Integer quantity, BigDecimal unitPrice);
 
     void delete(String storeCheckoutItemId);
 }

@@ -50,15 +50,15 @@ public class StoreCheckoutController {
     }
 
     /**
-     * 建立結帳單（出單結帳）。
-     * 須帶入目前 OPEN 狀態的 store_shift_id 與結帳總金額 settlePrice。
-     * 結帳人取自登入 member。
-     * 若班別不存在或非 OPEN 將回傳 404 / 409 錯誤。
+     * 建立結帳單（出單結帳），同筆交易內一併寫入所有明細。
+     * 須帶入目前 OPEN 狀態的 store_shift_id 與至少一筆 checkoutItem。
+     * 每筆明細以該商品當下 currentPrice 寫入 unit_price，status 預設 COMPLETED。
+     * 結帳人取自登入 member。任何明細不存在或班別異常會整筆 rollback。
      */
     @PostMapping("/")
     public Response<String> create(@PathVariable String storeId,
                                    @Valid @RequestBody StoreCheckoutCreateRequest request) {
-        String storeCheckoutId = storeCheckoutService.create(storeId, request.getStoreShiftId(), request.getSettlePrice());
+        String storeCheckoutId = storeCheckoutService.create(storeId, request.getStoreShiftId(), request.getCheckoutItem());
         return new Response<>("StoreCheckout Create", storeCheckoutId, HttpStatus.CREATED);
     }
 
@@ -67,7 +67,7 @@ public class StoreCheckoutController {
      * 用於退單、誤結。已 CANCELLED 的單會回傳 409 CHECKOUT_ALREADY_CANCELLED。
      */
     @PostMapping("/{storeCheckoutId}/cancel")
-    public Response<Void> cancel(@PathVariable String storeCheckoutId) {
+    public Response<Void> cancel(@PathVariable String storeCheckoutId, @PathVariable String storeId) {
         storeCheckoutService.cancel(storeCheckoutId);
         return new Response<>("StoreCheckout Cancel", null, HttpStatus.OK);
     }
