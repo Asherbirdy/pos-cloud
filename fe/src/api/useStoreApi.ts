@@ -1,0 +1,60 @@
+import type { AxiosPromise } from 'axios'
+
+import { useApiRequest } from './http'
+
+interface StoreItem {
+  store_id: string
+  enterprise_id: string
+  name: string
+  active: boolean
+  running_devices_limit: number
+  createdAt: string
+  updatedAt: string
+}
+
+type StoreGetAllResponse = StoreItem[]
+
+interface StoreCreatePayload {
+  name: string
+}
+
+type StoreCreateResponse = void
+
+interface StoreEditPayload {
+  name: string
+  isActive?: boolean
+  running_devices_limit?: number
+}
+
+type StoreEditResponse = void
+
+export const useStoreApi = {
+  /*
+   * 取得指定企業底下的所有門市
+  */
+  getAll: (enterpriseId: string): AxiosPromise<StoreGetAllResponse> => {
+    return useApiRequest.get({
+      url: `/enterprise/${enterpriseId}/store/`
+    })
+  },
+
+  /*
+   * 在指定企業下建立新門市
+  */
+  create: (enterpriseId: string, payload: StoreCreatePayload): AxiosPromise<StoreCreateResponse> => {
+    return useApiRequest.post({
+      url: `/enterprise/${enterpriseId}/store/`,
+      data: payload
+    })
+  },
+
+  /*
+   * 編輯門市資料
+  */
+  edit: (enterpriseId: string, storeId: string, payload: StoreEditPayload): AxiosPromise<StoreEditResponse> => {
+    return useApiRequest.patch({
+      url: `/enterprise/${enterpriseId}/store/${storeId}`,
+      data: payload
+    })
+  }
+}
