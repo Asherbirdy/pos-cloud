@@ -155,7 +155,11 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
         </n-flex>
 
         <n-flex align="center" :size="8">
-          <n-tag round :bordered="false" type="success">
+          <n-tag
+            round
+            :bordered="false"
+            type="success"
+          >
             營業中
           </n-tag>
           <n-button quaternary @click="$router.push('/staff/user')">
@@ -166,7 +170,11 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
     </n-layout-header>
 
     <n-layout-content style="height: calc(100vh - 73px); background: #f3f4f6;">
-      <n-flex :size="16" :wrap="false" style="height: 100%; padding: 16px;">
+      <n-flex
+        :size="16"
+        :wrap="false"
+        style="height: 100%; padding: 16px;"
+      >
         <n-card
           :bordered="false"
           style="flex: 1; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); overflow: hidden;"
@@ -188,8 +196,18 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
           </n-tabs>
 
           <n-scrollbar style="flex: 1;">
-            <n-grid :cols="4" :x-gap="12" :y-gap="12" responsive="screen" item-responsive>
-              <n-gi v-for="p in filteredProducts" :key="p.id" span="2 s:2 m:3 l:4">
+            <n-grid
+              :cols="4"
+              :x-gap="12"
+              :y-gap="12"
+              responsive="screen"
+              item-responsive
+            >
+              <n-gi
+                v-for="p in filteredProducts"
+                :key="p.id"
+                span="2 s:2 m:3 l:4"
+              >
                 <n-el
                   tag="div"
                   :style="{
@@ -204,7 +222,11 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
                   class="product-card"
                   @click="addToCart(p)"
                 >
-                  <n-flex vertical align="center" :size="6">
+                  <n-flex
+                    vertical
+                    align="center"
+                    :size="6"
+                  >
                     <n-text style="font-size: 36px; line-height: 1;">
                       {{ p.emoji }}
                     </n-text>
@@ -233,12 +255,18 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
           >
             <n-flex align="center" :size="8">
               <n-icon size="22" color="#4f46e5">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" /></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
               </n-icon>
               <n-h2 style="margin: 0; font-size: 16px; color: #1f2937;">
                 結帳清單
               </n-h2>
-              <n-badge :value="totalQty" :max="99" type="info" />
+              <n-badge
+                :value="totalQty"
+                :max="99"
+                type="info"
+              />
             </n-flex>
             <n-button
               text
@@ -260,14 +288,22 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
               <n-empty description="尚未選擇商品" />
             </n-flex>
 
-            <n-flex v-else vertical :size="0">
+            <n-flex
+              v-else
+              vertical
+              :size="0"
+            >
               <n-el
                 v-for="item in state.data.cart"
                 :key="item.product.id"
                 tag="div"
                 style="padding: 12px 20px; border-bottom: 1px dashed #f1f5f9;"
               >
-                <n-flex align="center" :size="12" :wrap="false">
+                <n-flex
+                  align="center"
+                  :size="12"
+                  :wrap="false"
+                >
                   <n-avatar
                     :size="44"
                     color="#f5f5f5"
@@ -275,7 +311,11 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
                   >
                     {{ item.product.emoji }}
                   </n-avatar>
-                  <n-flex vertical :size="2" style="flex: 1; min-width: 0;">
+                  <n-flex
+                    vertical
+                    :size="2"
+                    style="flex: 1; min-width: 0;"
+                  >
                     <n-text strong style="font-size: 14px; color: #1f2937;">
                       {{ item.product.name }}
                     </n-text>
@@ -283,7 +323,11 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
                       {{ formatCurrency(item.product.price) }} × {{ item.qty }}
                     </n-text>
                   </n-flex>
-                  <n-flex vertical align="end" :size="4">
+                  <n-flex
+                    vertical
+                    align="end"
+                    :size="4"
+                  >
                     <n-text strong style="font-size: 14px; color: #4f46e5;">
                       {{ formatCurrency(item.product.price * item.qty) }}
                     </n-text>
@@ -304,7 +348,9 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
                     @click="removeItem(item.product.id)"
                   >
                     <n-icon size="18">
-                      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                      </svg>
                     </n-icon>
                   </n-button>
                 </n-flex>
@@ -353,7 +399,9 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
               >
                 <template #icon>
                   <n-icon>
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
                   </n-icon>
                 </template>
                 結帳
@@ -395,7 +443,11 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
               }"
               @click="setPaymentMethod('cash')"
             >
-              <n-flex vertical align="center" :size="4">
+              <n-flex
+                vertical
+                align="center"
+                :size="4"
+              >
                 <n-text style="font-size: 28px;">
                   💵
                 </n-text>
@@ -418,7 +470,11 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
               }"
               @click="setPaymentMethod('card')"
             >
-              <n-flex vertical align="center" :size="4">
+              <n-flex
+                vertical
+                align="center"
+                :size="4"
+              >
                 <n-text style="font-size: 28px;">
                   💳
                 </n-text>
@@ -441,7 +497,11 @@ const setPaymentMethod = (m: 'cash' | 'card' | 'mobile') => {
               }"
               @click="setPaymentMethod('mobile')"
             >
-              <n-flex vertical align="center" :size="4">
+              <n-flex
+                vertical
+                align="center"
+                :size="4"
+              >
                 <n-text style="font-size: 28px;">
                   📱
                 </n-text>
