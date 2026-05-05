@@ -90,6 +90,13 @@ Env files: copy `.env.example` / `.env.development.example` / `.env.production.e
 ### Frontend conventions
 
 - **UI components**: Always use `naive-ui` components instead of native HTML tags (e.g. `<n-button>` not `<button>`, `<n-input>` not `<input>`, `<n-card>` not `<div>` for card-like containers).
+- **Import style**: Always write multi-name imports on a single line (horizontal), not one per line. E.g. `import { NAvatar, NBadge, NButton } from 'naive-ui'`. Even with many names, keep them on one line — let the editor soft-wrap if needed. Do not split into multi-line `import { A, B, C } from '…'` blocks.
+- **No native HTML tags**: `.vue` templates must not contain raw `<div>`, `<header>`, `<main>`, `<footer>`, `<section>`, `<span>`, `<p>`, `<h1>`–`<h6>` etc. Replace with their naive-ui equivalents:
+  - Layout containers → `<n-layout>`, `<n-layout-header>`, `<n-layout-content>`, `<n-layout-footer>`, `<n-flex>`, `<n-grid>` / `<n-gi>`, `<n-space>`, or `<n-el>` for a generic themed box.
+  - Headings → `<n-h1>` … `<n-h6>`.
+  - Body text / inline text → `<n-text>` (use `depth` and `strong` props), or `<n-p>` for paragraphs.
+  - Card-like containers → `<n-card>`.
+  Only `<svg>` / `<path>` (inside `<n-icon>`) and similar non-layout primitives are exempt.
 - **naive-ui imports**: naive-ui uses tree-shaking, so every naive-ui component must be explicitly imported into the `.vue` file that uses it (e.g. `import { NButton, NInput } from 'naive-ui'`). Do not rely on global registration.
 - **Reactivity**: Always use `ref` for reactive state, never `reactive`. This applies even to object/form state (e.g. `const form = ref({ email: '', password: '' })`, accessed as `form.value.email` in script). Keep the codebase consistent with a single style.
 - **Functions**: Always use arrow functions (`const fn = () => {}` / `const fn = async () => {}`) instead of `function` declarations in `.vue` files and frontend `.ts` files. Keep a single consistent style across the codebase.
