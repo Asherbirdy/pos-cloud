@@ -1,5 +1,5 @@
 import type {
-  AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosInstance, AxiosError,
+  AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosInstance, AxiosError
 } from 'axios'
 
 // ** axios 實例配置，繼承 AxiosRequestConfig

@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios'
 import type {
-  AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig,
+  AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig
 } from 'axios'
+import Cookies from 'js-cookie'
 
 import AbortAxios from './AbortAxios'
 import type { AxiosOptions, RequstInterceptors } from './type'
-
-import { CookieEnum } from '@/enums'
-import { cookie } from '@/utils'
-import { config } from '@/config'
+import config from '@/config'
+import { CookieEnum } from '@/enum'
 
 class Axios {
   private axiosInstance: AxiosInstance
@@ -24,7 +23,7 @@ class Axios {
   }
 
   private async refreshTokenIfNeeded (): Promise<boolean> {
-    const token = cookie.get(CookieEnum.AccessToken)
+    const token = Cookies.get(CookieEnum.AccessToken)
 
     // 如果已有 accessToken,則無需刷新
     if (token) {
@@ -32,22 +31,22 @@ class Axios {
     }
 
     // 檢查是否有 refreshToken
-    const refreshToken = cookie.get(CookieEnum.RefreshToken)
+    const refreshToken = Cookies.get(CookieEnum.RefreshToken)
 
     try {
       // 嘗試刷新 accessToken
       const response = await axios.get(
         `${config.apiUrl}/auth/refreshToken`,
-        { headers: { Authorization: `Bearer ${refreshToken}` } },
+        { headers: { Authorization: `Bearer ${refreshToken}` } }
       )
 
       const newAccessToken = response.data.jwtAccessToken.accessTokenJWT
-      cookie.set(CookieEnum.AccessToken, newAccessToken)
+      Cookies.set(CookieEnum.AccessToken, newAccessToken)
       return true // 刷新成功
     } catch (error) {
       console.error('Error refreshing token:', error)
-      cookie.remove(CookieEnum.RefreshToken)
-      cookie.remove(CookieEnum.AccessToken)
+      Cookies.remove(CookieEnum.RefreshToken)
+      Cookies.remove(CookieEnum.AccessToken)
       return false // 刷新失敗
     }
   }
@@ -61,7 +60,7 @@ class Axios {
       requestInterceptors,
       requestInterceptorsCatch,
       responseInterceptor,
-      responseInterceptorsCatch,
+      responseInterceptorsCatch
     } = this.interceptors
 
     const abortAxios = new AbortAxios()
@@ -72,7 +71,7 @@ class Axios {
         const abortRepetitiveRequest =
           (config as unknown as any)?.abortRepetitiveRequest
 
-        let token = cookie.get(CookieEnum.AccessToken)
+        let token = Cookies.get(CookieEnum.AccessToken)
 
         // 如果沒有 accessToken
         if (!token) {
@@ -82,7 +81,7 @@ class Axios {
             // 如果刷新失敗,直接返回config
             return config
           }
-          token = cookie.get(CookieEnum.AccessToken)
+          token = Cookies.get(CookieEnum.AccessToken)
         }
 
         if (token) {
@@ -101,7 +100,7 @@ class Axios {
 
         return config
       },
-      requestInterceptorsCatch ?? undefined,
+      requestInterceptorsCatch ?? undefined
     )
 
     // 掛載響應攔截器
@@ -128,7 +127,7 @@ class Axios {
           return responseInterceptorsCatch(this.axiosInstance, err)
         }
         return err
-      },
+      }
     )
   }
 
@@ -149,31 +148,31 @@ class Axios {
   get<T = any> (config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
-      method: 'GET',
+      method: 'GET'
     })
   }
   post<T = any> (config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
-      method: 'POST',
+      method: 'POST'
     })
   }
   put<T = any> (config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
-      method: 'PUT',
+      method: 'PUT'
     })
   }
   patch<T = any> (config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
-      method: 'PATCH',
+      method: 'PATCH'
     })
   }
   delete<T = any> (config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
-      method: 'DELETE',
+      method: 'DELETE'
     })
   }
 }

@@ -87,6 +87,13 @@ pnpm lint         # eslint --fix
 
 Env files: copy `.env.example` / `.env.development.example` / `.env.production.example` and fill `VITE_BASE`, `VITE_SERVER`, `VITE_PORT`. Backend base URL comes from `VITE_SERVER`.
 
+### Frontend conventions
+
+- **UI components**: Always use `naive-ui` components instead of native HTML tags (e.g. `<n-button>` not `<button>`, `<n-input>` not `<input>`, `<n-card>` not `<div>` for card-like containers).
+- **naive-ui imports**: naive-ui uses tree-shaking, so every naive-ui component must be explicitly imported into the `.vue` file that uses it (e.g. `import { NButton, NInput } from 'naive-ui'`). Do not rely on global registration.
+- **Reactivity**: Always use `ref` for reactive state, never `reactive`. This applies even to object/form state (e.g. `const form = ref({ email: '', password: '' })`, accessed as `form.value.email` in script). Keep the codebase consistent with a single style.
+- **Functions**: Always use arrow functions (`const fn = () => {}` / `const fn = async () => {}`) instead of `function` declarations in `.vue` files and frontend `.ts` files. Keep a single consistent style across the codebase.
+
 ### Frontend architecture notes
 
 - **File-based routing** via `vite-plugin-pages` over `src/pages/` plus `vite-plugin-vue-layouts` over `src/layouts/`. Adding a `.vue` file under `src/pages/` creates a route automatically — do not hand-edit a route table. `src/router/index.ts` wires the generated routes and guards.

@@ -4,63 +4,55 @@ meta:
 </route>
 
 <script setup lang="ts">
+import { NButton, NCard, NForm, NFormItem, NInput } from 'naive-ui'
+import type { FormInst, FormRules } from 'naive-ui'
+
+import { useAuthApi } from '@/api/useAuthApi'
+
 const router = useRouter()
 const message = useMessage()
 
-const STAFF_LIST = [
-	{ id: '001', name: '王小明', pin: '1234' },
-	{ id: '002', name: '陳美麗', pin: '2345' },
-	{ id: '003', name: '林大華', pin: '3456' },
-	{ id: '004', name: '張志強', pin: '4567' }
-]
-
-const selectedStaff = ref<typeof STAFF_LIST[number] | null>(null)
-const pinInput = ref('')
+const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
+const form = ref({
+	email: '',
+	password: ''
+})
 
-function selectStaff (staff: typeof STAFF_LIST[number]) {
-	selectedStaff.value = staff
-	pinInput.value = ''
+const rules: FormRules = {
+	email: [
+		{ required: true, message: '請輸入 Email', trigger: 'blur' },
+		{ type: 'email', message: 'Email 格式錯誤', trigger: ['blur', 'input'] }
+	],
+	password: [
+		{ required: true, message: '請輸入密碼', trigger: 'blur' }
+	]
 }
 
-function appendPin (num: string) {
-	if (pinInput.value.length >= 4)
-		return
-	pinInput.value += num
-}
-
-function clearPin () {
-	pinInput.value = ''
-}
-
-function backspacePin () {
-	pinInput.value = pinInput.value.slice(0, -1)
-}
-
-function login () {
-	if (!selectedStaff.value) {
-		message.warning('請先選擇員工')
+const handleLogin = async () => {
+	try {
+		await formRef.value?.validate()
+	}
+	catch {
 		return
 	}
-	if (pinInput.value.length !== 4) {
-		message.warning('請輸入 4 位數密碼')
-		return
-	}
+
 	loading.value = true
-	setTimeout(() => {
-		if (pinInput.value === selectedStaff.value!.pin) {
-			message.success(`歡迎 ${selectedStaff.value!.name}`)
-			router.push('/')
-		}
-		else {
-			message.error('密碼錯誤')
-			pinInput.value = ''
-		}
+	try {
+		const { data } = await useAuthApi.login({
+			email: form.value.email,
+			password: form.value.password
+		})
+		message.success(`歡迎 ${data.name}`)
+		router.push('/')
+	}
+	catch {
+		message.error('登入失敗，請確認 Email 或密碼')
+	}
+	finally {
 		loading.value = false
-	}, 400)
+	}
 }
-
-const keypad = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 </script>
 
 <template>
@@ -72,72 +64,41 @@ const keypad = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
     bg-gray-100
     p-4
   >
-    <n-card style="max-width: 720px; width: 100%;" title="員工登入">
-      <div
-        flex="~ gap-6"
-        md="flex-row"
-        flex-col
+    <n-card style="max-width: 400px; width: 100%;" title="員工登入">
+      <n-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        label-placement="top"
+        @keyup.enter="handleLogin"
       >
-        <div flex-1>
-          <div text="sm gray-500" mb-2>
-            選擇員工
-          </div>
-          <div grid="~ cols-2 gap-2">
-            <n-button
-              v-for="staff in STAFF_LIST"
-              :key="staff.id"
-              :type="selectedStaff?.id === staff.id ? 'primary' : 'default'"
-              size="large"
-              block
-              @click="selectStaff(staff)"
-            >
-              {{ staff.name }}
-            </n-button>
-          </div>
-        </div>
-
-        <div flex-1>
-          <div text="sm gray-500" mb-2>
-            輸入 4 位數密碼
-          </div>
+        <n-form-item label="Email" path="email">
           <n-input
-            :value="pinInput.replace(/./g, '●')"
-            readonly
+            v-model:value="form.email"
+            placeholder="name@example.com"
             size="large"
-            placeholder="● ● ● ●"
-            mb-3
           />
-          <div grid="~ cols-3 gap-2">
-            <n-button
-              v-for="n in keypad"
-              :key="n"
-              size="large"
-              @click="appendPin(n)"
-            >
-              {{ n }}
-            </n-button>
-            <n-button size="large" @click="clearPin">
-              清除
-            </n-button>
-            <n-button size="large" @click="appendPin('0')">
-              0
-            </n-button>
-            <n-button size="large" @click="backspacePin">
-              ←
-            </n-button>
-          </div>
-          <n-button
-            type="primary"
+        </n-form-item>
+        <n-form-item label="密碼" path="password">
+          <n-input
+            v-model:value="form.password"
+            type="password"
+            show-password-on="click"
+            placeholder="請輸入密碼"
             size="large"
-            block
-            mt-4
-            :loading="loading"
-            @click="login"
-          >
-            登入
-          </n-button>
-        </div>
-      </div>
+          />
+        </n-form-item>
+
+        <n-button
+          type="primary"
+          size="large"
+          block
+          :loading="loading"
+          @click="handleLogin"
+        >
+          登入
+        </n-button>
+      </n-form>
     </n-card>
   </div>
 </template>
