@@ -93,6 +93,14 @@ Env files: copy `.env.example` / `.env.development.example` / `.env.production.e
 - **naive-ui imports**: naive-ui uses tree-shaking, so every naive-ui component must be explicitly imported into the `.vue` file that uses it (e.g. `import { NButton, NInput } from 'naive-ui'`). Do not rely on global registration.
 - **Reactivity**: Always use `ref` for reactive state, never `reactive`. This applies even to object/form state (e.g. `const form = ref({ email: '', password: '' })`, accessed as `form.value.email` in script). Keep the codebase consistent with a single style.
 - **Functions**: Always use arrow functions (`const fn = () => {}` / `const fn = async () => {}`) instead of `function` declarations in `.vue` files and frontend `.ts` files. Keep a single consistent style across the codebase.
+- **Page state**: Every `.vue` file groups its reactive state into a single `state` ref with two buckets:
+  ```ts
+  const state = ref({
+    data: {},     // page data (form fields, API results, displayed entities)
+    feature: {}   // UI/feature flags (loading, dialog open, rules, pagination, etc.)
+  })
+  ```
+  Access in script as `state.value.data.xxx` / `state.value.feature.xxx`, in template as `state.data.xxx` / `state.feature.xxx`. Template refs (e.g. `formRef`) stay outside `state`.
 
 ### Frontend architecture notes
 

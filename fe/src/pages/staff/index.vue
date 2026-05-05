@@ -13,21 +13,25 @@ const router = useRouter()
 const message = useMessage()
 
 const formRef = ref<FormInst | null>(null)
-const loading = ref(false)
-const form = ref({
-	email: '',
-	password: ''
-})
 
-const rules: FormRules = {
-	email: [
-		{ required: true, message: '請輸入 Email', trigger: 'blur' },
-		{ type: 'email', message: 'Email 格式錯誤', trigger: ['blur', 'input'] }
-	],
-	password: [
-		{ required: true, message: '請輸入密碼', trigger: 'blur' }
-	]
-}
+const state = ref({
+	data: {
+		email: '',
+		password: ''
+	},
+	feature: {
+		loading: false,
+		rules: {
+			email: [
+				{ required: true, message: '請輸入 Email', trigger: 'blur' },
+				{ type: 'email', message: 'Email 格式錯誤', trigger: ['blur', 'input'] }
+			],
+			password: [
+				{ required: true, message: '請輸入密碼', trigger: 'blur' }
+			]
+		} as FormRules
+	}
+})
 
 const handleLogin = async () => {
 	try {
@@ -37,11 +41,11 @@ const handleLogin = async () => {
 		return
 	}
 
-	loading.value = true
+	state.value.feature.loading = true
 	try {
 		const { data } = await useAuthApi.login({
-			email: form.value.email,
-			password: form.value.password
+			email: state.value.data.email,
+			password: state.value.data.password
 		})
 		message.success(`歡迎 ${data.name}`)
 		router.push('/')
@@ -50,7 +54,7 @@ const handleLogin = async () => {
 		message.error('登入失敗，請確認 Email 或密碼')
 	}
 	finally {
-		loading.value = false
+		state.value.feature.loading = false
 	}
 }
 </script>
@@ -67,21 +71,21 @@ const handleLogin = async () => {
     <n-card style="max-width: 400px; width: 100%;" title="員工登入">
       <n-form
         ref="formRef"
-        :model="form"
-        :rules="rules"
+        :model="state.data"
+        :rules="state.feature.rules"
         label-placement="top"
         @keyup.enter="handleLogin"
       >
         <n-form-item label="Email" path="email">
           <n-input
-            v-model:value="form.email"
+            v-model:value="state.data.email"
             placeholder="name@example.com"
             size="large"
           />
         </n-form-item>
         <n-form-item label="密碼" path="password">
           <n-input
-            v-model:value="form.password"
+            v-model:value="state.data.password"
             type="password"
             show-password-on="click"
             placeholder="請輸入密碼"
@@ -93,7 +97,7 @@ const handleLogin = async () => {
           type="primary"
           size="large"
           block
-          :loading="loading"
+          :loading="state.feature.loading"
           @click="handleLogin"
         >
           登入
