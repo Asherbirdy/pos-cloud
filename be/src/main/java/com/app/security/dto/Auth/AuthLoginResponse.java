@@ -7,12 +7,14 @@ public class AuthLoginResponse {
     private final String memberId;
     private final String role;
     private final List<StoreAccessItem> storeAccess;
+    private final TokenPair tokenPair;
 
-    public AuthLoginResponse(String name, String memberId, String role, List<StoreAccessItem> storeAccess) {
+    public AuthLoginResponse(String name, String memberId, String role, List<StoreAccessItem> storeAccess, TokenPair tokenPair) {
         this.name = name;
         this.memberId = memberId;
         this.role = role;
         this.storeAccess = storeAccess;
+        this.tokenPair = tokenPair;
     }
 
     public String getName() {
@@ -30,4 +32,6 @@ public class AuthLoginResponse {
     public List<StoreAccessItem> getStoreAccess() {
         return storeAccess;
     }
+
+    public TokenPair getTokenPair(){return tokenPair ;}
 }
