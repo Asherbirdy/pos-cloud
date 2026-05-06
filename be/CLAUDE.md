@@ -70,10 +70,11 @@ Controller 方法上的註解一律將 Spring mapping 註解（`@GetMapping`、`
 
 ### Authentication & Security
 
-- Stateless JWT auth with HttpOnly cookie-based token transport
+- Stateless JWT auth, **前後端分離**：登入成功時於 `AuthLoginResponse.tokenPair` 回傳 `{ accessToken, refreshToken }`，前端自行存進非 HttpOnly cookie；後續請求由前端在 `Authorization: Bearer <accessToken>` header 帶上，後端不依賴 cookie 傳 token。
 - Access token (15 min) + refresh token (24 hr) stored in `token` table with IP/User-Agent tracking
 - `JwtAuthenticationFilter` auto-refreshes expired access tokens using valid refresh tokens
-- Route security in `MySecurityConfig`: `/auth/**` is public, `/enterprise/**` requires admin role, `/member/**` requires authentication
+- Route security in `MySecurityConfig`: `/auth/**` 與 `/dev/test` public、`/enterprise/**` 與 `/member-store-access/**` 需 `admin`、`/member/**`、`/storeShift/**`、`/product-category/**`、`/product-item/**`、`/logout` 需 authenticated，其餘 `denyAll`
+- CORS: `MySecurityConfig.createCorsConfig()` 的 `setAllowedOrigins` 必須包含前端 dev server origin（預設 `http://localhost:1207`）；新增環境（staging/prod 等）時要在這裡補上對應 origin，否則前端會拿到 403 `Invalid CORS request`
 - Passwords hashed with BCrypt
 
 ### Multi-Tenancy Model

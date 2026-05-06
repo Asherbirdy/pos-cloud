@@ -4,10 +4,13 @@ meta:
 </route>
 
 <script setup lang="ts">
+import { useMutation } from '@tanstack/vue-query'
 import { NButton, NCard, NEl, NFlex, NForm, NFormItem, NH2, NInput, NText } from 'naive-ui'
 import type { FormInst, FormRules } from 'naive-ui'
 
 import { useAuthApi } from '@/api/useAuthApi'
+import { CookieEnum } from '@/enum'
+import { setToken } from '@/utils/cookie'
 
 const router = useRouter()
 const message = useMessage()
@@ -20,7 +23,6 @@ const state = ref({
 		password: ''
 	},
 	feature: {
-		loading: false,
 		rules: {
 			email: [
 				{ required: true, message: '請輸入 Email', trigger: 'blur' },
@@ -33,6 +35,19 @@ const state = ref({
 	}
 })
 
+const loginMutation = useMutation({
+	mutationFn: (payload: { email: string, password: string }) => useAuthApi.login(payload),
+	onSuccess: ({ data }) => {
+		setToken(CookieEnum.AccessToken, data.tokenPair.accessToken)
+		setToken(CookieEnum.RefreshToken, data.tokenPair.refreshToken)
+		message.success(`歡迎 ${data.name}`)
+		router.push('/')
+	},
+	onError: () => {
+		message.error('登入失敗，請確認 Email 或密碼')
+	}
+})
+
 const handleLogin = async () => {
 	try {
 		await formRef.value?.validate()
@@ -41,21 +56,10 @@ const handleLogin = async () => {
 		return
 	}
 
-	state.value.feature.loading = true
-	try {
-		const { data } = await useAuthApi.login({
-			email: state.value.data.email,
-			password: state.value.data.password
-		})
-		message.success(`歡迎 ${data.name}`)
-		router.push('/')
-	}
-	catch {
-		message.error('登入失敗，請確認 Email 或密碼')
-	}
-	finally {
-		state.value.feature.loading = false
-	}
+	loginMutation.mutate({
+		email: state.value.data.email,
+		password: state.value.data.password
+	})
 }
 </script>
 
@@ -129,7 +133,7 @@ const handleLogin = async () => {
           size="large"
           block
           strong
-          :loading="state.feature.loading"
+          :loading="loginMutation.isPending.value"
           style="height: 48px; font-size: 16px; background: linear-gradient(135deg, #1e293b, #475569); margin-top: 8px;"
           @click="handleLogin"
         >

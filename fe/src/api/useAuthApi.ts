@@ -30,11 +30,17 @@ interface AuthLoginStoreAccessItem {
   accessActive: boolean
 }
 
+interface AuthLoginTokenPair {
+  accessToken: string
+  refreshToken: string
+}
+
 interface AuthLoginResponse {
   name: string
   memberId: string
   role: string
   storeAccess: AuthLoginStoreAccessItem[]
+  tokenPair: AuthLoginTokenPair
 }
 
 interface AuthRegisterAdminPayload {
