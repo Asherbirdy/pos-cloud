@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { BookOutline } from '@vicons/ionicons5'
+import { BriefcaseOutline, BusinessOutline, CartOutline, InformationCircleOutline, PeopleOutline, PersonCircleOutline, PersonOutline, ShieldCheckmarkOutline, StatsChartOutline } from '@vicons/ionicons5'
 import { NIcon, NLayoutSider, NMenu } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import type { Component } from 'vue'
@@ -16,22 +16,24 @@ const menuOptions: MenuOption[] = [
   {
     label: 'User',
     key: 'a-user',
-    icon: renderIcon(BookOutline),
+    icon: renderIcon(PersonOutline),
     onClick: () => router.push('/A/user')
   },
   {
     label: 'Admin',
     key: 'a-admin',
-    icon: renderIcon(BookOutline),
+    icon: renderIcon(ShieldCheckmarkOutline),
     children: [
       {
         label: 'Enterprise',
         key: 'a-admin-enterprise',
+        icon: renderIcon(BusinessOutline),
         onClick: () => router.push('/A/admin/enterprise')
       },
       {
         label: 'Info',
         key: 'a-admin-info',
+        icon: renderIcon(InformationCircleOutline),
         onClick: () => router.push('/A/admin/info')
       }
     ]
@@ -39,16 +41,18 @@ const menuOptions: MenuOption[] = [
   {
     label: 'Manager',
     key: 'a-manager',
-    icon: renderIcon(BookOutline),
+    icon: renderIcon(BriefcaseOutline),
     children: [
       {
         label: 'Account',
         key: 'a-manager-account',
+        icon: renderIcon(PersonCircleOutline),
         onClick: () => router.push('/A/manager/account')
       },
       {
         label: 'Performance',
         key: 'a-manager-performance',
+        icon: renderIcon(StatsChartOutline),
         onClick: () => router.push('/A/manager/performance')
       }
     ]
@@ -56,16 +60,18 @@ const menuOptions: MenuOption[] = [
   {
     label: 'Staff',
     key: 'a-staff',
-    icon: renderIcon(BookOutline),
+    icon: renderIcon(PeopleOutline),
     children: [
       {
         label: 'User',
         key: 'a-staff-user',
+        icon: renderIcon(PersonOutline),
         onClick: () => router.push('/A/staff/user')
       },
       {
         label: 'Checkout',
         key: 'a-staff-checkout',
+        icon: renderIcon(CartOutline),
         onClick: () => router.push('/A/staff/checkout')
       }
     ]
