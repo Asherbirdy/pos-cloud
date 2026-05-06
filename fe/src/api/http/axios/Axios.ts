@@ -9,6 +9,14 @@ import AbortAxios from './AbortAxios'
 import type { AxiosOptions, RequstInterceptors } from './type'
 import config from '@/config'
 import { CookieEnum } from '@/enum'
+import { PublicApiRoute } from '@/enum/RequestRoute'
+
+const PUBLIC_API_ROUTES = new Set<string>(Object.values(PublicApiRoute))
+
+const isPublicApiRoute = (url?: string): boolean => {
+  if (!url) return false
+  return PUBLIC_API_ROUTES.has(url)
+}
 
 class Axios {
   private axiosInstance: AxiosInstance
@@ -70,6 +78,17 @@ class Axios {
       async (config: InternalAxiosRequestConfig) => {
         const abortRepetitiveRequest =
           (config as unknown as any)?.abortRepetitiveRequest
+
+        // PublicApiRoute 不需要 accessToken,也不打 refreshToken
+        if (isPublicApiRoute(config.url)) {
+          if (abortRepetitiveRequest) {
+            abortAxios.addPending(config)
+          }
+          if (requestInterceptors) {
+            config = requestInterceptors(config)
+          }
+          return config
+        }
 
         let token = Cookies.get(CookieEnum.AccessToken)
 
