@@ -15,7 +15,7 @@ import { RouterView } from 'vue-router'
         v-slot="{ Component }"
         class="w-full"
       >
-        <transition name="pagefade">
+        <transition name="pagefade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
