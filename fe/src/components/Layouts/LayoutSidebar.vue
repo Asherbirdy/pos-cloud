@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { BriefcaseOutline, BusinessOutline, CartOutline, InformationCircleOutline, PeopleOutline, PersonCircleOutline, PersonOutline, ShieldCheckmarkOutline, StatsChartOutline } from '@vicons/ionicons5'
-import { NIcon, NLayoutSider, NMenu } from 'naive-ui'
+import { NFlex, NH2, NIcon, NLayoutSider, NMenu } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import type { Component } from 'vue'
 
@@ -88,6 +88,15 @@ const menuOptions: MenuOption[] = [
     show-trigger
     :inverted="inverted"
   >
+    <n-flex
+      align="center"
+      justify="center"
+      style="height: 64px; padding: 0 16px;"
+    >
+      <n-h2 style="margin: 0; font-weight: 600;">
+        logo
+      </n-h2>
+    </n-flex>
     <n-menu
       :inverted="inverted"
       :collapsed-width="64"

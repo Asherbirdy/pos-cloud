@@ -9,11 +9,6 @@ import { removeToken } from '@/utils/cookie'
 const router = useRouter()
 const message = useMessage()
 
-const state = ref({
-  data: {},
-  feature: {}
-})
-
 const memberQuery = useQuery({
   queryKey: ['member', 'showMe'],
   queryFn: async () => {
