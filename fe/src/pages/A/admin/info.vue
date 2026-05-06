@@ -1,8 +1,3 @@
-<route lang="yaml">
-meta:
-  layout: false
-</route>
-
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query'
 import { NAlert, NCard, NDescriptions, NDescriptionsItem, NFlex, NH2, NSpin, NTag, NText } from 'naive-ui'

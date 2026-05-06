@@ -1,13 +1,11 @@
-<route lang="yaml">
-meta:
-  layout: false
-</route>
-
 <script setup lang="ts">
+import { useMutation } from '@tanstack/vue-query'
 import { NButton, NCard, NEl, NFlex, NForm, NFormItem, NH2, NInput, NText } from 'naive-ui'
 import type { FormInst, FormRules } from 'naive-ui'
 
 import { useAuthApi } from '@/api/useAuthApi'
+import { CookieEnum } from '@/enum'
+import { setToken } from '@/utils/cookie'
 
 const router = useRouter()
 const message = useMessage()
@@ -20,7 +18,6 @@ const state = ref({
 		password: ''
 	},
 	feature: {
-		loading: false,
 		rules: {
 			email: [
 				{ required: true, message: '請輸入 Email', trigger: 'blur' },
@@ -33,6 +30,19 @@ const state = ref({
 	}
 })
 
+const loginMutation = useMutation({
+	mutationFn: (payload: { email: string, password: string }) => useAuthApi.login(payload),
+	onSuccess: ({ data }) => {
+		setToken(CookieEnum.AccessToken, data.tokenPair.accessToken)
+		setToken(CookieEnum.RefreshToken, data.tokenPair.refreshToken)
+		message.success(`歡迎 ${data.name}`)
+		router.push('/manager/info')
+	},
+	onError: () => {
+		message.error('登入失敗，請確認 Email 或密碼')
+	}
+})
+
 const handleLogin = async () => {
 	try {
 		await formRef.value?.validate()
@@ -41,21 +51,10 @@ const handleLogin = async () => {
 		return
 	}
 
-	state.value.feature.loading = true
-	try {
-		const { data } = await useAuthApi.login({
-			email: state.value.data.email,
-			password: state.value.data.password
-		})
-		message.success(`歡迎 ${data.name}`)
-		router.push('/')
-	}
-	catch {
-		message.error('登入失敗，請確認 Email 或密碼')
-	}
-	finally {
-		state.value.feature.loading = false
-	}
+	loginMutation.mutate({
+		email: state.value.data.email,
+		password: state.value.data.password
+	})
 }
 </script>
 
@@ -66,32 +65,37 @@ const handleLogin = async () => {
     style="
       min-height: 100vh;
       padding: 16px;
-      background: linear-gradient(135deg, #0f172a 0%, #7c2d12 50%, #b91c1c 100%);
+      background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
     "
   >
     <n-card
       :bordered="false"
-      style="max-width: 420px; width: 100%; border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);"
+      style="max-width: 420px; width: 100%; border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.25);"
     >
-      <n-flex vertical align="center" :size="6" style="margin-bottom: 24px;">
+      <n-flex
+        vertical
+        align="center"
+        :size="6"
+        style="margin-bottom: 24px;"
+      >
         <n-el
           tag="div"
           style="
             width: 56px; height: 56px; border-radius: 14px;
-            background: linear-gradient(135deg, #b91c1c, #f59e0b);
+            background: linear-gradient(135deg, #1e293b, #475569);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 6px 16px rgba(185,28,28,0.3);
+            box-shadow: 0 6px 16px rgba(30,41,59,0.25);
           "
         >
           <n-text strong style="color: white; font-size: 18px; letter-spacing: 0.05em;">
-            ADM
+            MGR
           </n-text>
         </n-el>
         <n-h2 style="margin: 0; font-size: 22px; color: #1f2937;">
-          系統管理者登入
+          管理者登入
         </n-h2>
         <n-text depth="3" style="font-size: 13px;">
-          僅限授權人員存取後台管理
+          請輸入您的 Email 與密碼以繼續
         </n-text>
       </n-flex>
 
@@ -105,7 +109,7 @@ const handleLogin = async () => {
         <n-form-item label="Email" path="email">
           <n-input
             v-model:value="state.data.email"
-            placeholder="admin@example.com"
+            placeholder="name@example.com"
             size="large"
           />
         </n-form-item>
@@ -124,8 +128,8 @@ const handleLogin = async () => {
           size="large"
           block
           strong
-          :loading="state.feature.loading"
-          style="height: 48px; font-size: 16px; background: linear-gradient(135deg, #b91c1c, #f59e0b); margin-top: 8px;"
+          :loading="loginMutation.isPending.value"
+          style="height: 48px; font-size: 16px; background: linear-gradient(135deg, #1e293b, #475569); margin-top: 8px;"
           @click="handleLogin"
         >
           登入

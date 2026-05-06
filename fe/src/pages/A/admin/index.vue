@@ -1,10 +1,5 @@
-<route lang="yaml">
-meta:
-  layout: false
-</route>
-
 <script setup lang="ts">
-import { NButton, NCard, NForm, NFormItem, NInput } from 'naive-ui'
+import { NButton, NCard, NEl, NFlex, NForm, NFormItem, NH2, NInput, NText } from 'naive-ui'
 import type { FormInst, FormRules } from 'naive-ui'
 
 import { useAuthApi } from '@/api/useAuthApi'
@@ -60,15 +55,41 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div
-    min-h-screen
-    flex
-    items-center
-    justify-center
-    bg-gray-100
-    p-4
+  <n-flex
+    align="center"
+    justify="center"
+    style="
+      min-height: 100vh;
+      padding: 16px;
+      background: linear-gradient(135deg, #0f172a 0%, #7c2d12 50%, #b91c1c 100%);
+    "
   >
-    <n-card style="max-width: 400px; width: 100%;" title="員工登入">
+    <n-card
+      :bordered="false"
+      style="max-width: 420px; width: 100%; border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);"
+    >
+      <n-flex vertical align="center" :size="6" style="margin-bottom: 24px;">
+        <n-el
+          tag="div"
+          style="
+            width: 56px; height: 56px; border-radius: 14px;
+            background: linear-gradient(135deg, #b91c1c, #f59e0b);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 16px rgba(185,28,28,0.3);
+          "
+        >
+          <n-text strong style="color: white; font-size: 18px; letter-spacing: 0.05em;">
+            ADM
+          </n-text>
+        </n-el>
+        <n-h2 style="margin: 0; font-size: 22px; color: #1f2937;">
+          系統管理者登入
+        </n-h2>
+        <n-text depth="3" style="font-size: 13px;">
+          僅限授權人員存取後台管理
+        </n-text>
+      </n-flex>
+
       <n-form
         ref="formRef"
         :model="state.data"
@@ -79,7 +100,7 @@ const handleLogin = async () => {
         <n-form-item label="Email" path="email">
           <n-input
             v-model:value="state.data.email"
-            placeholder="name@example.com"
+            placeholder="admin@example.com"
             size="large"
           />
         </n-form-item>
@@ -97,12 +118,14 @@ const handleLogin = async () => {
           type="primary"
           size="large"
           block
+          strong
           :loading="state.feature.loading"
+          style="height: 48px; font-size: 16px; background: linear-gradient(135deg, #b91c1c, #f59e0b); margin-top: 8px;"
           @click="handleLogin"
         >
           登入
         </n-button>
       </n-form>
     </n-card>
-  </div>
+  </n-flex>
 </template>

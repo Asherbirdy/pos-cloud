@@ -41,24 +41,43 @@ pos/
 │
 └── pos-cloud-fe/                          # Vue 3 + Vite frontend
     ├── index.html  vite.config.mts  uno.config.ts
-    ├── tsconfig*.json  .eslintrc.cjs
+    ├── tsconfig.json  tsconfig.app.json  tsconfig.node.json  .eslintrc.cjs
+    ├── .env.development  .env.example  .env.production.example
+    ├── package.json  pnpm-lock.yaml  README.md
     ├── public/
     └── src/
         ├── main.ts  App.vue  config.ts  theme.ts  env.d.ts
         ├── auto-imports.ts  auto-components.ts   # generated, do not edit
         ├── api/
-        │   ├── http/                      # axios instance + interceptors
+        │   ├── http/axios/                # axios instance + interceptors
         │   ├── index.ts
-        │   └── useAuthApi.ts
+        │   ├── useAuthApi.ts  useDevApi.ts
+        │   ├── useMemberApi.ts  useEnterpriseApi.ts  useMemberStoreAccessApi.ts
+        │   ├── useStoreApi.ts  useStoreShiftApi.ts
+        │   ├── useStoreCheckoutApi.ts  useStoreCheckoutItemApi.ts
+        │   └── useStoreProductCategoryApi.ts  useStoreProductItemApi.ts
         ├── assets/scss/
-        ├── components/{Layouts,…}
-        ├── composable/
-        ├── enum/                          # RequestRoute, etc.
+        ├── components/
+        │   ├── index.ts
+        │   └── Layouts/                   # LayoutsHeader.vue, LayoutSidebar.vue
+        ├── composable/                    # (empty, .gitkeep)
+        ├── enum/                          # CookieEnum, RequestRoute, index
         ├── layouts/default.vue            # vite-plugin-vue-layouts
         ├── pages/                         # vite-plugin-pages (file-based routes)
+        │   ├── index.vue  [...all].vue
+        │   └── A/
+        │       ├── user.vue
+        │       ├── admin/                 # index, info, enterprise
+        │       ├── manager/               # index, account, performance
+        │       └── staff/                 # index, user, checkout
+        ├── plugins/vueQuery.ts            # @tanstack/vue-query setup
         ├── router/index.ts
-        ├── stores/                        # Pinia (e.g. apps/productStore.ts)
-        ├── types/{apis,apps,common}/
+        ├── stores/                        # Pinia
+        │   ├── index.ts
+        │   └── apps/productStore.ts
+        ├── types/
+        │   ├── apis/  apps/               # (.gitkeep)
+        │   └── common/ApiResponse.ts
         └── utils/                         # cookie.ts, index.ts
 ```
 

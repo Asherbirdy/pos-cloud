@@ -1,32 +1,9 @@
 <script setup lang='ts'>
-import { BookOutline } from '@vicons/ionicons5'
-import { NIcon, NLayoutSider, NMenu } from 'naive-ui'
-import type { MenuOption } from 'naive-ui'
-import type { Component } from 'vue'
+import { NFlex, NH2, NLayoutSider, NMenu } from 'naive-ui'
 
-const router = useRouter()
+import { useMenuStore } from '@/stores'
 
-const renderIcon = (icon: Component) => {
-  return () => h(NIcon, null, { default: () => h(icon) })
-}
-
-const inverted = ref(false)
-
-const menuOptions: MenuOption[] = [
-  {
-    label: 'First Page',
-    key: 'first-page',
-    icon: renderIcon(BookOutline),
-    onClick: () => router.push('/')
-  },
-  {
-    label: 'Second Page',
-    key: 'second page',
-    icon: renderIcon(BookOutline),
-    onClick: () => router.push('/second')
-  }
-]
-
+const menuStore = useMenuStore()
 </script>
 <template>
   <n-layout-sider
@@ -35,13 +12,22 @@ const menuOptions: MenuOption[] = [
     :collapsed-width="64"
     :width="240"
     show-trigger
-    :inverted="inverted"
+    :inverted="menuStore.inverted"
   >
+    <n-flex
+      align="center"
+      justify="start"
+      style="height: 64px; padding: 0 16px;"
+    >
+      <n-h2 style="margin: 0; font-weight: 600;">
+        logo
+      </n-h2>
+    </n-flex>
     <n-menu
-      :inverted="inverted"
+      :inverted="menuStore.inverted"
       :collapsed-width="64"
       :collapsed-icon-size="22"
-      :options="menuOptions"
+      :options="menuStore.menuOptions"
     />
   </n-layout-sider>
 </template>

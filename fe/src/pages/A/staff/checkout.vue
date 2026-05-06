@@ -1,8 +1,3 @@
-<route lang="yaml">
-meta:
-  layout: false
-</route>
-
 <script setup lang="ts">
 import { NAvatar, NBadge, NButton, NCard, NDivider, NEl, NEmpty, NFlex, NGi, NGrid, NH2, NIcon, NInputNumber, NLayout, NLayoutContent, NLayoutHeader, NModal, NScrollbar, NTabPane, NTabs, NTag, NText } from 'naive-ui'
 
