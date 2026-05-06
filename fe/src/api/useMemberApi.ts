@@ -1,6 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
 import { AuthApiRoute } from '@/enum/RequestRoute'
+import type { ApiResponse } from '@/types/common/ApiResponse'
 
 import { useApiRequest } from './http'
 
@@ -19,7 +20,7 @@ export const useMemberApi = {
   /*
    * 取得目前登入會員的個人資料
   */
-  showMe: (): AxiosPromise<MemberShowMeResponse> => {
+  showMe: (): AxiosPromise<ApiResponse<MemberShowMeResponse>> => {
     return useApiRequest.get({
       url: AuthApiRoute.MemberShowMe
     })
@@ -28,7 +29,7 @@ export const useMemberApi = {
   /*
    * 登出
   */
-  logout: (): AxiosPromise<MemberLogoutResponse> => {
+  logout: (): AxiosPromise<ApiResponse<MemberLogoutResponse>> => {
     return useApiRequest.post({
       url: AuthApiRoute.MemberLogout
     })

@@ -12,8 +12,8 @@ import { useMemberApi } from '@/api/useMemberApi'
 const memberQuery = useQuery({
 	queryKey: ['member', 'showMe'],
 	queryFn: async () => {
-		const { data } = await useMemberApi.showMe()
-		return data
+		const res = await useMemberApi.showMe()
+		return res.data.data
 	}
 })
 </script>
