@@ -9,6 +9,7 @@ import com.app.security.model.Member;
 import com.app.security.model.Token;
 import com.app.security.security.JwtUtil;
 import com.app.security.service.AuthService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -137,6 +138,56 @@ public class AuthServiceImpl implements AuthService {
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(0);
         response.addCookie(refreshCookie);
+    }
+
+    @Override
+    public AuthRefreshTokenResponse refreshToken(String authorizationHeader) {
+        // 從 Authorization header 取出 refreshToken（Bearer scheme）
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_INVALID");
+        }
+        String refreshTokenJwt = authorizationHeader.substring("Bearer ".length()).trim();
+        if (refreshTokenJwt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_INVALID");
+        }
+
+        // 解析 refreshToken JWT
+        Claims claims;
+        try {
+            claims = jwtUtil.parseToken(refreshTokenJwt);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_INVALID");
+        }
+
+        String memberId = claims.get("memberId", String.class);
+        String refreshTokenStr = claims.get("refreshToken", String.class);
+        if (memberId == null || refreshTokenStr == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_INVALID");
+        }
+
+        // 確認 token 仍存在 DB 且為 valid
+        Token existingToken = tokenDao.getValidTokenByMemberId(memberId);
+        if (existingToken == null || !refreshTokenStr.equals(existingToken.getRefreshToken())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_INVALID");
+        }
+
+        // IP 一致性檢查
+        HttpServletRequest request = getCurrentRequest();
+        String currentIp = request.getRemoteAddr();
+        if (existingToken.getIp() != null && !existingToken.getIp().equals(currentIp)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "IP_MISMATCH");
+        }
+
+        // 取最新會員資料 + storeAccess，重新產生 accessToken
+        Member member = memberDao.getMemberById(memberId);
+        if (member == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_INVALID");
+        }
+        Map<String, String> storeAccess = buildStoreAccessMap(memberId);
+        String newAccessToken = jwtUtil.createAccessToken(
+                memberId, member.getName(), member.getEmail(), member.getRole(), storeAccess);
+
+        return new AuthRefreshTokenResponse("TOKEN_REFRESHED", newAccessToken);
     }
 
     @Override
