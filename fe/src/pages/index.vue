@@ -1,5 +1,7 @@
 <route lang="yaml">
   name: 'Index'
+  meta: 
+    layout: false
 </route>
 
 <script setup lang='ts'>
