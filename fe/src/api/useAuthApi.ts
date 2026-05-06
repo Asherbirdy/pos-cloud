@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { PublicApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 interface AuthRegisterPayload {
@@ -53,7 +55,7 @@ export const useAuthApi = {
   */
   register: (payload: AuthRegisterPayload): AxiosPromise<AuthRegisterResponse> => {
     return useApiRequest.post({
-      url: '/auth/register',
+      url: PublicApiRoute.AuthRegister,
       data: payload
     })
   },
@@ -63,7 +65,7 @@ export const useAuthApi = {
   */
   login: (payload: AuthLoginPayload): AxiosPromise<AuthLoginResponse> => {
     return useApiRequest.post({
-      url: '/auth/login',
+      url: PublicApiRoute.AuthLogin,
       data: payload
     })
   },
@@ -73,7 +75,7 @@ export const useAuthApi = {
   */
   registerAdmin: (payload: AuthRegisterAdminPayload): AxiosPromise<AuthRegisterAdminResponse> => {
     return useApiRequest.post({
-      url: '/auth/register-admin',
+      url: PublicApiRoute.AuthRegisterAdmin,
       data: payload
     })
   }

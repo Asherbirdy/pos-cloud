@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 type ShiftStatus = 'OPEN' | 'CLOSED'
@@ -30,7 +32,7 @@ export const useStoreShiftApi = {
   */
   getAll: (storeId: string): AxiosPromise<StoreShiftGetAllResponse> => {
     return useApiRequest.get({
-      url: '/storeShift/',
+      url: AuthApiRoute.StoreShift,
       params: { storeId }
     })
   },
@@ -40,7 +42,7 @@ export const useStoreShiftApi = {
   */
   getById: (storeShiftId: string): AxiosPromise<StoreShiftGetByIdResponse> => {
     return useApiRequest.get({
-      url: `/storeShift/${storeShiftId}`
+      url: `${AuthApiRoute.StoreShift}${storeShiftId}`
     })
   },
 
@@ -49,7 +51,7 @@ export const useStoreShiftApi = {
   */
   openShift: (storeId: string): AxiosPromise<StoreShiftOpenShiftResponse> => {
     return useApiRequest.post({
-      url: '/storeShift/open',
+      url: AuthApiRoute.StoreShiftOpen,
       params: { storeId }
     })
   },
@@ -59,7 +61,7 @@ export const useStoreShiftApi = {
   */
   closeShift: (storeShiftId: string): AxiosPromise<StoreShiftCloseShiftResponse> => {
     return useApiRequest.post({
-      url: `/storeShift/${storeShiftId}/close`
+      url: `${AuthApiRoute.StoreShift}${storeShiftId}/close`
     })
   }
 }

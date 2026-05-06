@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 interface StoreProductItemEntity {
@@ -37,7 +39,7 @@ export const useStoreProductItemApi = {
   */
   getAll: (productCategoryId: string): AxiosPromise<StoreProductItemGetAllResponse> => {
     return useApiRequest.get({
-      url: '/product-item/',
+      url: AuthApiRoute.ProductItem,
       params: { productCategoryId }
     })
   },
@@ -47,7 +49,7 @@ export const useStoreProductItemApi = {
   */
   getById: (storeProductItemId: string): AxiosPromise<StoreProductItemGetByIdResponse> => {
     return useApiRequest.get({
-      url: `/product-item/${storeProductItemId}`
+      url: `${AuthApiRoute.ProductItem}${storeProductItemId}`
     })
   },
 
@@ -56,7 +58,7 @@ export const useStoreProductItemApi = {
   */
   create: (productCategoryId: string, payload: StoreProductItemCreatePayload): AxiosPromise<StoreProductItemCreateResponse> => {
     return useApiRequest.post({
-      url: '/product-item/',
+      url: AuthApiRoute.ProductItem,
       params: { productCategoryId },
       data: payload
     })
@@ -67,7 +69,7 @@ export const useStoreProductItemApi = {
   */
   update: (storeProductItemId: string, payload: StoreProductItemUpdatePayload): AxiosPromise<StoreProductItemUpdateResponse> => {
     return useApiRequest.patch({
-      url: `/product-item/${storeProductItemId}`,
+      url: `${AuthApiRoute.ProductItem}${storeProductItemId}`,
       data: payload
     })
   },
@@ -77,7 +79,7 @@ export const useStoreProductItemApi = {
   */
   delete: (storeProductItemId: string): AxiosPromise<StoreProductItemDeleteResponse> => {
     return useApiRequest.delete({
-      url: `/product-item/${storeProductItemId}`
+      url: `${AuthApiRoute.ProductItem}${storeProductItemId}`
     })
   }
 }

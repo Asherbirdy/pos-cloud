@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 interface MemberShowMeResponse {
@@ -19,7 +21,7 @@ export const useMemberApi = {
   */
   showMe: (): AxiosPromise<MemberShowMeResponse> => {
     return useApiRequest.get({
-      url: '/member/showMe'
+      url: AuthApiRoute.MemberShowMe
     })
   },
 
@@ -28,7 +30,7 @@ export const useMemberApi = {
   */
   logout: (): AxiosPromise<MemberLogoutResponse> => {
     return useApiRequest.post({
-      url: '/member/logout'
+      url: AuthApiRoute.MemberLogout
     })
   }
 }

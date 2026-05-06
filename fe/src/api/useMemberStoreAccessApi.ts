@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 type StoreRole = 'STORE_MANAGER' | 'STORE_STAFF'
@@ -37,7 +39,7 @@ export const useMemberStoreAccessApi = {
   */
   create: (payload: MemberStoreAccessCreatePayload): AxiosPromise<MemberStoreAccessCreateResponse> => {
     return useApiRequest.post({
-      url: '/member-store-access/',
+      url: AuthApiRoute.MemberStoreAccess,
       data: payload
     })
   },
@@ -47,7 +49,7 @@ export const useMemberStoreAccessApi = {
   */
   getByStoreId: (storeId: string): AxiosPromise<MemberStoreAccessGetByStoreIdResponse> => {
     return useApiRequest.get({
-      url: `/member-store-access/${storeId}`
+      url: `${AuthApiRoute.MemberStoreAccess}${storeId}`
     })
   },
 
@@ -56,7 +58,7 @@ export const useMemberStoreAccessApi = {
   */
   update: (memberStoreAccessId: string, payload: MemberStoreAccessUpdatePayload): AxiosPromise<MemberStoreAccessUpdateResponse> => {
     return useApiRequest.patch({
-      url: `/member-store-access/${memberStoreAccessId}`,
+      url: `${AuthApiRoute.MemberStoreAccess}${memberStoreAccessId}`,
       data: payload
     })
   }
