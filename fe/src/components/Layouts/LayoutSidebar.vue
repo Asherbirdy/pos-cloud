@@ -90,7 +90,7 @@ const menuOptions: MenuOption[] = [
   >
     <n-flex
       align="center"
-      justify="center"
+      justify="start"
       style="height: 64px; padding: 0 16px;"
     >
       <n-h2 style="margin: 0; font-weight: 600;">
