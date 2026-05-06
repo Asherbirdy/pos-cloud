@@ -14,16 +14,76 @@ const inverted = ref(false)
 
 const menuOptions: MenuOption[] = [
   {
-    label: 'First Page',
-    key: 'first-page',
+    label: 'User',
+    key: 'a-user',
     icon: renderIcon(BookOutline),
-    onClick: () => router.push('/')
+    onClick: () => router.push('/A/user')
   },
   {
-    label: 'Second Page',
-    key: 'second page',
+    label: 'Admin',
+    key: 'a-admin',
     icon: renderIcon(BookOutline),
-    onClick: () => router.push('/second')
+    children: [
+      {
+        label: 'Index',
+        key: 'a-admin-index',
+        onClick: () => router.push('/A/admin')
+      },
+      {
+        label: 'Enterprise',
+        key: 'a-admin-enterprise',
+        onClick: () => router.push('/A/admin/enterprise')
+      },
+      {
+        label: 'Info',
+        key: 'a-admin-info',
+        onClick: () => router.push('/A/admin/info')
+      }
+    ]
+  },
+  {
+    label: 'Manager',
+    key: 'a-manager',
+    icon: renderIcon(BookOutline),
+    children: [
+      {
+        label: 'Index',
+        key: 'a-manager-index',
+        onClick: () => router.push('/A/manager')
+      },
+      {
+        label: 'Account',
+        key: 'a-manager-account',
+        onClick: () => router.push('/A/manager/account')
+      },
+      {
+        label: 'Performance',
+        key: 'a-manager-performance',
+        onClick: () => router.push('/A/manager/performance')
+      }
+    ]
+  },
+  {
+    label: 'Staff',
+    key: 'a-staff',
+    icon: renderIcon(BookOutline),
+    children: [
+      {
+        label: 'Index',
+        key: 'a-staff-index',
+        onClick: () => router.push('/A/staff')
+      },
+      {
+        label: 'User',
+        key: 'a-staff-user',
+        onClick: () => router.push('/A/staff/user')
+      },
+      {
+        label: 'Checkout',
+        key: 'a-staff-checkout',
+        onClick: () => router.push('/A/staff/checkout')
+      }
+    ]
   }
 ]
 
