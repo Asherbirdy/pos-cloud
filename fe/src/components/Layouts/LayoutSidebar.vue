@@ -25,11 +25,6 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(BookOutline),
     children: [
       {
-        label: 'Index',
-        key: 'a-admin-index',
-        onClick: () => router.push('/A/admin')
-      },
-      {
         label: 'Enterprise',
         key: 'a-admin-enterprise',
         onClick: () => router.push('/A/admin/enterprise')
@@ -47,11 +42,6 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(BookOutline),
     children: [
       {
-        label: 'Index',
-        key: 'a-manager-index',
-        onClick: () => router.push('/A/manager')
-      },
-      {
         label: 'Account',
         key: 'a-manager-account',
         onClick: () => router.push('/A/manager/account')
@@ -68,11 +58,6 @@ const menuOptions: MenuOption[] = [
     key: 'a-staff',
     icon: renderIcon(BookOutline),
     children: [
-      {
-        label: 'Index',
-        key: 'a-staff-index',
-        onClick: () => router.push('/A/staff')
-      },
       {
         label: 'User',
         key: 'a-staff-user',
