@@ -41,7 +41,7 @@ const loginMutation = useMutation({
 		setToken(CookieEnum.AccessToken, data.tokenPair.accessToken)
 		setToken(CookieEnum.RefreshToken, data.tokenPair.refreshToken)
 		message.success(`歡迎 ${data.name}`)
-		router.push('/')
+		router.push('/manager/info')
 	},
 	onError: () => {
 		message.error('登入失敗，請確認 Email 或密碼')
