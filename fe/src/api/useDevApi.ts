@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { PublicApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 interface DevTestResponse {
@@ -14,7 +16,7 @@ export const useDevApi = {
   */
   test: (): AxiosPromise<DevTestResponse> => {
     return useApiRequest.get({
-      url: '/dev/test'
+      url: PublicApiRoute.DevTest
     })
   }
 }

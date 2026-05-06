@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 interface StoreItem {
@@ -34,7 +36,7 @@ export const useStoreApi = {
   */
   getAll: (enterpriseId: string): AxiosPromise<StoreGetAllResponse> => {
     return useApiRequest.get({
-      url: `/enterprise/${enterpriseId}/store/`
+      url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/`
     })
   },
 
@@ -43,7 +45,7 @@ export const useStoreApi = {
   */
   create: (enterpriseId: string, payload: StoreCreatePayload): AxiosPromise<StoreCreateResponse> => {
     return useApiRequest.post({
-      url: `/enterprise/${enterpriseId}/store/`,
+      url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/`,
       data: payload
     })
   },
@@ -53,7 +55,7 @@ export const useStoreApi = {
   */
   edit: (enterpriseId: string, storeId: string, payload: StoreEditPayload): AxiosPromise<StoreEditResponse> => {
     return useApiRequest.patch({
-      url: `/enterprise/${enterpriseId}/store/${storeId}`,
+      url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/${storeId}`,
       data: payload
     })
   }

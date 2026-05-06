@@ -3,12 +3,8 @@ package com.app.security.service.impl;
 import com.app.security.dao.MemberDao;
 import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.dao.TokenDao;
+import com.app.security.dto.Auth.*;
 import com.app.security.model.MemberStoreAccess;
-import com.app.security.dto.Auth.AuthLoginResponse;
-import com.app.security.dto.Auth.AuthRegisterResponse;
-import com.app.security.dto.Auth.LoginRequest;
-import com.app.security.dto.Auth.RegisterRequest;
-import com.app.security.dto.Auth.StoreAccessItem;
 import com.app.security.model.Member;
 import com.app.security.model.Token;
 import com.app.security.security.JwtUtil;
@@ -115,10 +111,10 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // 產生 JWT 並設定 Cookie
-        attachCookieToResponse(memberId, name, email, role, refreshTokenStr);
+        TokenPair token = attachCookieToResponse(memberId, name, email, role, refreshTokenStr);
 
         List<StoreAccessItem> storeAccessItems = memberStoreAccessDao.getStoreAccessItemsByMemberId(memberId);
-        return new AuthLoginResponse(name, memberId, role, storeAccessItems);
+        return new AuthLoginResponse(name, memberId, role, storeAccessItems, token);
     }
 
     @Override
@@ -144,7 +140,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthRegisterResponse registerAdmin(RegisterRequest registerRequest){
+    public AuthRegisterResponse registerAdmin(RegisterRequest registerRequest) {
         String name = registerRequest.getName();
         String email = registerRequest.getEmail();
         String password = registerRequest.getPassword();
@@ -204,7 +200,7 @@ public class AuthServiceImpl implements AuthService {
         return refreshTokenStr;
     }
 
-    private void attachCookieToResponse(String memberId, String name, String email, String role, String refreshTokenStr) {
+    private TokenPair attachCookieToResponse(String memberId, String name, String email, String role, String refreshTokenStr) {
         HttpServletResponse response = getCurrentResponse();
         Map<String, String> storeAccess = buildStoreAccessMap(memberId);
         String accessTokenJwt = jwtUtil.createAccessToken(memberId, name, email, role, storeAccess);
@@ -222,6 +218,8 @@ public class AuthServiceImpl implements AuthService {
 
         response.addCookie(accessCookie);
         response.addCookie(refreshCookie);
+
+        return new TokenPair(accessTokenJwt, refreshTokenJwt);
     }
 
     private Map<String, String> buildStoreAccessMap(String memberId) {

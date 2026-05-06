@@ -9,20 +9,28 @@ import AbortAxios from './AbortAxios'
 import type { AxiosOptions, RequstInterceptors } from './type'
 import config from '@/config'
 import { CookieEnum } from '@/enum'
+import { PublicApiRoute } from '@/enum/RequestRoute'
+
+const PUBLIC_API_ROUTES = new Set<string>(Object.values(PublicApiRoute))
+
+const isPublicApiRoute = (url?: string): boolean => {
+  if (!url) return false
+  return PUBLIC_API_ROUTES.has(url)
+}
 
 class Axios {
   private axiosInstance: AxiosInstance
   private options: AxiosOptions
   private interceptors: RequstInterceptors | undefined
 
-  constructor (options: AxiosOptions) {
+  constructor(options: AxiosOptions) {
     this.axiosInstance = axios.create(options)
     this.options = options
     this.interceptors = options.interceptors
     this.setInterceptors() // 對攔截器進行初始註冊
   }
 
-  private async refreshTokenIfNeeded (): Promise<boolean> {
+  private async refreshTokenIfNeeded(): Promise<boolean> {
     const token = Cookies.get(CookieEnum.AccessToken)
 
     // 如果已有 accessToken,則無需刷新
@@ -36,7 +44,7 @@ class Axios {
     try {
       // 嘗試刷新 accessToken
       const response = await axios.get(
-        `${config.apiUrl}/auth/refreshToken`,
+        `${config.baseUrl}/auth/refreshToken`,
         { headers: { Authorization: `Bearer ${refreshToken}` } }
       )
 
@@ -52,7 +60,7 @@ class Axios {
   }
 
   // 註冊攔截器方法
-  setInterceptors () {
+  setInterceptors() {
     if (!this.interceptors) return // 如果配置中並沒有傳入攔截器,直接返回
 
     // 解構出各種攔截器
@@ -70,6 +78,17 @@ class Axios {
       async (config: InternalAxiosRequestConfig) => {
         const abortRepetitiveRequest =
           (config as unknown as any)?.abortRepetitiveRequest
+
+        // PublicApiRoute 不需要 accessToken,也不打 refreshToken
+        if (isPublicApiRoute(config.url)) {
+          if (abortRepetitiveRequest) {
+            abortAxios.addPending(config)
+          }
+          if (requestInterceptors) {
+            config = requestInterceptors(config)
+          }
+          return config
+        }
 
         let token = Cookies.get(CookieEnum.AccessToken)
 
@@ -132,7 +151,7 @@ class Axios {
   }
 
   // 統一請求方法
-  request<T = any> (config: AxiosRequestConfig): Promise<T> {
+  request<T = any>(config: AxiosRequestConfig): Promise<T> {
     return new Promise((resolve, reject) => {
       this.axiosInstance
         .request<any, AxiosResponse<Response>>(config)
@@ -145,31 +164,31 @@ class Axios {
     })
   }
 
-  get<T = any> (config: AxiosRequestConfig): Promise<T> {
+  get<T = any>(config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
       method: 'GET'
     })
   }
-  post<T = any> (config: AxiosRequestConfig): Promise<T> {
+  post<T = any>(config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
       method: 'POST'
     })
   }
-  put<T = any> (config: AxiosRequestConfig): Promise<T> {
+  put<T = any>(config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
       method: 'PUT'
     })
   }
-  patch<T = any> (config: AxiosRequestConfig): Promise<T> {
+  patch<T = any>(config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
       method: 'PATCH'
     })
   }
-  delete<T = any> (config: AxiosRequestConfig): Promise<T> {
+  delete<T = any>(config: AxiosRequestConfig): Promise<T> {
     return this.request<T>({
       ...config,
       method: 'DELETE'

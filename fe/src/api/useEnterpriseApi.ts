@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 interface EnterpriseItem {
@@ -29,7 +31,7 @@ export const useEnterpriseApi = {
   */
   getAll: (): AxiosPromise<EnterpriseGetAllResponse> => {
     return useApiRequest.get({
-      url: '/enterprise/'
+      url: AuthApiRoute.Enterprise
     })
   },
 
@@ -38,7 +40,7 @@ export const useEnterpriseApi = {
   */
   create: (payload: EnterpriseCreatePayload): AxiosPromise<EnterpriseCreateResponse> => {
     return useApiRequest.post({
-      url: '/enterprise/',
+      url: AuthApiRoute.Enterprise,
       data: payload
     })
   },
@@ -48,7 +50,7 @@ export const useEnterpriseApi = {
   */
   edit: (enterpriseId: string, payload: EnterpriseEditPayload): AxiosPromise<EnterpriseEditResponse> => {
     return useApiRequest.patch({
-      url: `/enterprise/${enterpriseId}`,
+      url: `${AuthApiRoute.Enterprise}${enterpriseId}`,
       data: payload
     })
   }

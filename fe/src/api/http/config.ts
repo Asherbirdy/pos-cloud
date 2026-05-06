@@ -1,3 +1,5 @@
-const urlApi = 'http:localhost:8080/'
+import config from "@/config"
+
+const urlApi = config.serverUrl
 
 export { urlApi }

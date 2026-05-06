@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@tanstack/vue-query": "^5.100.9",
     "axios": "^1.9.0",
     "js-cookie": "^3.0.5",
     "pinia": "^3.0.2",

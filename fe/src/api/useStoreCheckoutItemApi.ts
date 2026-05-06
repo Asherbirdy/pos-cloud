@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 type OrderStatus = 'COMPLETED' | 'CANCELLED' | 'REFUNDED'
@@ -34,7 +36,7 @@ export const useStoreCheckoutItemApi = {
   */
   getAll: (storeCheckoutId: string): AxiosPromise<StoreCheckoutItemGetAllResponse> => {
     return useApiRequest.get({
-      url: `/checkout/${storeCheckoutId}/item/`
+      url: `${AuthApiRoute.Checkout}${storeCheckoutId}/item/`
     })
   },
 
@@ -43,7 +45,7 @@ export const useStoreCheckoutItemApi = {
   */
   getById: (storeCheckoutId: string, storeCheckoutItemId: string): AxiosPromise<StoreCheckoutItemGetByIdResponse> => {
     return useApiRequest.get({
-      url: `/checkout/${storeCheckoutId}/item/${storeCheckoutItemId}`
+      url: `${AuthApiRoute.Checkout}${storeCheckoutId}/item/${storeCheckoutItemId}`
     })
   },
 
@@ -52,7 +54,7 @@ export const useStoreCheckoutItemApi = {
   */
   create: (storeCheckoutId: string, payload: StoreCheckoutItemCreatePayload): AxiosPromise<StoreCheckoutItemCreateResponse> => {
     return useApiRequest.post({
-      url: `/checkout/${storeCheckoutId}/item/`,
+      url: `${AuthApiRoute.Checkout}${storeCheckoutId}/item/`,
       data: payload
     })
   },
@@ -62,7 +64,7 @@ export const useStoreCheckoutItemApi = {
   */
   delete: (storeCheckoutId: string, storeCheckoutItemId: string): AxiosPromise<StoreCheckoutItemDeleteResponse> => {
     return useApiRequest.delete({
-      url: `/checkout/${storeCheckoutId}/item/${storeCheckoutItemId}`
+      url: `${AuthApiRoute.Checkout}${storeCheckoutId}/item/${storeCheckoutItemId}`
     })
   }
 }

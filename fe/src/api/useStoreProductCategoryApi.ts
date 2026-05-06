@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 interface StoreProductCategoryItem {
@@ -34,7 +36,7 @@ export const useStoreProductCategoryApi = {
   */
   getAll: (storeId: string): AxiosPromise<StoreProductCategoryGetAllResponse> => {
     return useApiRequest.get({
-      url: '/product-category/',
+      url: AuthApiRoute.ProductCategory,
       params: { storeId }
     })
   },
@@ -44,7 +46,7 @@ export const useStoreProductCategoryApi = {
   */
   getById: (productCategoryId: string): AxiosPromise<StoreProductCategoryGetByIdResponse> => {
     return useApiRequest.get({
-      url: `/product-category/${productCategoryId}`
+      url: `${AuthApiRoute.ProductCategory}${productCategoryId}`
     })
   },
 
@@ -53,7 +55,7 @@ export const useStoreProductCategoryApi = {
   */
   create: (storeId: string, payload: StoreProductCategoryCreatePayload): AxiosPromise<StoreProductCategoryCreateResponse> => {
     return useApiRequest.post({
-      url: '/product-category/',
+      url: AuthApiRoute.ProductCategory,
       params: { storeId },
       data: payload
     })
@@ -64,7 +66,7 @@ export const useStoreProductCategoryApi = {
   */
   update: (productCategoryId: string, payload: StoreProductCategoryUpdatePayload): AxiosPromise<StoreProductCategoryUpdateResponse> => {
     return useApiRequest.patch({
-      url: `/product-category/${productCategoryId}`,
+      url: `${AuthApiRoute.ProductCategory}${productCategoryId}`,
       data: payload
     })
   },
@@ -74,7 +76,7 @@ export const useStoreProductCategoryApi = {
   */
   delete: (productCategoryId: string): AxiosPromise<StoreProductCategoryDeleteResponse> => {
     return useApiRequest.delete({
-      url: `/product-category/${productCategoryId}`
+      url: `${AuthApiRoute.ProductCategory}${productCategoryId}`
     })
   }
 }

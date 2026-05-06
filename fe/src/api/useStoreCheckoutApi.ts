@@ -1,5 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
+import { AuthApiRoute } from '@/enum/RequestRoute'
+
 import { useApiRequest } from './http'
 
 type OrderStatus = 'COMPLETED' | 'CANCELLED' | 'REFUNDED'
@@ -41,7 +43,7 @@ export const useStoreCheckoutApi = {
   */
   getAll: (storeId: string): AxiosPromise<StoreCheckoutGetAllResponse> => {
     return useApiRequest.get({
-      url: `/store/${storeId}/checkout/`
+      url: `${AuthApiRoute.Store}${storeId}/checkout/`
     })
   },
 
@@ -50,7 +52,7 @@ export const useStoreCheckoutApi = {
   */
   getAllByShift: (storeId: string, storeShiftId: string): AxiosPromise<StoreCheckoutGetAllByShiftResponse> => {
     return useApiRequest.get({
-      url: `/store/${storeId}/checkout/by-shift/${storeShiftId}`
+      url: `${AuthApiRoute.Store}${storeId}/checkout/by-shift/${storeShiftId}`
     })
   },
 
@@ -59,7 +61,7 @@ export const useStoreCheckoutApi = {
   */
   getById: (storeId: string, storeCheckoutId: string): AxiosPromise<StoreCheckoutGetByIdResponse> => {
     return useApiRequest.get({
-      url: `/store/${storeId}/checkout/${storeCheckoutId}`
+      url: `${AuthApiRoute.Store}${storeId}/checkout/${storeCheckoutId}`
     })
   },
 
@@ -68,7 +70,7 @@ export const useStoreCheckoutApi = {
   */
   create: (storeId: string, payload: StoreCheckoutCreatePayload): AxiosPromise<StoreCheckoutCreateResponse> => {
     return useApiRequest.post({
-      url: `/store/${storeId}/checkout/`,
+      url: `${AuthApiRoute.Store}${storeId}/checkout/`,
       data: payload
     })
   },
@@ -78,7 +80,7 @@ export const useStoreCheckoutApi = {
   */
   cancel: (storeId: string, storeCheckoutId: string): AxiosPromise<StoreCheckoutCancelResponse> => {
     return useApiRequest.post({
-      url: `/store/${storeId}/checkout/${storeCheckoutId}/cancel`
+      url: `${AuthApiRoute.Store}${storeId}/checkout/${storeCheckoutId}/cancel`
     })
   }
 }
