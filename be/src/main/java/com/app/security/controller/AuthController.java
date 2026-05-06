@@ -1,16 +1,20 @@
 package com.app.security.controller;
 
 import com.app.security.dto.Auth.AuthLoginResponse;
+import com.app.security.dto.Auth.AuthRefreshTokenResponse;
 import com.app.security.dto.Auth.AuthRegisterResponse;
 import com.app.security.dto.Auth.LoginRequest;
 import com.app.security.dto.Auth.RegisterRequest;
 import com.app.security.dto.Response;
 import com.app.security.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,5 +57,17 @@ public class AuthController {
     public ResponseEntity<AuthRegisterResponse> registerAdmin(@Valid @RequestBody RegisterRequest registerRequest) {
         AuthRegisterResponse admin = authService.registerAdmin(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(admin);
+    }
+
+    /**
+     * 用 refreshToken 換新的 accessToken。
+     * Header: Authorization: Bearer <refreshToken>
+     * 用於前端 accessToken 過期 / 不存在時，靜默換 token，免重新登入。
+     */
+    @GetMapping("/refreshToken")
+    public ResponseEntity<AuthRefreshTokenResponse> refreshToken(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        AuthRefreshTokenResponse response = authService.refreshToken(authorizationHeader);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

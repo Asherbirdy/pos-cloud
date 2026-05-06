@@ -113,7 +113,7 @@ public class MySecurityConfig {
 
     private CorsConfigurationSource createCorsConfig() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://example.com"));
+        config.setAllowedOrigins(List.of("http://localhost:1207"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("*"));
         config.setAllowCredentials(true);

@@ -44,7 +44,7 @@ class Axios {
     try {
       // 嘗試刷新 accessToken
       const response = await axios.get(
-        `${config.baseUrl}/auth/refreshToken`,
+        `${config.serverUrl}/auth/refreshToken`,
         { headers: { Authorization: `Bearer ${refreshToken}` } }
       )
 

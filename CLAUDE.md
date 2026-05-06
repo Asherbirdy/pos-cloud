@@ -72,7 +72,9 @@ mvn test -Dtest=ClassName#method  # single test
 mvn clean package -DskipTests
 ```
 
-See `pos-cloud-be/CLAUDE.md` for architecture (Controller → Service → DAO with Spring JDBC, no JPA), the **model / RowMapper / `schema.sql` three-way sync rule**, the SQL text-block convention, JWT cookie auth flow, and the `member / enterprise / store / member_store_access` multi-tenancy model.
+See `pos-cloud-be/CLAUDE.md` for architecture (Controller → Service → DAO with Spring JDBC, no JPA), the **model / RowMapper / `schema.sql` three-way sync rule**, the SQL text-block convention, JWT auth flow, and the `member / enterprise / store / member_store_access` multi-tenancy model.
+
+CORS: `MySecurityConfig.createCorsConfig()` 的 `setAllowedOrigins` 必須包含前端 dev server origin（預設 `http://localhost:1207`），否則前端打 API 會回 403 `Invalid CORS request`。
 
 ## Frontend (pos-cloud-fe)
 
@@ -116,4 +118,15 @@ Env files: copy `.env.example` / `.env.development.example` / `.env.production.e
 - **Path alias**: `@/` → `src/`.
 - **Styling**: UnoCSS with `presetUno` + `presetAttributify` (see `uno.config.ts`); attributify syntax (e.g. `<div text="sm gray-500">`) is enabled.
 - **API layer**: `src/api/http` (axios wrapper) + per-feature modules like `src/api/useAuthApi.ts`. State in `src/stores/` (Pinia).
-- Auth tokens travel as HttpOnly cookies set by the backend; the frontend should not read/write the JWT directly.
+- **Response shape**: 後端統一回傳 `{ msg, data }`，前端用共用型別 `ApiResponse<T>`（`src/types/common/ApiResponse.ts`）。API 模組型別寫 `AxiosPromise<ApiResponse<TPayload>>`；**不**在 interceptor 統一拆包，呼叫端（`.vue` / composable / store）自己取 `res.data.data`，例如 `const res = await xxxApi.yyy(); const payload = res.data.data`。
+- **Server state / mutations**: 用 `@tanstack/vue-query` 的 `useQuery` / `useMutation` 包 API 呼叫；不要在 `.vue` 內直接 `await` API 並自己維護 `loading` flag。loading 綁 `mutation.isPending.value`，成功/失敗在 `onSuccess` / `onError` 處理。
+- **API URL enum**: 所有 API URL 統一寫進 `src/enum/RequestRoute.ts`，依後端 `MySecurityConfig` 的權限分成兩個 enum：
+  - `PublicApiRoute` — 後端 `permitAll` 路徑（`/auth/**`、`/dev/test`）。
+  - `AuthApiRoute` — 需要登入或角色驗證的路徑（`/member/**`、`/enterprise/**`、`/member-store-access/**`、`/storeShift/**`、`/product-category/**`、`/product-item/**`、`/store/`、`/checkout/` 等）。
+  Enum 命名照 API 路徑（`/auth/login` → `AuthLogin`、`/member-store-access/` → `MemberStoreAccess`）。靜態路徑直接用 enum 值，含 path param 時用 template literal 組合（例如 `` `${AuthApiRoute.Enterprise}${enterpriseId}` ``）。新增 API 時要先把 URL 補到對應 enum 再使用。
+- **Auth flow（前後端分離）**:
+  - 前後端透過 CORS 跨網域；前端 dev server 在 `http://localhost:1207`，後端在 `http://localhost:8083`。
+  - 登入成功時後端在 `AuthLoginResponse.tokenPair` 回傳 `{ accessToken, refreshToken }`；前端把這兩個值寫入 cookie（`CookieEnum.AccessToken` / `CookieEnum.RefreshToken`）。
+  - 後續請求由 `src/api/http/axios/Axios.ts` 的 request interceptor 從 cookie 讀 `accessToken`，掛 `Authorization: Bearer <token>` header。
+  - accessToken 不存在時自動打 `/auth/refreshToken`（用 refreshToken）換新 accessToken。**`PublicApiRoute` 內的 URL 不會走 refresh 流程也不掛 Authorization**，避免登入/註冊頁無 token 時被多打一次 refresh。
+  - cookie 由前端 JS（`utils/cookie.ts`，`js-cookie`）讀寫，**不是** HttpOnly。`axios` 的 `withCredentials` 維持 `false`，因為 auth 走 Bearer header，不靠 cookie 傳輸。
