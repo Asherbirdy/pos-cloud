@@ -1,8 +1,3 @@
-<route lang="yaml">
-meta:
-  layout: false
-</route>
-
 <script setup lang="ts">
 import { NButton, NCard, NEl, NFlex, NForm, NFormItem, NH2, NInput, NText } from 'naive-ui'
 import type { FormInst, FormRules } from 'naive-ui'

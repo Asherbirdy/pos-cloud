@@ -1,8 +1,3 @@
-<route lang="yaml">
-meta:
-  layout: false
-</route>
-
 <script setup lang="ts">
 import { NAvatar, NBadge, NButton, NCard, NDataTable, NDatePicker, NDivider, NEl, NEmpty, NFlex, NGi, NGrid, NH2, NH3, NLayout, NLayoutContent, NLayoutHeader, NProgress, NSelect, NStatistic, NTabPane, NTabs, NTag, NText, NTooltip } from 'naive-ui'
 import type { DataTableColumns, SelectOption } from 'naive-ui'

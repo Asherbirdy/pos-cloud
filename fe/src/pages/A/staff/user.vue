@@ -1,8 +1,3 @@
-<route lang="yaml">
-meta:
-  layout: false
-</route>
-
 <script setup lang="ts">
 import {
 	NAvatar, NBadge, NButton, NCard, NDivider, NEl, NFlex, NGi, NGrid, NH2, NIcon, NLayout, NLayoutContent, NLayoutHeader, NModal, NSpace, NTag, NText
