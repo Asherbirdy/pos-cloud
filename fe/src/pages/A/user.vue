@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import { NAlert, NAvatar, NButton, NCard, NDescriptions, NDescriptionsItem, NFlex, NH2, NSpin, NTag, NText } from 'naive-ui'
+import { NAlert, NAvatar, NButton, NDivider, NFlex, NH2, NSpin, NTag, NText } from 'naive-ui'
 
 import { useMemberApi } from '@/api/useMemberApi'
 import { CookieEnum } from '@/enum/CookieEnum'
@@ -39,19 +39,34 @@ const handleLogout = () => {
 }
 
 const initial = computed(() => memberQuery.data.value?.name?.charAt(0).toUpperCase() ?? '?')
+
+const fields = computed(() => {
+  const m = memberQuery.data.value
+  if (!m) return []
+  return [
+    { label: '會員 ID', value: m.memberId, mono: true },
+    { label: '姓名', value: m.name },
+    { label: 'Email', value: m.email },
+    { label: '角色', value: m.role, isRole: true },
+    { label: '建立時間', value: m.createdAt },
+    { label: '更新時間', value: m.updatedAt }
+  ]
+})
 </script>
 
 <template>
   <n-flex
-    justify="center"
-    style="min-height: 100vh; padding: 32px 16px; background: #f1f5f9;"
+    vertical
+    :size="0"
+    style="min-height: 100vh; background: #ffffff; padding: 48px 24px;"
   >
-    <n-card
-      :bordered="false"
-      style="max-width: 640px; width: 100%; height: fit-content; border-radius: 16px; box-shadow: 0 12px 32px rgba(15,23,42,0.08);"
+    <n-flex
+      vertical
+      :size="32"
+      style=" width: 100%; margin: 0 auto;"
     >
-      <n-flex align="center" justify="space-between" style="margin-bottom: 16px;">
-        <n-h2 style="margin: 0;">
+      <n-flex align="center" justify="space-between">
+        <n-h2 style="margin: 0; font-weight: 600;">
           個人資料
         </n-h2>
         <n-button
@@ -76,54 +91,58 @@ const initial = computed(() => memberQuery.data.value?.name?.charAt(0).toUpperCa
         <n-flex
           v-else-if="memberQuery.data.value"
           vertical
-          :size="20"
+          :size="32"
         >
-          <n-flex align="center" :size="16">
+          <n-flex align="center" :size="20">
             <n-avatar
               round
-              :size="64"
-              style="background: linear-gradient(135deg, #2563eb, #06b6d4); color: white; font-size: 24px;"
+              :size="72"
+              style="background: linear-gradient(135deg, #2563eb, #06b6d4); color: white; font-size: 26px; font-weight: 600;"
             >
               {{ initial }}
             </n-avatar>
-            <n-flex vertical :size="4">
-              <n-text strong style="font-size: 18px;">
+            <n-flex vertical :size="6">
+              <n-text strong style="font-size: 20px;">
                 {{ memberQuery.data.value.name }}
               </n-text>
-              <n-text depth="3" style="font-size: 13px;">
+              <n-text depth="3" style="font-size: 14px;">
                 {{ memberQuery.data.value.email }}
               </n-text>
             </n-flex>
           </n-flex>
 
-          <n-descriptions
-            label-placement="left"
-            bordered
-            :column="1"
-          >
-            <n-descriptions-item label="會員 ID">
-              <n-text code>{{ memberQuery.data.value.memberId }}</n-text>
-            </n-descriptions-item>
-            <n-descriptions-item label="姓名">
-              <n-text strong>{{ memberQuery.data.value.name }}</n-text>
-            </n-descriptions-item>
-            <n-descriptions-item label="Email">
-              {{ memberQuery.data.value.email }}
-            </n-descriptions-item>
-            <n-descriptions-item label="角色">
-              <n-tag round :type="memberQuery.data.value.role === 'admin' ? 'warning' : 'default'">
-                {{ memberQuery.data.value.role }}
-              </n-tag>
-            </n-descriptions-item>
-            <n-descriptions-item label="建立時間">
-              {{ memberQuery.data.value.createdAt }}
-            </n-descriptions-item>
-            <n-descriptions-item label="更新時間">
-              {{ memberQuery.data.value.updatedAt }}
-            </n-descriptions-item>
-          </n-descriptions>
+          <n-flex vertical :size="0">
+            <template v-for="(f, idx) in fields" :key="f.label">
+              <n-divider v-if="idx === 0" style="margin: 0;" />
+              <n-flex
+                align="center"
+                justify="space-between"
+                :size="16"
+                style="padding: 16px 4px;"
+              >
+                <n-text depth="3" style="font-size: 14px; min-width: 96px;">
+                  {{ f.label }}
+                </n-text>
+                <n-tag
+                  v-if="f.isRole"
+                  round
+                  :type="f.value === 'admin' ? 'warning' : 'default'"
+                >
+                  {{ f.value }}
+                </n-tag>
+                <n-text
+                  v-else
+                  :code="f.mono"
+                  style="font-size: 14px; text-align: right;"
+                >
+                  {{ f.value }}
+                </n-text>
+              </n-flex>
+              <n-divider style="margin: 0;" />
+            </template>
+          </n-flex>
         </n-flex>
       </n-spin>
-    </n-card>
+    </n-flex>
   </n-flex>
 </template>
