@@ -2,7 +2,16 @@ import { BriefcaseOutline, BusinessOutline, CartOutline, InformationCircleOutlin
 import { NIcon } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { defineStore } from 'pinia'
-import type { Component } from 'vue'
+import type { Component, Ref } from 'vue'
+
+interface MenuState {
+  data: {
+    menuOptions: MenuOption[]
+  }
+  feature: {
+    inverted: boolean
+  }
+}
 
 const renderIcon = (icon: Component) => {
   return () => h(NIcon, null, { default: () => h(icon) })
@@ -11,9 +20,9 @@ const renderIcon = (icon: Component) => {
 export const useMenuStore = defineStore('menuStore', () => {
   const router = useRouter()
 
-  const state = ref({
+  const state: Ref<MenuState> = ref({
     data: {
-      menuOptions: [] as MenuOption[]
+      menuOptions: []
     },
     feature: {
       inverted: false
@@ -37,6 +46,12 @@ export const useMenuStore = defineStore('menuStore', () => {
           key: 'a-admin-enterprise',
           icon: renderIcon(BusinessOutline),
           onClick: () => router.push('/A/admin/enterprise')
+        },
+        {
+          label: 'Store Account',
+          key: 'a-admin-store-account',
+          icon: renderIcon(PersonCircleOutline),
+          onClick: () => router.push('/A/admin/storeAccount')
         }
       ]
     },
