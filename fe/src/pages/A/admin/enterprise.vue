@@ -5,6 +5,8 @@ import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { h } from 'vue'
 
 import { useEnterpriseApi } from '@/api/useEnterpriseApi'
+import { useMemberStoreAccessApi } from '@/api/useMemberStoreAccessApi'
+import type { MemberStoreAccessItem } from '@/api/useMemberStoreAccessApi'
 import { useStoreApi } from '@/api/useStoreApi'
 
 interface StoreRow {
@@ -29,6 +31,43 @@ const queryClient = useQueryClient()
 const formRef = ref<FormInst | null>(null)
 
 const enterpriseQueryKey = ['enterprise', 'getAll']
+
+const state = ref({
+	data: {
+		keyword: '',
+		form: {
+			enterprise_id: '',
+			name: ''
+		},
+		storeForm: {
+			store_id: '',
+			name: '',
+			active: true,
+			running_devices_limit: 2
+		},
+		currentEnterpriseId: '',
+		currentStoreId: '',
+		currentStoreName: ''
+	},
+	feature: {
+		mode: 'create' as 'create' | 'edit',
+		showFormModal: false,
+		storeMode: 'create' as 'create' | 'edit',
+		showStoreModal: false,
+		showAccessModal: false,
+		expandedKeys: [] as string[],
+		rules: {
+			name: [
+				{ required: true, message: '請輸入企業名稱', trigger: 'blur' }
+			]
+		} as FormRules,
+		storeRules: {
+			name: [
+				{ required: true, message: '請輸入門市名稱', trigger: 'blur' }
+			]
+		} as FormRules
+	}
+})
 
 const enterpriseQuery = useQuery({
 	queryKey: enterpriseQueryKey,
@@ -93,6 +132,46 @@ const createStoreMutation = useMutation({
 	}
 })
 
+const accessQuery = useQuery({
+	queryKey: computed(() => ['memberStoreAccess', state.value.data.currentStoreId]),
+	queryFn: async (): Promise<MemberStoreAccessItem[]> => {
+		const res = await useMemberStoreAccessApi.getByStoreId(state.value.data.currentStoreId)
+		return res.data.data ?? []
+	},
+	enabled: computed(() => state.value.feature.showAccessModal && !!state.value.data.currentStoreId)
+})
+
+const accessColumns = computed<DataTableColumns<MemberStoreAccessItem>>(() => [
+	{ title: 'Member ID', key: 'memberId', width: 200, render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.memberId }) },
+	{
+		title: '角色',
+		key: 'role',
+		width: 140,
+		render: row => h(NTag, {
+			type: row.role === 'STORE_MANAGER' ? 'info' : 'default',
+			size: 'small',
+			round: true,
+			bordered: false
+		}, { default: () => row.role === 'STORE_MANAGER' ? '店長' : '店員' })
+	},
+	{
+		title: '狀態',
+		key: 'isActive',
+		width: 100,
+		render: row => h(NTag, {
+			type: row.isActive ? 'success' : 'default',
+			size: 'small',
+			round: true,
+			bordered: false
+		}, { default: () => row.isActive ? '啟用' : '停用' })
+	},
+	{
+		title: '建立時間',
+		key: 'createdAt',
+		render: row => h(NText, { depth: 3, style: 'font-size: 12px;' }, { default: () => row.createdAt })
+	}
+])
+
 const editStoreMutation = useMutation({
 	mutationFn: async (payload: { enterpriseId: string, storeId: string, name: string, isActive: boolean, running_devices_limit: number }) => {
 		await useStoreApi.edit(payload.enterpriseId, payload.storeId, {
@@ -111,39 +190,7 @@ const editStoreMutation = useMutation({
 	}
 })
 
-const state = ref({
-	data: {
-		keyword: '',
-		form: {
-			enterprise_id: '',
-			name: ''
-		},
-		storeForm: {
-			store_id: '',
-			name: '',
-			active: true,
-			running_devices_limit: 2
-		},
-		currentEnterpriseId: ''
-	},
-	feature: {
-		mode: 'create' as 'create' | 'edit',
-		showFormModal: false,
-		storeMode: 'create' as 'create' | 'edit',
-		showStoreModal: false,
-		expandedKeys: [] as string[],
-		rules: {
-			name: [
-				{ required: true, message: '請輸入企業名稱', trigger: 'blur' }
-			]
-		} as FormRules,
-		storeRules: {
-			name: [
-				{ required: true, message: '請輸入門市名稱', trigger: 'blur' }
-			]
-		} as FormRules
-	}
-})
+
 
 const enterpriseList = computed<EnterpriseRow[]>(() => enterpriseQuery.data.value ?? [])
 
@@ -201,6 +248,12 @@ const handleSubmit = async () => {
 	}
 }
 
+const openAccess = (store: StoreRow) => {
+	state.value.data.currentStoreId = store.store_id
+	state.value.data.currentStoreName = store.name
+	state.value.feature.showAccessModal = true
+}
+
 const openCreateStore = (row: EnterpriseRow) => {
 	state.value.data.currentEnterpriseId = row.enterprise_id
 	state.value.feature.storeMode = 'create'
@@ -245,7 +298,8 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 			default: () => h(StoreSubTable, {
 				enterprise: row,
 				onCreate: () => openCreateStore(row),
-				onEdit: (store: StoreRow) => openEditStore(row.enterprise_id, store)
+				onEdit: (store: StoreRow) => openEditStore(row.enterprise_id, store),
+				onAccess: (store: StoreRow) => openAccess(store)
 			})
 		})
 	},
@@ -302,7 +356,7 @@ const StoreSubTable = defineComponent({
 	props: {
 		enterprise: { type: Object as PropType<EnterpriseRow>, required: true }
 	},
-	emits: ['create', 'edit'],
+	emits: ['create', 'edit', 'access'],
 	setup: (props, { emit }) => {
 		const subColumns = computed<DataTableColumns<StoreRow>>(() => [
 			{ title: 'Store ID', key: 'store_id', width: 140, render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.store_id }) },
@@ -323,8 +377,13 @@ const StoreSubTable = defineComponent({
 			{
 				title: '操作',
 				key: 'actions',
-				width: 160,
-				render: row => h(NButton, { size: 'tiny', quaternary: true, type: 'primary', onClick: () => emit('edit', row) }, { default: () => '編輯' })
+				width: 200,
+				render: row => h(NSpace, { size: 'small' }, {
+					default: () => [
+						h(NButton, { size: 'tiny', quaternary: true, type: 'primary', onClick: () => emit('edit', row) }, { default: () => '編輯' }),
+						h(NButton, { size: 'tiny', quaternary: true, onClick: () => emit('access', row) }, { default: () => '成員' })
+					]
+				})
 			}
 		])
 
@@ -548,6 +607,44 @@ const StoreSubTable = defineComponent({
           </n-button>
         </n-flex>
       </template>
+    </n-modal>
+
+    <n-modal
+      v-model:show="state.feature.showAccessModal"
+      preset="card"
+      :title="`成員權限 · ${state.data.currentStoreName}`"
+      style="width: 720px; border-radius: 14px;"
+      :bordered="false"
+    >
+      <n-spin :show="accessQuery.isFetching.value">
+        <n-flex vertical :size="12">
+          <n-flex align="center" justify="space-between">
+            <n-text depth="3" style="font-size: 12px;">
+              Store ID
+              <n-text code depth="2" style="font-size: 12px; margin-left: 6px;">
+                {{ state.data.currentStoreId }}
+              </n-text>
+            </n-text>
+            <n-text depth="3" style="font-size: 12px;">
+              共 <n-text strong style="color: #0f172a;">{{ accessQuery.data.value?.length ?? 0 }}</n-text> 位成員
+            </n-text>
+          </n-flex>
+          <n-data-table
+            v-if="(accessQuery.data.value?.length ?? 0) > 0"
+            :columns="accessColumns"
+            :data="accessQuery.data.value ?? []"
+            :row-key="(row: MemberStoreAccessItem) => row.memberStoreAccessId"
+            :bordered="false"
+            size="small"
+          />
+          <n-empty
+            v-else-if="!accessQuery.isPending.value"
+            description="此門市尚未指派任何成員"
+            size="small"
+            style="padding: 24px 0;"
+          />
+        </n-flex>
+      </n-spin>
     </n-modal>
 
     <n-modal
