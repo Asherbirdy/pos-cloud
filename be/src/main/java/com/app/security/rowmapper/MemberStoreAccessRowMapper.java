@@ -16,7 +16,6 @@ public class MemberStoreAccessRowMapper implements RowMapper<MemberStoreAccess> 
         MemberStoreAccess access = new MemberStoreAccess();
         access.setMemberStoreAccessId(resultSet.getString("member_store_access_id"));
         access.setMemberId(resultSet.getString("member_id"));
-        access.setEnterpriseId(resultSet.getString("enterprise_id"));
         access.setStoreId(resultSet.getString("store_id"));
         access.setRole(StoreRole.valueOf(resultSet.getString("role")));
         access.setIsActive(resultSet.getBoolean("is_active"));

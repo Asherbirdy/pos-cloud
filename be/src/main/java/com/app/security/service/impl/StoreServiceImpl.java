@@ -19,13 +19,13 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public List<Store> getAllByEnterpriseId(String enterpriseId) {
-        return storeDao.getAllStoreByEnterpriseId(enterpriseId);
+    public List<Store> getAll() {
+        return storeDao.getAllStores();
     }
 
     @Override
-    public void create(String enterpriseId, String name) {
-        storeDao.createStore(enterpriseId, name);
+    public void create(String name) {
+        storeDao.createStore(name);
     }
 
     @Override

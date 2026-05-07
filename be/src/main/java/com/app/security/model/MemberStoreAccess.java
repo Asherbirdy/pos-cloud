@@ -8,7 +8,6 @@ public class MemberStoreAccess {
 
     private String memberStoreAccessId;
     private String memberId;
-    private String enterpriseId;
     private String storeId;
     private StoreRole role;
     private Boolean isActive;
@@ -28,14 +27,6 @@ public class MemberStoreAccess {
 
     public void setMemberId(String memberId) {
         this.memberId = memberId;
-    }
-
-    public String getEnterpriseId() {
-        return enterpriseId;
-    }
-
-    public void setEnterpriseId(String enterpriseId) {
-        this.enterpriseId = enterpriseId;
     }
 
     public String getStoreId() {

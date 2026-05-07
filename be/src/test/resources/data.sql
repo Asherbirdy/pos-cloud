@@ -13,20 +13,17 @@ VALUES
 --     USER TOKEN
     ('c417976f-cfaa-4ffa-820a-53788653db5f','59e40214-5297-4d0f-9e91-bbf7fe32455c','0:0:0:0:0:0:0:1','PostmanRuntime/7.53.0',true,'92c14284-b0a8-4e2b-8dce-1f6e918b8374',now(),now());
 
--- ENTERPRISE
-INSERT INTO enterprise (enterprise_id, name) VALUES ('fdda207b-e2be-4384-aa1c-6e2bcf1e5a16','好愛我企業');
-
 -- STORE
-INSERT INTO store (store_id, enterprise_id, name, running_devices_limit, is_active, created_at, updated_at)
-    VALUES ('acceeb7d-59da-4edf-b543-514d728d46c8','fdda207b-e2be-4384-aa1c-6e2bcf1e5a16','東湖店',10,false,'2026-04-23 16:58:32.044387','2026-04-23 16:58:32.044387');
+INSERT INTO store (store_id, name, running_devices_limit, is_active, created_at, updated_at)
+    VALUES ('acceeb7d-59da-4edf-b543-514d728d46c8','東湖店',10,false,'2026-04-23 16:58:32.044387','2026-04-23 16:58:32.044387');
 
 -- MEMBER STORE ACCESS
-INSERT INTO member_store_access (member_store_access_id, member_id, enterprise_id, store_id, role, is_active, created_at)
+INSERT INTO member_store_access (member_store_access_id, member_id, store_id, role, is_active, created_at)
 VALUES
 --     ADMIN -> STORE_MANAGER
-    ('a1b2c3d4-0001-4000-8000-000000000001','e00324b8-8c07-481b-8bce-dc4242c6678a','fdda207b-e2be-4384-aa1c-6e2bcf1e5a16','acceeb7d-59da-4edf-b543-514d728d46c8','STORE_MANAGER',true,now()),
+    ('a1b2c3d4-0001-4000-8000-000000000001','e00324b8-8c07-481b-8bce-dc4242c6678a','acceeb7d-59da-4edf-b543-514d728d46c8','STORE_MANAGER',true,now()),
 --     USER -> STORE_STAFF
-    ('a1b2c3d4-0002-4000-8000-000000000002','92c14284-b0a8-4e2b-8dce-1f6e918b8374','fdda207b-e2be-4384-aa1c-6e2bcf1e5a16','acceeb7d-59da-4edf-b543-514d728d46c8','STORE_STAFF',true,now());
+    ('a1b2c3d4-0002-4000-8000-000000000002','92c14284-b0a8-4e2b-8dce-1f6e918b8374','acceeb7d-59da-4edf-b543-514d728d46c8','STORE_STAFF',true,now());
 
 -- STORE PRODUCT CATEGORY (用於 STAFF 權限測試: 真實存在的分類，aspect 可反查 storeId 後再判定角色)
 INSERT INTO store_product_category (product_category_id, name, store_id, created_at, updated_at)

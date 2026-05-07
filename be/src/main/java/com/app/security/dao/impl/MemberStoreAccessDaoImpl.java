@@ -34,10 +34,9 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     public void createMemberByIds(String memberId, String storeId, StoreRole role) {
 
         String sql = """
-                INSERT INTO member_store_access(member_store_access_id, member_id, enterprise_id, store_id, role)
+                INSERT INTO member_store_access(member_store_access_id, member_id, store_id, role)
                 VALUES (:memberStoreAccessId,
                         :memberId,
-                        (SELECT enterprise_id FROM store WHERE store_id = :storeId),
                         :storeId,
                         :role)
                 """;
@@ -54,7 +53,7 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     @Override
     public List<MemberStoreAccess> getAccessByStoreId(String storeId) {
         String sql = """
-                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, is_active, created_at
+                SELECT member_store_access_id, member_id, store_id, role, is_active, created_at
                 FROM member_store_access
                 WHERE store_id = :storeId
                 """;
@@ -68,7 +67,7 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     @Override
     public MemberStoreAccess getByMemberAndStore(String memberId, String storeId) {
         String sql = """
-                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, is_active, created_at
+                SELECT member_store_access_id, member_id, store_id, role, is_active, created_at
                 FROM member_store_access
                 WHERE member_id = :memberId AND store_id = :storeId
                 """;
@@ -84,7 +83,7 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     @Override
     public List<MemberStoreAccess> getActiveAccessByMemberId(String memberId) {
         String sql = """
-                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, is_active, created_at
+                SELECT member_store_access_id, member_id, store_id, role, is_active, created_at
                 FROM member_store_access
                 WHERE member_id = :memberId AND is_active = TRUE
                 """;
@@ -99,7 +98,6 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     public List<StoreAccessItem> getStoreAccessItemsByMemberId(String memberId) {
         String sql = """
                 SELECT msa.store_id      AS store_id,
-                       msa.enterprise_id AS enterprise_id,
                        s.name            AS store_name,
                        s.is_active       AS store_active,
                        msa.role          AS role,
@@ -114,7 +112,6 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
 
         RowMapper<StoreAccessItem> mapper = (rs, rowNum) -> new StoreAccessItem(
                 rs.getString("store_id"),
-                rs.getString("enterprise_id"),
                 rs.getString("store_name"),
                 rs.getObject("store_active") == null ? null : rs.getBoolean("store_active"),
                 rs.getString("role"),
@@ -128,7 +125,6 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     public List<StoreAccessItem> getAllStoreAccessItemsByMemberId(String memberId) {
         String sql = """
                 SELECT msa.store_id      AS store_id,
-                       msa.enterprise_id AS enterprise_id,
                        s.name            AS store_name,
                        s.is_active       AS store_active,
                        msa.role          AS role,
@@ -143,7 +139,6 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
 
         RowMapper<StoreAccessItem> mapper = (rs, rowNum) -> new StoreAccessItem(
                 rs.getString("store_id"),
-                rs.getString("enterprise_id"),
                 rs.getString("store_name"),
                 rs.getObject("store_active") == null ? null : rs.getBoolean("store_active"),
                 rs.getString("role"),

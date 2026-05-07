@@ -5,9 +5,9 @@ import com.app.security.model.Store;
 import java.util.List;
 
 public interface StoreService {
-    List<Store> getAllByEnterpriseId(String enterpriseId);
+    List<Store> getAll();
 
-    void create(String enterpriseId, String name);
+    void create(String name);
 
     void edit(String storeId, String name, Boolean isActive, Integer runningDevicesLimit);
 }

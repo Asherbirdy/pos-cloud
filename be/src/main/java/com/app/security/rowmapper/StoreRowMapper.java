@@ -14,7 +14,6 @@ public class StoreRowMapper implements RowMapper<Store> {
     public Store mapRow(ResultSet resultSet, int i) throws SQLException {
         Store store = new Store();
         store.setStore_id(resultSet.getString("store_id"));
-        store.setEnterprise_id(resultSet.getString("enterprise_id"));
         store.setName(resultSet.getString("name"));
         store.setActive(resultSet.getBoolean("is_active"));
         store.setRunning_devices_limit(resultSet.getInt("running_devices_limit"));

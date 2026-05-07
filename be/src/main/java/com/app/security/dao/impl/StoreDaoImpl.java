@@ -24,24 +24,20 @@ public class StoreDaoImpl implements StoreDao {
     }
 
     @Override
-    public List<Store> getAllStoreByEnterpriseId(String enterpriseId) {
+    public List<Store> getAllStores() {
         String sql = """
-                SELECT store_id, enterprise_id, name, is_active, running_devices_limit, created_at, updated_at
+                SELECT store_id, name, is_active, running_devices_limit, created_at, updated_at
                 FROM store
-                WHERE enterprise_id = :enterpriseId
+                ORDER BY created_at DESC
                 """;
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("enterpriseId", enterpriseId);
-
-        return namedParameterJdbcTemplate.query(sql, map, rowMapper);
-
+        return namedParameterJdbcTemplate.query(sql, new HashMap<>(), rowMapper);
     }
 
     @Override
     public Store getStoreById(String storeId) {
         String sql = """
-                SELECT store_id, enterprise_id, name, is_active, running_devices_limit, created_at, updated_at
+                SELECT store_id, name, is_active, running_devices_limit, created_at, updated_at
                 FROM store
                 WHERE store_id = :storeId
                 """;
@@ -54,26 +50,24 @@ public class StoreDaoImpl implements StoreDao {
     }
 
     @Override
-    public void createStore(String enterpriseId, String name) {
+    public void createStore(String name) {
         String storeId = UUID.randomUUID().toString();
         String sql = """
-                INSERT INTO store(store_id, enterprise_id, name, created_at, updated_at)
-                VALUES (:store_id, :enterpriseId, :name, NOW(), NOW())
+                INSERT INTO store(store_id, name, created_at, updated_at)
+                VALUES (:store_id, :name, NOW(), NOW())
                 """;
         Map<String, Object> map = new HashMap<>();
         map.put("store_id", storeId);
-        map.put("enterpriseId", enterpriseId);
         map.put("name", name);
         namedParameterJdbcTemplate.update(sql, map);
-
     }
 
     @Override
     public void editStore(String store_id, String name, Boolean isActive, Integer runningDevicesLimit) {
         String sql = """
                 UPDATE store
-                SET name = :name, 
-                    is_active = :isActive, 
+                SET name = :name,
+                    is_active = :isActive,
                     running_devices_limit = :runningDevicesLimit
                 WHERE store_id = :storeId
                 """;

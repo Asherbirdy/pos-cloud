@@ -91,7 +91,7 @@ public class MySecurityConfig {
 
                         // 只有 ADMIN 才能訪問
                         .requestMatchers(
-                                "/enterprise/**",
+                                "/store/**",
                                 "/member-store-access/**",
                                 "/admin/**"
                         )
