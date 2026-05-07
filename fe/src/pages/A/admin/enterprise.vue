@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NBadge, NButton, NCard, NDataTable, NDivider, NEl, NEmpty, NFlex, NForm, NFormItem, NH2, NInput, NInputNumber, NLayout, NLayoutContent, NLayoutHeader, NModal, NPopconfirm, NSpace, NSwitch, NTag, NText, NTooltip } from 'naive-ui'
+import { NBadge, NButton, NCard, NDataTable, NEl, NEmpty, NFlex, NForm, NFormItem, NH2, NInput, NInputNumber, NLayout, NLayoutContent, NLayoutHeader, NModal, NPopconfirm, NSpace, NSwitch, NTag, NText, NTooltip } from 'naive-ui'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { h } from 'vue'
 
@@ -116,6 +116,17 @@ const filteredList = computed(() => {
 	)
 })
 
+const stats = computed(() => {
+	const list = state.value.data.list
+	const totalStores = list.reduce((acc, e) => acc + e.stores.length, 0)
+	const activeStores = list.reduce((acc, e) => acc + e.stores.filter(s => s.active).length, 0)
+	return {
+		enterprises: list.length,
+		stores: totalStores,
+		active: activeStores
+	}
+})
+
 const openCreate = () => {
 	state.value.feature.mode = 'create'
 	state.value.data.form = { enterprise_id: '', name: '', contact: '' }
@@ -224,7 +235,7 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 	{
 		type: 'expand',
 		expandable: () => true,
-		renderExpand: row => h(NEl, { tag: 'div', style: 'padding: 8px 4px 4px; background: #fafbfc; border-radius: 8px;' }, {
+		renderExpand: row => h(NEl, { tag: 'div', style: 'padding: 0;' }, {
 			default: () => h(StoreSubTable, {
 				enterprise: row,
 				onCreate: () => openCreateStore(row),
@@ -237,12 +248,12 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 		title: 'Enterprise ID',
 		key: 'enterprise_id',
 		width: 140,
-		render: row => h(NText, { code: true, depth: 3 }, { default: () => row.enterprise_id })
+		render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.enterprise_id })
 	},
 	{
 		title: '企業名稱',
 		key: 'name',
-		render: row => h(NText, { strong: true }, { default: () => row.name })
+		render: row => h(NText, { strong: true, style: 'color: #0f172a;' }, { default: () => row.name })
 	},
 	{
 		title: '聯絡 Email',
@@ -257,7 +268,7 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 		render: row => h(NBadge, {
 			value: row.stores.length,
 			showZero: true,
-			color: row.stores.length === 0 ? '#d1d5db' : '#b91c1c',
+			color: row.stores.length === 0 ? '#cbd5e1' : '#6366f1',
 			style: 'margin-right: 4px;'
 		})
 	},
@@ -280,14 +291,14 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 		fixed: 'right',
 		render: row => h(NSpace, { size: 'small' }, {
 			default: () => [
-				h(NButton, { size: 'small', secondary: true, type: 'primary', onClick: () => openEdit(row) }, { default: () => '編輯' }),
-				h(NButton, { size: 'small', secondary: true, onClick: () => openCreateStore(row) }, { default: () => '＋門市' }),
+				h(NButton, { size: 'small', quaternary: true, type: 'primary', onClick: () => openEdit(row) }, { default: () => '編輯' }),
+				h(NButton, { size: 'small', quaternary: true, onClick: () => openCreateStore(row) }, { default: () => '＋門市' }),
 				h(NPopconfirm, {
 					onPositiveClick: () => handleDelete(row),
 					positiveText: '刪除',
 					negativeText: '取消'
 				}, {
-					trigger: () => h(NButton, { size: 'small', secondary: true, type: 'error' }, { default: () => '刪除' }),
+					trigger: () => h(NButton, { size: 'small', quaternary: true, type: 'error' }, { default: () => '刪除' }),
 					default: () => `確定要刪除企業「${row.name}」？此操作無法復原。`
 				})
 			]
@@ -302,13 +313,18 @@ const StoreSubTable = defineComponent({
 	emits: ['create', 'edit', 'delete'],
 	setup: (props, { emit }) => {
 		const subColumns = computed<DataTableColumns<StoreRow>>(() => [
-			{ title: 'Store ID', key: 'store_id', width: 140, render: row => h(NText, { code: true, depth: 3 }, { default: () => row.store_id }) },
-			{ title: '門市名稱', key: 'name' },
+			{ title: 'Store ID', key: 'store_id', width: 140, render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.store_id }) },
+			{ title: '門市名稱', key: 'name', render: row => h(NText, { style: 'color: #0f172a;' }, { default: () => row.name }) },
 			{
 				title: '狀態',
 				key: 'active',
 				width: 100,
-				render: row => h(NTag, { type: row.active ? 'success' : 'default', size: 'small', round: true }, { default: () => row.active ? '營運中' : '停用' })
+				render: row => h(NTag, {
+					type: row.active ? 'success' : 'default',
+					size: 'small',
+					round: true,
+					bordered: false
+				}, { default: () => row.active ? '營運中' : '停用' })
 			},
 			{ title: '裝置上限', key: 'running_devices_limit', width: 110, align: 'center' },
 			{ title: '建立時間', key: 'createdAt', width: 160, render: row => h(NText, { depth: 3, style: 'font-size: 12px;' }, { default: () => row.createdAt }) },
@@ -318,13 +334,13 @@ const StoreSubTable = defineComponent({
 				width: 160,
 				render: row => h(NSpace, { size: 'small' }, {
 					default: () => [
-						h(NButton, { size: 'tiny', secondary: true, type: 'primary', onClick: () => emit('edit', row) }, { default: () => '編輯' }),
+						h(NButton, { size: 'tiny', quaternary: true, type: 'primary', onClick: () => emit('edit', row) }, { default: () => '編輯' }),
 						h(NPopconfirm, {
 							onPositiveClick: () => emit('delete', row.store_id),
 							positiveText: '刪除',
 							negativeText: '取消'
 						}, {
-							trigger: () => h(NButton, { size: 'tiny', secondary: true, type: 'error' }, { default: () => '刪除' }),
+							trigger: () => h(NButton, { size: 'tiny', quaternary: true, type: 'error' }, { default: () => '刪除' }),
 							default: () => `確定要刪除門市「${row.name}」？`
 						})
 					]
@@ -332,71 +348,145 @@ const StoreSubTable = defineComponent({
 			}
 		])
 
-		return () => h(NFlex, { vertical: true, size: 12, style: 'padding: 12px 16px 16px;' }, {
-			default: () => [
-				h(NFlex, { justify: 'space-between', align: 'center' }, {
-					default: () => [
-						h(NText, { strong: true, depth: 1 }, { default: () => `「${props.enterprise.name}」底下的門市` }),
-						h(NButton, { size: 'small', type: 'primary', secondary: true, onClick: () => emit('create') }, { default: () => '＋ 新增門市' })
-					]
-				}),
-				props.enterprise.stores.length === 0
-					? h(NEmpty, { description: '此企業底下尚未建立任何門市', size: 'small', style: 'padding: 16px 0;' })
-					: h(NDataTable, {
-						columns: subColumns.value,
-						data: props.enterprise.stores,
-						size: 'small',
-						bordered: false,
-						rowKey: (row: StoreRow) => row.store_id
-					})
-			]
+		return () => h(NEl, {
+			tag: 'div',
+			style: 'padding: 16px 24px 20px; background: #f8fafc; border-left: 3px solid #6366f1;'
+		}, {
+			default: () => h(NFlex, { vertical: true, size: 12 }, {
+				default: () => [
+					h(NFlex, { justify: 'space-between', align: 'center' }, {
+						default: () => [
+							h(NFlex, { align: 'center', size: 8 }, {
+								default: () => [
+									h(NText, { strong: true, style: 'color: #0f172a; font-size: 13px;' }, { default: () => '門市列表' }),
+									h(NText, { depth: 3, style: 'font-size: 12px;' }, { default: () => `· ${props.enterprise.name}` })
+								]
+							}),
+							h(NButton, { size: 'small', type: 'primary', ghost: true, onClick: () => emit('create') }, { default: () => '＋ 新增門市' })
+						]
+					}),
+					props.enterprise.stores.length === 0
+						? h(NEmpty, { description: '此企業底下尚未建立任何門市', size: 'small', style: 'padding: 24px 0;' })
+						: h(NDataTable, {
+							columns: subColumns.value,
+							data: props.enterprise.stores,
+							size: 'small',
+							bordered: false,
+							rowKey: (row: StoreRow) => row.store_id
+						})
+				]
+			})
 		})
 	}
 })
 </script>
 
 <template>
-  <n-layout style="min-height: 100vh; background: #f3f4f6;">
+  <n-layout style="min-height: 100vh; background: #ffffff;">
     <n-layout-header
-      bordered
       style="
-        padding: 16px 32px;
-        background: linear-gradient(135deg, #0f172a 0%, #7c2d12 60%, #b91c1c 100%);
+        padding: 28px 40px 24px;
+        background: #ffffff;
+        border-bottom: 1px solid #eef2f7;
       "
+      :bordered="false"
     >
       <n-flex align="center" justify="space-between">
         <n-flex align="center" :size="14">
           <n-el
             tag="div"
             style="
-              width: 42px; height: 42px; border-radius: 12px;
-              background: linear-gradient(135deg, #b91c1c, #f59e0b);
+              width: 44px; height: 44px; border-radius: 12px;
+              background: #f1f5ff;
               display: flex; align-items: center; justify-content: center;
-              box-shadow: 0 6px 16px rgba(185,28,28,0.35);
+              border: 1px solid #e0e7ff;
             "
           >
-            <n-text strong style="color: white; font-size: 14px; letter-spacing: 0.05em;">
-              ADM
+            <n-text strong style="color: #4f46e5; font-size: 13px; letter-spacing: 0.08em;">
+              ENT
             </n-text>
           </n-el>
           <n-flex vertical :size="2">
-            <n-h2 style="margin: 0; color: white; font-size: 18px;">
-              企業管理 Enterprise
+            <n-h2 style="margin: 0; color: #0f172a; font-size: 20px; letter-spacing: -0.01em;">
+              企業管理
             </n-h2>
-            <n-text style="color: rgba(255,255,255,0.7); font-size: 12px;">
-              POS 開發者後台 · 管理客戶集團與其底下的門市
+            <n-text depth="3" style="font-size: 12px;">
+              管理客戶集團與其底下的門市資源
             </n-text>
           </n-flex>
+        </n-flex>
+
+        <n-flex :size="10">
+          <n-el
+            tag="div"
+            style="
+              padding: 10px 18px; border-radius: 10px;
+              background: #f8fafc; border: 1px solid #eef2f7;
+              min-width: 110px;
+            "
+          >
+            <n-flex vertical :size="2">
+              <n-text depth="3" style="font-size: 11px; letter-spacing: 0.04em;">
+                企業數
+              </n-text>
+              <n-text strong style="color: #0f172a; font-size: 18px;">
+                {{ stats.enterprises }}
+              </n-text>
+            </n-flex>
+          </n-el>
+          <n-el
+            tag="div"
+            style="
+              padding: 10px 18px; border-radius: 10px;
+              background: #f8fafc; border: 1px solid #eef2f7;
+              min-width: 110px;
+            "
+          >
+            <n-flex vertical :size="2">
+              <n-text depth="3" style="font-size: 11px; letter-spacing: 0.04em;">
+                門市總數
+              </n-text>
+              <n-text strong style="color: #0f172a; font-size: 18px;">
+                {{ stats.stores }}
+              </n-text>
+            </n-flex>
+          </n-el>
+          <n-el
+            tag="div"
+            style="
+              padding: 10px 18px; border-radius: 10px;
+              background: #f1f5ff; border: 1px solid #e0e7ff;
+              min-width: 110px;
+            "
+          >
+            <n-flex vertical :size="2">
+              <n-text style="font-size: 11px; color: #6366f1; letter-spacing: 0.04em;">
+                營運中
+              </n-text>
+              <n-text strong style="color: #4f46e5; font-size: 18px;">
+                {{ stats.active }}
+              </n-text>
+            </n-flex>
+          </n-el>
         </n-flex>
       </n-flex>
     </n-layout-header>
 
-    <n-layout-content style="padding: 24px 32px;">
-      <n-card :bordered="false" style="border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+    <n-layout-content style="padding: 28px 40px 40px; background: #ffffff;">
+      <n-card
+        :bordered="false"
+        style="
+          border-radius: 16px;
+          background: #ffffff;
+          border: 1px solid #eef2f7;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        "
+        content-style="padding: 20px 24px 8px;"
+      >
         <n-flex
           justify="space-between"
           align="center"
-          style="margin-bottom: 16px;"
+          style="margin-bottom: 18px;"
         >
           <n-flex align="center" :size="12">
             <n-input
@@ -406,7 +496,9 @@ const StoreSubTable = defineComponent({
               style="width: 320px;"
             />
             <n-text depth="3" style="font-size: 13px;">
-              共 {{ filteredList.length }} 間企業
+              共 <n-text strong style="color: #0f172a;">
+                {{ filteredList.length }}
+              </n-text> 間企業
             </n-text>
           </n-flex>
           <n-tooltip>
@@ -414,7 +506,6 @@ const StoreSubTable = defineComponent({
               <n-button
                 type="primary"
                 strong
-                style="background: linear-gradient(135deg, #b91c1c, #f59e0b);"
                 @click="openCreate"
               >
                 ＋ 新增企業
@@ -429,24 +520,23 @@ const StoreSubTable = defineComponent({
           :data="filteredList"
           :row-key="(row: EnterpriseRow) => row.enterprise_id"
           :bordered="false"
-          striped
           size="medium"
           :scroll-x="1200"
         />
       </n-card>
 
-      <n-divider style="margin: 28px 0 12px;">
+      <n-flex justify="center" style="margin-top: 20px;">
         <n-text depth="3" style="font-size: 12px;">
           展開列以查看 / 管理該企業底下的門市
         </n-text>
-      </n-divider>
+      </n-flex>
     </n-layout-content>
 
     <n-modal
       v-model:show="state.feature.showFormModal"
       preset="card"
       :title="state.feature.mode === 'create' ? '新增企業' : '編輯企業'"
-      style="width: 480px;"
+      style="width: 480px; border-radius: 14px;"
       :bordered="false"
     >
       <n-form
@@ -481,7 +571,7 @@ const StoreSubTable = defineComponent({
       v-model:show="state.feature.showStoreModal"
       preset="card"
       :title="state.feature.storeMode === 'create' ? '新增門市' : '編輯門市'"
-      style="width: 460px;"
+      style="width: 460px; border-radius: 14px;"
       :bordered="false"
     >
       <n-form
