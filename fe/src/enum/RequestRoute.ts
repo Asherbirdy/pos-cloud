@@ -9,7 +9,6 @@ export enum PublicApiRoute {
 export enum AuthApiRoute {
     MemberShowMe = '/member/showMe',
     MemberLogout = '/member/logout',
-    Enterprise = '/enterprise/',
     MemberStoreAccess = '/member-store-access/',
     AdminMember = '/admin/member/',
     Store = '/store/',

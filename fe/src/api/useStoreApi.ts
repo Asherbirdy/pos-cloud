@@ -5,9 +5,8 @@ import type { ApiResponse } from '@/types/common/ApiResponse'
 
 import { useApiRequest } from './http'
 
-interface StoreItem {
+export interface StoreItem {
   store_id: string
-  enterprise_id: string
   name: string
   active: boolean
   running_devices_limit: number
@@ -33,20 +32,20 @@ type StoreEditResponse = void
 
 export const useStoreApi = {
   /*
-   * 取得指定企業底下的所有門市
+   * 取得所有門市
   */
-  getAll: (enterpriseId: string): AxiosPromise<ApiResponse<StoreGetAllResponse>> => {
+  getAll: (): AxiosPromise<ApiResponse<StoreGetAllResponse>> => {
     return useApiRequest.get({
-      url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/`
+      url: AuthApiRoute.Store
     })
   },
 
   /*
-   * 在指定企業下建立新門市
+   * 建立新門市
   */
-  create: (enterpriseId: string, payload: StoreCreatePayload): AxiosPromise<ApiResponse<StoreCreateResponse>> => {
+  create: (payload: StoreCreatePayload): AxiosPromise<ApiResponse<StoreCreateResponse>> => {
     return useApiRequest.post({
-      url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/`,
+      url: AuthApiRoute.Store,
       data: payload
     })
   },
@@ -54,9 +53,9 @@ export const useStoreApi = {
   /*
    * 編輯門市資料
   */
-  edit: (enterpriseId: string, storeId: string, payload: StoreEditPayload): AxiosPromise<ApiResponse<StoreEditResponse>> => {
+  edit: (storeId: string, payload: StoreEditPayload): AxiosPromise<ApiResponse<StoreEditResponse>> => {
     return useApiRequest.patch({
-      url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/${storeId}`,
+      url: `${AuthApiRoute.Store}${storeId}`,
       data: payload
     })
   }

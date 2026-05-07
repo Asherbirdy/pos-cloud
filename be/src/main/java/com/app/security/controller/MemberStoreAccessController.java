@@ -2,8 +2,8 @@ package com.app.security.controller;
 
 import com.app.security.dto.MemberStoreAccess.MemberStoreAccessCreateRequest;
 import com.app.security.dto.MemberStoreAccess.MemberStoreAccessUpdateRequest;
+import com.app.security.dto.MemberStoreAccess.StoreMemberAccessItem;
 import com.app.security.dto.Response;
-import com.app.security.model.MemberStoreAccess;
 import com.app.security.service.MemberStoreAccessService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -36,8 +36,8 @@ public class MemberStoreAccessController {
      * 用於門市後台檢視員工名單、權限管理。
      */
     @GetMapping("/{storeId}")
-    public Response<List<MemberStoreAccess>> getAccessByStoreId(@PathVariable String storeId) {
-        List<MemberStoreAccess> list = memberStoreAccessService.getByStoreId(storeId);
+    public Response<List<StoreMemberAccessItem>> getAccessByStoreId(@PathVariable String storeId) {
+        List<StoreMemberAccessItem> list = memberStoreAccessService.getByStoreId(storeId);
         return new Response<>("Get Member Store Access", list, HttpStatus.OK);
     }
 

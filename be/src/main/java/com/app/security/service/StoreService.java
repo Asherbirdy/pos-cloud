@@ -1,11 +1,11 @@
 package com.app.security.service;
 
-import com.app.security.model.Store;
+import com.app.security.dto.Store.StoreWithMembersResponse;
 
 import java.util.List;
 
 public interface StoreService {
-    List<Store> getAll();
+    List<StoreWithMembersResponse> getAll();
 
     void create(String name);
 

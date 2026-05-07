@@ -3,7 +3,7 @@ package com.app.security.controller;
 import com.app.security.dto.Response;
 import com.app.security.dto.Store.StoreCreateRequest;
 import com.app.security.dto.Store.StoreEditRequest;
-import com.app.security.model.Store;
+import com.app.security.dto.Store.StoreWithMembersResponse;
 import com.app.security.service.StoreService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,8 +26,8 @@ public class StoreController {
      * 用於後台 / 前台切換門市時的清單顯示。
      */
     @GetMapping("/")
-    public Response<List<Store>> getAll() {
-        List<Store> stores = storeService.getAll();
+    public Response<List<StoreWithMembersResponse>> getAll() {
+        List<StoreWithMembersResponse> stores = storeService.getAll();
         return new Response<>("Success", stores, HttpStatus.OK);
     }
 

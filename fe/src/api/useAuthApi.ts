@@ -23,7 +23,6 @@ interface AuthLoginPayload {
 
 interface AuthLoginStoreAccessItem {
   storeId: string
-  enterpriseId: string
   storeName: string
   storeActive: boolean
   role: string

@@ -21,8 +21,7 @@ const state = ref({
 		form: {
 			name: '',
 			email: '',
-			password: '',
-			role: 'user' as MemberRole
+			password: ''
 		}
 	},
 	feature: {
@@ -40,10 +39,6 @@ const state = ref({
 				{ min: 6, max: 64, message: '密碼長度需介於 6–64 字元', trigger: 'blur' }
 			]
 		} as FormRules,
-		roleOptions: [
-			{ label: 'User', value: 'user' },
-			{ label: 'Admin', value: 'admin' }
-		],
 		roleFilterOptions: [
 			{ label: '全部角色', value: 'all' },
 			{ label: 'Admin', value: 'admin' },
@@ -99,7 +94,7 @@ const stats = computed(() => {
 })
 
 const openCreate = () => {
-	state.value.data.form = { name: '', email: '', password: '', role: 'user' }
+	state.value.data.form = { name: '', email: '', password: '' }
 	state.value.feature.showFormModal = true
 }
 
@@ -115,7 +110,7 @@ const handleSubmit = async () => {
 		name: state.value.data.form.name,
 		email: state.value.data.form.email,
 		password: state.value.data.form.password,
-		role: state.value.data.form.role
+		role: 'user'
 	})
 }
 
@@ -424,12 +419,6 @@ const columns = computed<DataTableColumns<AdminMemberItem>>(() => [
             type="password"
             show-password-on="click"
             placeholder="6–64 字元"
-          />
-        </n-form-item>
-        <n-form-item label="角色">
-          <n-select
-            v-model:value="state.data.form.role"
-            :options="state.feature.roleOptions"
           />
         </n-form-item>
       </n-form>
