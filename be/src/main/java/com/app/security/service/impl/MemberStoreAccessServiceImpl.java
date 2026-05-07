@@ -1,8 +1,8 @@
 package com.app.security.service.impl;
 
 import com.app.security.dao.MemberStoreAccessDao;
+import com.app.security.dto.MemberStoreAccess.StoreMemberAccessItem;
 import com.app.security.enums.StoreRole;
-import com.app.security.model.MemberStoreAccess;
 import com.app.security.service.MemberStoreAccessService;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +23,8 @@ public class MemberStoreAccessServiceImpl implements MemberStoreAccessService {
     }
 
     @Override
-    public List<MemberStoreAccess> getByStoreId(String storeId) {
-        return memberStoreAccessDao.getAccessByStoreId(storeId);
+    public List<StoreMemberAccessItem> getByStoreId(String storeId) {
+        return memberStoreAccessDao.getStoreMembersByStoreId(storeId);
     }
 
     @Override

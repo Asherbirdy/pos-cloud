@@ -1,4 +1,4 @@
-import { BriefcaseOutline, BusinessOutline, CartOutline, InformationCircleOutline, PeopleOutline, PersonCircleOutline, PersonOutline, ShieldCheckmarkOutline, StatsChartOutline } from '@vicons/ionicons5'
+import { BriefcaseOutline, CartOutline, PeopleOutline, PersonCircleOutline, PersonOutline, ShieldCheckmarkOutline, StatsChartOutline, StorefrontOutline } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { defineStore } from 'pinia'
@@ -42,16 +42,16 @@ export const useMenuStore = defineStore('menuStore', () => {
       icon: renderIcon(ShieldCheckmarkOutline),
       children: [
         {
-          label: 'Enterprise',
-          key: 'a-admin-enterprise',
-          icon: renderIcon(BusinessOutline),
-          onClick: () => router.push('/A/admin/enterprise')
-        },
-        {
           label: 'Member',
           key: 'a-admin-member',
           icon: renderIcon(PersonCircleOutline),
           onClick: () => router.push('/A/admin/member')
+        },
+        {
+          label: 'Store',
+          key: 'a-admin-store',
+          icon: renderIcon(StorefrontOutline),
+          onClick: () => router.push('/A/admin/store')
         }
       ]
     },

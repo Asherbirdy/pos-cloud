@@ -18,8 +18,8 @@ type MemberStoreAccessCreateResponse = void
 export interface MemberStoreAccessItem {
   memberStoreAccessId: string
   memberId: string
-  enterpriseId: string
-  storeId: string
+  memberName: string | null
+  memberEmail: string | null
   role: StoreRole
   isActive: boolean
   createdAt: string

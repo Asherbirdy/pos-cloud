@@ -10,7 +10,6 @@ export type StoreRole = 'STORE_MANAGER' | 'STORE_STAFF'
 
 export interface AdminStoreAccessItem {
   storeId: string
-  enterpriseId: string
   storeName: string | null
   storeActive: boolean | null
   role: StoreRole

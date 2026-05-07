@@ -2,6 +2,7 @@ package com.app.security.dao.impl;
 
 import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.dto.Auth.StoreAccessItem;
+import com.app.security.dto.MemberStoreAccess.StoreMemberAccessItem;
 import com.app.security.enums.StoreRole;
 import com.app.security.model.MemberStoreAccess;
 import com.app.security.rowmapper.MemberStoreAccessRowMapper;
@@ -34,10 +35,9 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     public void createMemberByIds(String memberId, String storeId, StoreRole role) {
 
         String sql = """
-                INSERT INTO member_store_access(member_store_access_id, member_id, enterprise_id, store_id, role)
+                INSERT INTO member_store_access(member_store_access_id, member_id, store_id, role)
                 VALUES (:memberStoreAccessId,
                         :memberId,
-                        (SELECT enterprise_id FROM store WHERE store_id = :storeId),
                         :storeId,
                         :role)
                 """;
@@ -54,7 +54,7 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     @Override
     public List<MemberStoreAccess> getAccessByStoreId(String storeId) {
         String sql = """
-                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, is_active, created_at
+                SELECT member_store_access_id, member_id, store_id, role, is_active, created_at
                 FROM member_store_access
                 WHERE store_id = :storeId
                 """;
@@ -66,9 +66,41 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     }
 
     @Override
+    public List<StoreMemberAccessItem> getStoreMembersByStoreId(String storeId) {
+        String sql = """
+                SELECT msa.member_store_access_id AS member_store_access_id,
+                       msa.member_id              AS member_id,
+                       m.name                     AS member_name,
+                       m.email                    AS member_email,
+                       msa.role                   AS role,
+                       msa.is_active              AS is_active,
+                       msa.created_at             AS created_at
+                FROM member_store_access msa
+                LEFT JOIN member m ON m.member_id = msa.member_id
+                WHERE msa.store_id = :storeId
+                ORDER BY msa.created_at DESC
+                """;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("storeId", storeId);
+
+        RowMapper<StoreMemberAccessItem> mapper = (rs, rowNum) -> new StoreMemberAccessItem(
+                rs.getString("member_store_access_id"),
+                rs.getString("member_id"),
+                rs.getString("member_name"),
+                rs.getString("member_email"),
+                rs.getString("role"),
+                rs.getObject("is_active") == null ? null : rs.getBoolean("is_active"),
+                rs.getTimestamp("created_at")
+        );
+
+        return namedParameterJdbcTemplate.query(sql, map, mapper);
+    }
+
+    @Override
     public MemberStoreAccess getByMemberAndStore(String memberId, String storeId) {
         String sql = """
-                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, is_active, created_at
+                SELECT member_store_access_id, member_id, store_id, role, is_active, created_at
                 FROM member_store_access
                 WHERE member_id = :memberId AND store_id = :storeId
                 """;
@@ -84,7 +116,7 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     @Override
     public List<MemberStoreAccess> getActiveAccessByMemberId(String memberId) {
         String sql = """
-                SELECT member_store_access_id, member_id, enterprise_id, store_id, role, is_active, created_at
+                SELECT member_store_access_id, member_id, store_id, role, is_active, created_at
                 FROM member_store_access
                 WHERE member_id = :memberId AND is_active = TRUE
                 """;
@@ -99,7 +131,6 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     public List<StoreAccessItem> getStoreAccessItemsByMemberId(String memberId) {
         String sql = """
                 SELECT msa.store_id      AS store_id,
-                       msa.enterprise_id AS enterprise_id,
                        s.name            AS store_name,
                        s.is_active       AS store_active,
                        msa.role          AS role,
@@ -114,7 +145,6 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
 
         RowMapper<StoreAccessItem> mapper = (rs, rowNum) -> new StoreAccessItem(
                 rs.getString("store_id"),
-                rs.getString("enterprise_id"),
                 rs.getString("store_name"),
                 rs.getObject("store_active") == null ? null : rs.getBoolean("store_active"),
                 rs.getString("role"),
@@ -128,7 +158,6 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     public List<StoreAccessItem> getAllStoreAccessItemsByMemberId(String memberId) {
         String sql = """
                 SELECT msa.store_id      AS store_id,
-                       msa.enterprise_id AS enterprise_id,
                        s.name            AS store_name,
                        s.is_active       AS store_active,
                        msa.role          AS role,
@@ -143,7 +172,6 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
 
         RowMapper<StoreAccessItem> mapper = (rs, rowNum) -> new StoreAccessItem(
                 rs.getString("store_id"),
-                rs.getString("enterprise_id"),
                 rs.getString("store_name"),
                 rs.getObject("store_active") == null ? null : rs.getBoolean("store_active"),
                 rs.getString("role"),

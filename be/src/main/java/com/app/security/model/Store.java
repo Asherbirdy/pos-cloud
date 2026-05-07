@@ -4,7 +4,6 @@ import java.util.Date;
 
 public class Store {
     private String store_id;
-    private String enterprise_id;
     private String name;
     private Boolean isActive;
     private Integer running_devices_limit;
@@ -25,14 +24,6 @@ public class Store {
 
     public void setStore_id(String store_id) {
         this.store_id = store_id;
-    }
-
-    public String getEnterprise_id() {
-        return enterprise_id;
-    }
-
-    public void setEnterprise_id(String enterprise_id) {
-        this.enterprise_id = enterprise_id;
     }
 
     public String getName() {
@@ -65,8 +56,5 @@ public class Store {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public void setStoreId(String storeId) {
     }
 }

@@ -18,24 +18,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class StoreControllerTest extends AuthTestSupport {
 
-    private static final String ENTERPRISE_ID = "fdda207b-e2be-4384-aa1c-6e2bcf1e5a16";
     private static final String STORE_ID = "acceeb7d-59da-4edf-b543-514d728d46c8";
 
     @Test
-    @DisplayName("user 登入 -> [GET] /enterprise/{enterpriseId}/store/ 應得 403")
+    @DisplayName("user 登入 -> [GET] /store/ 應得 403")
     public void getAllWithUserShouldBeForbidden() throws Exception {
-        mockMvc.perform(get("/enterprise/" + ENTERPRISE_ID + "/store/")
+        mockMvc.perform(get("/store/")
                         .cookie(userAccessToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("user 登入 -> [POST] /enterprise/{enterpriseId}/store/ 應得 403")
+    @DisplayName("user 登入 -> [POST] /store/ 應得 403")
     public void createWithUserShouldBeForbidden() throws Exception {
         StoreCreateRequest request = new StoreCreateRequest();
         request.setName("新門市");
 
-        mockMvc.perform(post("/enterprise/" + ENTERPRISE_ID + "/store/")
+        mockMvc.perform(post("/store/")
                         .cookie(userAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -43,14 +42,14 @@ public class StoreControllerTest extends AuthTestSupport {
     }
 
     @Test
-    @DisplayName("user 登入 -> [PATCH] /enterprise/{enterpriseId}/store/{store_id} 應得 403")
+    @DisplayName("user 登入 -> [PATCH] /store/{store_id} 應得 403")
     public void editWithUserShouldBeForbidden() throws Exception {
         StoreEditRequest request = new StoreEditRequest();
         request.setName("改名門市");
         request.setIsActive(true);
         request.setRunning_devices_limit(5);
 
-        mockMvc.perform(patch("/enterprise/" + ENTERPRISE_ID + "/store/" + STORE_ID)
+        mockMvc.perform(patch("/store/" + STORE_ID)
                         .cookie(userAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -58,20 +57,20 @@ public class StoreControllerTest extends AuthTestSupport {
     }
 
     @Test
-    @DisplayName("admin 登入 -> [GET] /enterprise/{enterpriseId}/store/ 應得 200")
+    @DisplayName("admin 登入 -> [GET] /store/ 應得 200")
     public void getAllWithAdminShouldBeOk() throws Exception {
-        mockMvc.perform(get("/enterprise/" + ENTERPRISE_ID + "/store/")
+        mockMvc.perform(get("/store/")
                         .cookie(adminAccessToken))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("admin 登入 -> [POST] /enterprise/{enterpriseId}/store/ 應得 201")
+    @DisplayName("admin 登入 -> [POST] /store/ 應得 201")
     public void createWithAdminShouldBeCreated() throws Exception {
         StoreCreateRequest request = new StoreCreateRequest();
         request.setName("新門市");
 
-        mockMvc.perform(post("/enterprise/" + ENTERPRISE_ID + "/store/")
+        mockMvc.perform(post("/store/")
                         .cookie(adminAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -79,14 +78,14 @@ public class StoreControllerTest extends AuthTestSupport {
     }
 
     @Test
-    @DisplayName("admin 登入 -> [PATCH] /enterprise/{enterpriseId}/store/{store_id} 應得 200")
+    @DisplayName("admin 登入 -> [PATCH] /store/{store_id} 應得 200")
     public void editWithAdminShouldBeOk() throws Exception {
         StoreEditRequest request = new StoreEditRequest();
         request.setName("改名門市");
         request.setIsActive(true);
         request.setRunning_devices_limit(5);
 
-        mockMvc.perform(patch("/enterprise/" + ENTERPRISE_ID + "/store/" + STORE_ID)
+        mockMvc.perform(patch("/store/" + STORE_ID)
                         .cookie(adminAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

@@ -1,6 +1,5 @@
 export * from './useAuthApi'
 export * from './useDevApi'
-export * from './useEnterpriseApi'
 export * from './useMemberApi'
 export * from './useMemberStoreAccessApi'
 export * from './useStoreApi'
