@@ -6,6 +6,16 @@ import type { ApiResponse } from '@/types/common/ApiResponse'
 import { useApiRequest } from './http'
 
 export type MemberRole = 'admin' | 'user'
+export type StoreRole = 'STORE_MANAGER' | 'STORE_STAFF'
+
+export interface AdminStoreAccessItem {
+  storeId: string
+  enterpriseId: string
+  storeName: string | null
+  storeActive: boolean | null
+  role: StoreRole
+  accessActive: boolean | null
+}
 
 export interface AdminMemberItem {
   memberId: string
@@ -14,6 +24,7 @@ export interface AdminMemberItem {
   role: MemberRole
   createdAt: string
   updatedAt: string
+  storeAccess: AdminStoreAccessItem[]
 }
 
 type AdminGetAllMembersResponse = AdminMemberItem[]

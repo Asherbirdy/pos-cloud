@@ -14,4 +14,5 @@ public interface MemberStoreAccessDao {
     MemberStoreAccess getByMemberAndStore(String memberId, String storeId);
     List<MemberStoreAccess> getActiveAccessByMemberId(String memberId);
     List<StoreAccessItem> getStoreAccessItemsByMemberId(String memberId);
+    List<StoreAccessItem> getAllStoreAccessItemsByMemberId(String memberId);
 }

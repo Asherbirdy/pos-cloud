@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { NButton, NCard, NDataTable, NEl, NFlex, NForm, NFormItem, NH2, NInput, NLayout, NLayoutContent, NLayoutHeader, NModal, NSelect, NSpin, NTag, NText, NTooltip } from 'naive-ui'
+import { NBadge, NButton, NCard, NDataTable, NEl, NEmpty, NFlex, NForm, NFormItem, NH2, NInput, NLayout, NLayoutContent, NLayoutHeader, NModal, NSelect, NSpin, NTag, NText, NTooltip } from 'naive-ui'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { h } from 'vue'
 
 import { useAdminApi } from '@/api/useAdminApi'
-import type { AdminMemberItem, MemberRole } from '@/api/useAdminApi'
+import type { AdminMemberItem, AdminStoreAccessItem, MemberRole } from '@/api/useAdminApi'
 
 const message = useMessage()
 const queryClient = useQueryClient()
@@ -119,7 +119,80 @@ const handleSubmit = async () => {
 	})
 }
 
+const accessSubColumns = computed<DataTableColumns<AdminStoreAccessItem>>(() => [
+	{ title: 'Store ID', key: 'storeId', width: 200, render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.storeId }) },
+	{ title: '門市名稱', key: 'storeName', render: row => h(NText, { style: 'color: #0f172a;' }, { default: () => row.storeName ?? '—' }) },
+	{
+		title: '門市狀態',
+		key: 'storeActive',
+		width: 110,
+		render: row => h(NTag, {
+			type: row.storeActive ? 'success' : 'default',
+			size: 'small',
+			round: true,
+			bordered: false
+		}, { default: () => row.storeActive ? '營運中' : '停用' })
+	},
+	{
+		title: '角色',
+		key: 'role',
+		width: 110,
+		render: row => h(NTag, {
+			type: row.role === 'STORE_MANAGER' ? 'info' : 'default',
+			size: 'small',
+			round: true,
+			bordered: false
+		}, { default: () => row.role === 'STORE_MANAGER' ? '店長' : '店員' })
+	},
+	{
+		title: '授權狀態',
+		key: 'accessActive',
+		width: 110,
+		render: row => h(NTag, {
+			type: row.accessActive ? 'success' : 'default',
+			size: 'small',
+			round: true,
+			bordered: false
+		}, { default: () => row.accessActive ? '啟用' : '停用' })
+	}
+])
+
+const AccessSubTable = defineComponent({
+	props: {
+		member: { type: Object as PropType<AdminMemberItem>, required: true }
+	},
+	setup: props => () => h(NEl, {
+		tag: 'div',
+		style: 'padding: 16px 24px 20px; background: #f8fafc; border-left: 3px solid #6366f1;'
+	}, {
+		default: () => h(NFlex, { vertical: true, size: 12 }, {
+			default: () => [
+				h(NFlex, { align: 'center', size: 8 }, {
+					default: () => [
+						h(NText, { strong: true, style: 'color: #0f172a; font-size: 13px;' }, { default: () => '門市授權' }),
+						h(NText, { depth: 3, style: 'font-size: 12px;' }, { default: () => `· ${props.member.name}` })
+					]
+				}),
+				(props.member.storeAccess?.length ?? 0) === 0
+					? h(NEmpty, { description: '此會員尚未被指派任何門市授權', size: 'small', style: 'padding: 24px 0;' })
+					: h(NDataTable, {
+						columns: accessSubColumns.value,
+						data: props.member.storeAccess,
+						size: 'small',
+						bordered: false,
+						rowKey: (row: AdminStoreAccessItem) => `${row.storeId}-${row.role}`
+					})
+			]
+		})
+	})
+})
+
 const columns = computed<DataTableColumns<AdminMemberItem>>(() => [
+	{
+		type: 'expand',
+		expandable: () => true,
+		renderExpand: row => h(AccessSubTable, { member: row })
+	},
 	{
 		title: 'Member ID',
 		key: 'memberId',
@@ -146,6 +219,18 @@ const columns = computed<DataTableColumns<AdminMemberItem>>(() => [
 			round: true,
 			bordered: false
 		}, { default: () => row.role === 'admin' ? 'Admin' : 'User' })
+	},
+	{
+		title: '授權門市',
+		key: 'storeAccess',
+		width: 110,
+		align: 'center',
+		render: row => h(NBadge, {
+			value: row.storeAccess?.length ?? 0,
+			showZero: true,
+			color: (row.storeAccess?.length ?? 0) === 0 ? '#cbd5e1' : '#6366f1',
+			style: 'margin-right: 4px;'
+		})
 	},
 	{
 		title: '建立時間',
