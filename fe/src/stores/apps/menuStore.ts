@@ -48,10 +48,10 @@ export const useMenuStore = defineStore('menuStore', () => {
           onClick: () => router.push('/A/admin/enterprise')
         },
         {
-          label: 'Store Account',
-          key: 'a-admin-store-account',
+          label: 'Member',
+          key: 'a-admin-member',
           icon: renderIcon(PersonCircleOutline),
-          onClick: () => router.push('/A/admin/storeAccount')
+          onClick: () => router.push('/A/admin/member')
         }
       ]
     },
