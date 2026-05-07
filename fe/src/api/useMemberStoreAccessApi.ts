@@ -1,10 +1,11 @@
 import type { AxiosPromise } from 'axios'
 
 import { AuthApiRoute } from '@/enum/RequestRoute'
+import type { ApiResponse } from '@/types/common/ApiResponse'
 
 import { useApiRequest } from './http'
 
-type StoreRole = 'STORE_MANAGER' | 'STORE_STAFF'
+export type StoreRole = 'STORE_MANAGER' | 'STORE_STAFF'
 
 interface MemberStoreAccessCreatePayload {
   memberId: string
@@ -14,7 +15,7 @@ interface MemberStoreAccessCreatePayload {
 
 type MemberStoreAccessCreateResponse = void
 
-interface MemberStoreAccessItem {
+export interface MemberStoreAccessItem {
   memberStoreAccessId: string
   memberId: string
   enterpriseId: string
@@ -37,7 +38,7 @@ export const useMemberStoreAccessApi = {
   /*
    * 指派 member 到某個 store
   */
-  create: (payload: MemberStoreAccessCreatePayload): AxiosPromise<MemberStoreAccessCreateResponse> => {
+  create: (payload: MemberStoreAccessCreatePayload): AxiosPromise<ApiResponse<MemberStoreAccessCreateResponse>> => {
     return useApiRequest.post({
       url: AuthApiRoute.MemberStoreAccess,
       data: payload
@@ -47,7 +48,7 @@ export const useMemberStoreAccessApi = {
   /*
    * 取得指定門市目前所有的成員授權清單
   */
-  getByStoreId: (storeId: string): AxiosPromise<MemberStoreAccessGetByStoreIdResponse> => {
+  getByStoreId: (storeId: string): AxiosPromise<ApiResponse<MemberStoreAccessGetByStoreIdResponse>> => {
     return useApiRequest.get({
       url: `${AuthApiRoute.MemberStoreAccess}${storeId}`
     })
@@ -56,7 +57,7 @@ export const useMemberStoreAccessApi = {
   /*
    * 更新成員在某門市的角色或啟用狀態
   */
-  update: (memberStoreAccessId: string, payload: MemberStoreAccessUpdatePayload): AxiosPromise<MemberStoreAccessUpdateResponse> => {
+  update: (memberStoreAccessId: string, payload: MemberStoreAccessUpdatePayload): AxiosPromise<ApiResponse<MemberStoreAccessUpdateResponse>> => {
     return useApiRequest.patch({
       url: `${AuthApiRoute.MemberStoreAccess}${memberStoreAccessId}`,
       data: payload

@@ -1,6 +1,7 @@
 import type { AxiosPromise } from 'axios'
 
 import { AuthApiRoute } from '@/enum/RequestRoute'
+import type { ApiResponse } from '@/types/common/ApiResponse'
 
 import { useApiRequest } from './http'
 
@@ -34,7 +35,7 @@ export const useStoreApi = {
   /*
    * 取得指定企業底下的所有門市
   */
-  getAll: (enterpriseId: string): AxiosPromise<StoreGetAllResponse> => {
+  getAll: (enterpriseId: string): AxiosPromise<ApiResponse<StoreGetAllResponse>> => {
     return useApiRequest.get({
       url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/`
     })
@@ -43,7 +44,7 @@ export const useStoreApi = {
   /*
    * 在指定企業下建立新門市
   */
-  create: (enterpriseId: string, payload: StoreCreatePayload): AxiosPromise<StoreCreateResponse> => {
+  create: (enterpriseId: string, payload: StoreCreatePayload): AxiosPromise<ApiResponse<StoreCreateResponse>> => {
     return useApiRequest.post({
       url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/`,
       data: payload
@@ -53,7 +54,7 @@ export const useStoreApi = {
   /*
    * 編輯門市資料
   */
-  edit: (enterpriseId: string, storeId: string, payload: StoreEditPayload): AxiosPromise<StoreEditResponse> => {
+  edit: (enterpriseId: string, storeId: string, payload: StoreEditPayload): AxiosPromise<ApiResponse<StoreEditResponse>> => {
     return useApiRequest.patch({
       url: `${AuthApiRoute.Enterprise}${enterpriseId}/store/${storeId}`,
       data: payload

@@ -87,6 +87,17 @@ public class MemberDaoImpl implements MemberDao {
     }
 
     @Override
+    public List<Member> getAllMembers() {
+        String sql = """
+                SELECT member_id, name, email, password, role, created_at, updated_at
+                FROM member
+                ORDER BY created_at DESC
+                """;
+
+        return namedParameterJdbcTemplate.query(sql, new HashMap<>(), memberRowMapper);
+    }
+
+    @Override
     public List<Member> getRoleMembers(String role) {
         String sql = """
                 SELECT member_id, name, email, password, role, created_at, updated_at

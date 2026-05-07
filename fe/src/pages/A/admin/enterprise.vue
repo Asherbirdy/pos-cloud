@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { NBadge, NButton, NCard, NDataTable, NDivider, NEl, NEmpty, NFlex, NForm, NFormItem, NH2, NInput, NInputNumber, NLayout, NLayoutContent, NLayoutHeader, NModal, NPopconfirm, NSpace, NSwitch, NTag, NText, NTooltip } from 'naive-ui'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { NBadge, NButton, NCard, NDataTable, NEl, NEmpty, NFlex, NForm, NFormItem, NH2, NInput, NInputNumber, NLayout, NLayoutContent, NLayoutHeader, NModal, NSpace, NSpin, NSwitch, NTag, NText, NTooltip } from 'naive-ui'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { h } from 'vue'
+
+import { useEnterpriseApi } from '@/api/useEnterpriseApi'
+import { useMemberStoreAccessApi } from '@/api/useMemberStoreAccessApi'
+import type { MemberStoreAccessItem } from '@/api/useMemberStoreAccessApi'
+import { useStoreApi } from '@/api/useStoreApi'
 
 interface StoreRow {
 	store_id: string
@@ -14,66 +20,24 @@ interface StoreRow {
 interface EnterpriseRow {
 	enterprise_id: string
 	name: string
-	contact: string
 	stores: StoreRow[]
 	createdAt: string
 	updatedAt: string
 }
 
 const message = useMessage()
+const queryClient = useQueryClient()
 
 const formRef = ref<FormInst | null>(null)
+
+const enterpriseQueryKey = ['enterprise', 'getAll']
 
 const state = ref({
 	data: {
 		keyword: '',
-		list: [
-			{
-				enterprise_id: 'ent_0001',
-				name: '星耀餐飲集團',
-				contact: 'ops@stardine.com',
-				createdAt: '2025-08-12 10:24',
-				updatedAt: '2026-04-18 09:11',
-				stores: [
-					{ store_id: 'st_1001', name: '星耀信義旗艦店', active: true, running_devices_limit: 8, createdAt: '2025-08-15 11:00' },
-					{ store_id: 'st_1002', name: '星耀內湖店', active: true, running_devices_limit: 4, createdAt: '2025-09-02 14:32' },
-					{ store_id: 'st_1003', name: '星耀板橋店', active: false, running_devices_limit: 4, createdAt: '2025-10-21 16:18' }
-				]
-			},
-			{
-				enterprise_id: 'ent_0002',
-				name: '甘茶手作飲品',
-				contact: 'hello@gantea.tw',
-				createdAt: '2025-09-03 14:02',
-				updatedAt: '2026-03-10 17:45',
-				stores: [
-					{ store_id: 'st_2001', name: '甘茶南港車站店', active: true, running_devices_limit: 2, createdAt: '2025-09-10 09:00' },
-					{ store_id: 'st_2002', name: '甘茶西門店', active: true, running_devices_limit: 2, createdAt: '2025-11-04 12:20' }
-				]
-			},
-			{
-				enterprise_id: 'ent_0003',
-				name: '木森麵包工坊',
-				contact: 'service@mosen.bakery',
-				createdAt: '2025-11-21 09:48',
-				updatedAt: '2026-04-29 22:01',
-				stores: [
-					{ store_id: 'st_3001', name: '木森大安總店', active: true, running_devices_limit: 3, createdAt: '2025-11-25 10:30' }
-				]
-			},
-			{
-				enterprise_id: 'ent_0004',
-				name: '海風日式食堂',
-				contact: 'admin@kaifu.co',
-				createdAt: '2026-01-09 18:20',
-				updatedAt: '2026-04-30 08:33',
-				stores: []
-			}
-		] as EnterpriseRow[],
 		form: {
 			enterprise_id: '',
-			name: '',
-			contact: ''
+			name: ''
 		},
 		storeForm: {
 			store_id: '',
@@ -81,21 +45,20 @@ const state = ref({
 			active: true,
 			running_devices_limit: 2
 		},
-		currentEnterpriseId: ''
+		currentEnterpriseId: '',
+		currentStoreId: '',
+		currentStoreName: ''
 	},
 	feature: {
 		mode: 'create' as 'create' | 'edit',
 		showFormModal: false,
 		storeMode: 'create' as 'create' | 'edit',
 		showStoreModal: false,
+		showAccessModal: false,
 		expandedKeys: [] as string[],
 		rules: {
 			name: [
 				{ required: true, message: '請輸入企業名稱', trigger: 'blur' }
-			],
-			contact: [
-				{ required: true, message: '請輸入聯絡 Email', trigger: 'blur' },
-				{ type: 'email', message: 'Email 格式錯誤', trigger: ['blur', 'input'] }
 			]
 		} as FormRules,
 		storeRules: {
@@ -106,19 +69,154 @@ const state = ref({
 	}
 })
 
+const enterpriseQuery = useQuery({
+	queryKey: enterpriseQueryKey,
+	queryFn: async (): Promise<EnterpriseRow[]> => {
+		const res = await useEnterpriseApi.getAll()
+		const payload = res.data.data ?? []
+		return payload.map(item => ({
+			enterprise_id: item.enterprise_id,
+			name: item.name,
+			createdAt: item.createdAt,
+			updatedAt: item.updatedAt,
+			stores: (item.stores ?? []).map(s => ({
+				store_id: s.store_id,
+				name: s.name,
+				active: s.active,
+				running_devices_limit: s.running_devices_limit,
+				createdAt: s.createdAt
+			}))
+		}))
+	}
+})
+
+const createMutation = useMutation({
+	mutationFn: async (payload: { name: string }) => {
+		await useEnterpriseApi.create(payload)
+	},
+	onSuccess: () => {
+		message.success('已新增企業')
+		queryClient.invalidateQueries({ queryKey: enterpriseQueryKey })
+		state.value.feature.showFormModal = false
+	},
+	onError: () => {
+		message.error('新增企業失敗')
+	}
+})
+
+const editMutation = useMutation({
+	mutationFn: async (payload: { enterpriseId: string, name: string }) => {
+		await useEnterpriseApi.edit(payload.enterpriseId, { name: payload.name })
+	},
+	onSuccess: () => {
+		message.success('已更新企業')
+		queryClient.invalidateQueries({ queryKey: enterpriseQueryKey })
+		state.value.feature.showFormModal = false
+	},
+	onError: () => {
+		message.error('更新企業失敗')
+	}
+})
+
+const createStoreMutation = useMutation({
+	mutationFn: async (payload: { enterpriseId: string, name: string }) => {
+		await useStoreApi.create(payload.enterpriseId, { name: payload.name })
+	},
+	onSuccess: () => {
+		message.success('已新增門市')
+		queryClient.invalidateQueries({ queryKey: enterpriseQueryKey })
+		state.value.feature.showStoreModal = false
+	},
+	onError: () => {
+		message.error('新增門市失敗')
+	}
+})
+
+const accessQuery = useQuery({
+	queryKey: computed(() => ['memberStoreAccess', state.value.data.currentStoreId]),
+	queryFn: async (): Promise<MemberStoreAccessItem[]> => {
+		const res = await useMemberStoreAccessApi.getByStoreId(state.value.data.currentStoreId)
+		return res.data.data ?? []
+	},
+	enabled: computed(() => state.value.feature.showAccessModal && !!state.value.data.currentStoreId)
+})
+
+const accessColumns = computed<DataTableColumns<MemberStoreAccessItem>>(() => [
+	{ title: 'Member ID', key: 'memberId', width: 200, render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.memberId }) },
+	{
+		title: '角色',
+		key: 'role',
+		width: 140,
+		render: row => h(NTag, {
+			type: row.role === 'STORE_MANAGER' ? 'info' : 'default',
+			size: 'small',
+			round: true,
+			bordered: false
+		}, { default: () => row.role === 'STORE_MANAGER' ? '店長' : '店員' })
+	},
+	{
+		title: '狀態',
+		key: 'isActive',
+		width: 100,
+		render: row => h(NTag, {
+			type: row.isActive ? 'success' : 'default',
+			size: 'small',
+			round: true,
+			bordered: false
+		}, { default: () => row.isActive ? '啟用' : '停用' })
+	},
+	{
+		title: '建立時間',
+		key: 'createdAt',
+		render: row => h(NText, { depth: 3, style: 'font-size: 12px;' }, { default: () => row.createdAt })
+	}
+])
+
+const editStoreMutation = useMutation({
+	mutationFn: async (payload: { enterpriseId: string, storeId: string, name: string, isActive: boolean, running_devices_limit: number }) => {
+		await useStoreApi.edit(payload.enterpriseId, payload.storeId, {
+			name: payload.name,
+			isActive: payload.isActive,
+			running_devices_limit: payload.running_devices_limit
+		})
+	},
+	onSuccess: () => {
+		message.success('已更新門市')
+		queryClient.invalidateQueries({ queryKey: enterpriseQueryKey })
+		state.value.feature.showStoreModal = false
+	},
+	onError: () => {
+		message.error('更新門市失敗')
+	}
+})
+
+
+
+const enterpriseList = computed<EnterpriseRow[]>(() => enterpriseQuery.data.value ?? [])
+
 const filteredList = computed(() => {
 	const kw = state.value.data.keyword.trim().toLowerCase()
-	if (!kw) return state.value.data.list
-	return state.value.data.list.filter(item =>
+	if (!kw) return enterpriseList.value
+	return enterpriseList.value.filter(item =>
 		item.name.toLowerCase().includes(kw)
-		|| item.contact.toLowerCase().includes(kw)
 		|| item.enterprise_id.toLowerCase().includes(kw)
 	)
 })
 
+const stats = computed(() => {
+	const list = enterpriseList.value
+	const totalStores = list.reduce((acc, e) => acc + e.stores.length, 0)
+	const activeStores = list.reduce((acc, e) => acc + e.stores.filter(s => s.active).length, 0)
+	return {
+		enterprises: list.length,
+		stores: totalStores,
+		active: activeStores
+	}
+})
+
 const openCreate = () => {
 	state.value.feature.mode = 'create'
-	state.value.data.form = { enterprise_id: '', name: '', contact: '' }
+	state.value.data.form = { enterprise_id: '', name: '' }
 	state.value.feature.showFormModal = true
 }
 
@@ -126,8 +224,7 @@ const openEdit = (row: EnterpriseRow) => {
 	state.value.feature.mode = 'edit'
 	state.value.data.form = {
 		enterprise_id: row.enterprise_id,
-		name: row.name,
-		contact: row.contact
+		name: row.name
 	}
 	state.value.feature.showFormModal = true
 }
@@ -140,34 +237,21 @@ const handleSubmit = async () => {
 		return
 	}
 
-	const now = new Date().toISOString().replace('T', ' ').slice(0, 16)
 	if (state.value.feature.mode === 'create') {
-		const newId = `ent_${String(state.value.data.list.length + 1).padStart(4, '0')}`
-		state.value.data.list.unshift({
-			enterprise_id: newId,
-			name: state.value.data.form.name,
-			contact: state.value.data.form.contact,
-			stores: [],
-			createdAt: now,
-			updatedAt: now
-		})
-		message.success('已新增企業')
+		createMutation.mutate({ name: state.value.data.form.name })
 	}
 	else {
-		const target = state.value.data.list.find(item => item.enterprise_id === state.value.data.form.enterprise_id)
-		if (target) {
-			target.name = state.value.data.form.name
-			target.contact = state.value.data.form.contact
-			target.updatedAt = now
-		}
-		message.success('已更新企業')
+		editMutation.mutate({
+			enterpriseId: state.value.data.form.enterprise_id,
+			name: state.value.data.form.name
+		})
 	}
-	state.value.feature.showFormModal = false
 }
 
-const handleDelete = (row: EnterpriseRow) => {
-	state.value.data.list = state.value.data.list.filter(item => item.enterprise_id !== row.enterprise_id)
-	message.success(`已刪除「${row.name}」`)
+const openAccess = (store: StoreRow) => {
+	state.value.data.currentStoreId = store.store_id
+	state.value.data.currentStoreName = store.name
+	state.value.feature.showAccessModal = true
 }
 
 const openCreateStore = (row: EnterpriseRow) => {
@@ -189,47 +273,33 @@ const handleSubmitStore = () => {
 		message.error('請輸入門市名稱')
 		return
 	}
-	const target = state.value.data.list.find(item => item.enterprise_id === state.value.data.currentEnterpriseId)
-	if (!target) return
-
 	if (state.value.feature.storeMode === 'create') {
-		const newId = `st_${Date.now()}`
-		target.stores.push({
-			store_id: newId,
-			name: state.value.data.storeForm.name,
-			active: state.value.data.storeForm.active,
-			running_devices_limit: state.value.data.storeForm.running_devices_limit,
-			createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16)
+		createStoreMutation.mutate({
+			enterpriseId: state.value.data.currentEnterpriseId,
+			name: state.value.data.storeForm.name
 		})
-		message.success('已新增門市')
 	}
 	else {
-		const idx = target.stores.findIndex(s => s.store_id === state.value.data.storeForm.store_id)
-		if (idx >= 0) {
-			target.stores[idx] = { ...target.stores[idx], ...state.value.data.storeForm }
-			message.success('已更新門市')
-		}
+		editStoreMutation.mutate({
+			enterpriseId: state.value.data.currentEnterpriseId,
+			storeId: state.value.data.storeForm.store_id,
+			name: state.value.data.storeForm.name,
+			isActive: state.value.data.storeForm.active,
+			running_devices_limit: state.value.data.storeForm.running_devices_limit
+		})
 	}
-	state.value.feature.showStoreModal = false
-}
-
-const handleDeleteStore = (enterpriseId: string, storeId: string) => {
-	const target = state.value.data.list.find(item => item.enterprise_id === enterpriseId)
-	if (!target) return
-	target.stores = target.stores.filter(s => s.store_id !== storeId)
-	message.success('已刪除門市')
 }
 
 const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 	{
 		type: 'expand',
 		expandable: () => true,
-		renderExpand: row => h(NEl, { tag: 'div', style: 'padding: 8px 4px 4px; background: #fafbfc; border-radius: 8px;' }, {
+		renderExpand: row => h(NEl, { tag: 'div', style: 'padding: 0;' }, {
 			default: () => h(StoreSubTable, {
 				enterprise: row,
 				onCreate: () => openCreateStore(row),
 				onEdit: (store: StoreRow) => openEditStore(row.enterprise_id, store),
-				onDelete: (storeId: string) => handleDeleteStore(row.enterprise_id, storeId)
+				onAccess: (store: StoreRow) => openAccess(store)
 			})
 		})
 	},
@@ -237,17 +307,12 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 		title: 'Enterprise ID',
 		key: 'enterprise_id',
 		width: 140,
-		render: row => h(NText, { code: true, depth: 3 }, { default: () => row.enterprise_id })
+		render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.enterprise_id })
 	},
 	{
 		title: '企業名稱',
 		key: 'name',
-		render: row => h(NText, { strong: true }, { default: () => row.name })
-	},
-	{
-		title: '聯絡 Email',
-		key: 'contact',
-		render: row => h(NText, { depth: 2 }, { default: () => row.contact })
+		render: row => h(NText, { strong: true, style: 'color: #0f172a;' }, { default: () => row.name })
 	},
 	{
 		title: '門市數量',
@@ -257,7 +322,7 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 		render: row => h(NBadge, {
 			value: row.stores.length,
 			showZero: true,
-			color: row.stores.length === 0 ? '#d1d5db' : '#b91c1c',
+			color: row.stores.length === 0 ? '#cbd5e1' : '#6366f1',
 			style: 'margin-right: 4px;'
 		})
 	},
@@ -280,16 +345,8 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 		fixed: 'right',
 		render: row => h(NSpace, { size: 'small' }, {
 			default: () => [
-				h(NButton, { size: 'small', secondary: true, type: 'primary', onClick: () => openEdit(row) }, { default: () => '編輯' }),
-				h(NButton, { size: 'small', secondary: true, onClick: () => openCreateStore(row) }, { default: () => '＋門市' }),
-				h(NPopconfirm, {
-					onPositiveClick: () => handleDelete(row),
-					positiveText: '刪除',
-					negativeText: '取消'
-				}, {
-					trigger: () => h(NButton, { size: 'small', secondary: true, type: 'error' }, { default: () => '刪除' }),
-					default: () => `確定要刪除企業「${row.name}」？此操作無法復原。`
-				})
+				h(NButton, { size: 'small', quaternary: true, type: 'primary', onClick: () => openEdit(row) }, { default: () => '編輯' }),
+				h(NButton, { size: 'small', quaternary: true, onClick: () => openCreateStore(row) }, { default: () => '＋門市' })
 			]
 		})
 	}
@@ -299,114 +356,188 @@ const StoreSubTable = defineComponent({
 	props: {
 		enterprise: { type: Object as PropType<EnterpriseRow>, required: true }
 	},
-	emits: ['create', 'edit', 'delete'],
+	emits: ['create', 'edit', 'access'],
 	setup: (props, { emit }) => {
 		const subColumns = computed<DataTableColumns<StoreRow>>(() => [
-			{ title: 'Store ID', key: 'store_id', width: 140, render: row => h(NText, { code: true, depth: 3 }, { default: () => row.store_id }) },
-			{ title: '門市名稱', key: 'name' },
+			{ title: 'Store ID', key: 'store_id', width: 140, render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.store_id }) },
+			{ title: '門市名稱', key: 'name', render: row => h(NText, { style: 'color: #0f172a;' }, { default: () => row.name }) },
 			{
 				title: '狀態',
 				key: 'active',
 				width: 100,
-				render: row => h(NTag, { type: row.active ? 'success' : 'default', size: 'small', round: true }, { default: () => row.active ? '營運中' : '停用' })
+				render: row => h(NTag, {
+					type: row.active ? 'success' : 'default',
+					size: 'small',
+					round: true,
+					bordered: false
+				}, { default: () => row.active ? '營運中' : '停用' })
 			},
 			{ title: '裝置上限', key: 'running_devices_limit', width: 110, align: 'center' },
 			{ title: '建立時間', key: 'createdAt', width: 160, render: row => h(NText, { depth: 3, style: 'font-size: 12px;' }, { default: () => row.createdAt }) },
 			{
 				title: '操作',
 				key: 'actions',
-				width: 160,
+				width: 200,
 				render: row => h(NSpace, { size: 'small' }, {
 					default: () => [
-						h(NButton, { size: 'tiny', secondary: true, type: 'primary', onClick: () => emit('edit', row) }, { default: () => '編輯' }),
-						h(NPopconfirm, {
-							onPositiveClick: () => emit('delete', row.store_id),
-							positiveText: '刪除',
-							negativeText: '取消'
-						}, {
-							trigger: () => h(NButton, { size: 'tiny', secondary: true, type: 'error' }, { default: () => '刪除' }),
-							default: () => `確定要刪除門市「${row.name}」？`
-						})
+						h(NButton, { size: 'tiny', quaternary: true, type: 'primary', onClick: () => emit('edit', row) }, { default: () => '編輯' }),
+						h(NButton, { size: 'tiny', quaternary: true, onClick: () => emit('access', row) }, { default: () => '成員' })
 					]
 				})
 			}
 		])
 
-		return () => h(NFlex, { vertical: true, size: 12, style: 'padding: 12px 16px 16px;' }, {
-			default: () => [
-				h(NFlex, { justify: 'space-between', align: 'center' }, {
-					default: () => [
-						h(NText, { strong: true, depth: 1 }, { default: () => `「${props.enterprise.name}」底下的門市` }),
-						h(NButton, { size: 'small', type: 'primary', secondary: true, onClick: () => emit('create') }, { default: () => '＋ 新增門市' })
-					]
-				}),
-				props.enterprise.stores.length === 0
-					? h(NEmpty, { description: '此企業底下尚未建立任何門市', size: 'small', style: 'padding: 16px 0;' })
-					: h(NDataTable, {
-						columns: subColumns.value,
-						data: props.enterprise.stores,
-						size: 'small',
-						bordered: false,
-						rowKey: (row: StoreRow) => row.store_id
-					})
-			]
+		return () => h(NEl, {
+			tag: 'div',
+			style: 'padding: 16px 24px 20px; background: #f8fafc; border-left: 3px solid #6366f1;'
+		}, {
+			default: () => h(NFlex, { vertical: true, size: 12 }, {
+				default: () => [
+					h(NFlex, { justify: 'space-between', align: 'center' }, {
+						default: () => [
+							h(NFlex, { align: 'center', size: 8 }, {
+								default: () => [
+									h(NText, { strong: true, style: 'color: #0f172a; font-size: 13px;' }, { default: () => '門市列表' }),
+									h(NText, { depth: 3, style: 'font-size: 12px;' }, { default: () => `· ${props.enterprise.name}` })
+								]
+							}),
+							h(NButton, { size: 'small', type: 'primary', ghost: true, onClick: () => emit('create') }, { default: () => '＋ 新增門市' })
+						]
+					}),
+					props.enterprise.stores.length === 0
+						? h(NEmpty, { description: '此企業底下尚未建立任何門市', size: 'small', style: 'padding: 24px 0;' })
+						: h(NDataTable, {
+							columns: subColumns.value,
+							data: props.enterprise.stores,
+							size: 'small',
+							bordered: false,
+							rowKey: (row: StoreRow) => row.store_id
+						})
+				]
+			})
 		})
 	}
 })
 </script>
 
 <template>
-  <n-layout style="min-height: 100vh; background: #f3f4f6;">
+  <n-layout style="min-height: 100vh; background: #ffffff;">
     <n-layout-header
-      bordered
       style="
-        padding: 16px 32px;
-        background: linear-gradient(135deg, #0f172a 0%, #7c2d12 60%, #b91c1c 100%);
+        padding: 28px 40px 24px;
+        background: #ffffff;
+        border-bottom: 1px solid #eef2f7;
       "
+      :bordered="false"
     >
       <n-flex align="center" justify="space-between">
         <n-flex align="center" :size="14">
           <n-el
             tag="div"
             style="
-              width: 42px; height: 42px; border-radius: 12px;
-              background: linear-gradient(135deg, #b91c1c, #f59e0b);
+              width: 44px; height: 44px; border-radius: 12px;
+              background: #f1f5ff;
               display: flex; align-items: center; justify-content: center;
-              box-shadow: 0 6px 16px rgba(185,28,28,0.35);
+              border: 1px solid #e0e7ff;
             "
           >
-            <n-text strong style="color: white; font-size: 14px; letter-spacing: 0.05em;">
-              ADM
+            <n-text strong style="color: #4f46e5; font-size: 13px; letter-spacing: 0.08em;">
+              ENT
             </n-text>
           </n-el>
           <n-flex vertical :size="2">
-            <n-h2 style="margin: 0; color: white; font-size: 18px;">
-              企業管理 Enterprise
+            <n-h2 style="margin: 0; color: #0f172a; font-size: 20px; letter-spacing: -0.01em;">
+              企業管理
             </n-h2>
-            <n-text style="color: rgba(255,255,255,0.7); font-size: 12px;">
-              POS 開發者後台 · 管理客戶集團與其底下的門市
+            <n-text depth="3" style="font-size: 12px;">
+              管理客戶集團與其底下的門市資源
             </n-text>
           </n-flex>
+        </n-flex>
+
+        <n-flex :size="10">
+          <n-el
+            tag="div"
+            style="
+              padding: 10px 18px; border-radius: 10px;
+              background: #f8fafc; border: 1px solid #eef2f7;
+              min-width: 110px;
+            "
+          >
+            <n-flex vertical :size="2">
+              <n-text depth="3" style="font-size: 11px; letter-spacing: 0.04em;">
+                企業數
+              </n-text>
+              <n-text strong style="color: #0f172a; font-size: 18px;">
+                {{ stats.enterprises }}
+              </n-text>
+            </n-flex>
+          </n-el>
+          <n-el
+            tag="div"
+            style="
+              padding: 10px 18px; border-radius: 10px;
+              background: #f8fafc; border: 1px solid #eef2f7;
+              min-width: 110px;
+            "
+          >
+            <n-flex vertical :size="2">
+              <n-text depth="3" style="font-size: 11px; letter-spacing: 0.04em;">
+                門市總數
+              </n-text>
+              <n-text strong style="color: #0f172a; font-size: 18px;">
+                {{ stats.stores }}
+              </n-text>
+            </n-flex>
+          </n-el>
+          <n-el
+            tag="div"
+            style="
+              padding: 10px 18px; border-radius: 10px;
+              background: #f1f5ff; border: 1px solid #e0e7ff;
+              min-width: 110px;
+            "
+          >
+            <n-flex vertical :size="2">
+              <n-text style="font-size: 11px; color: #6366f1; letter-spacing: 0.04em;">
+                營運中
+              </n-text>
+              <n-text strong style="color: #4f46e5; font-size: 18px;">
+                {{ stats.active }}
+              </n-text>
+            </n-flex>
+          </n-el>
         </n-flex>
       </n-flex>
     </n-layout-header>
 
-    <n-layout-content style="padding: 24px 32px;">
-      <n-card :bordered="false" style="border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+    <n-layout-content style="padding: 28px 40px 40px; background: #ffffff;">
+      <n-card
+        :bordered="false"
+        style="
+          border-radius: 16px;
+          background: #ffffff;
+          border: 1px solid #eef2f7;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        "
+        content-style="padding: 20px 24px 8px;"
+      >
         <n-flex
           justify="space-between"
           align="center"
-          style="margin-bottom: 16px;"
+          style="margin-bottom: 18px;"
         >
           <n-flex align="center" :size="12">
             <n-input
               v-model:value="state.data.keyword"
-              placeholder="搜尋企業名稱、Email 或 ID"
+              placeholder="搜尋企業名稱或 ID"
               clearable
               style="width: 320px;"
             />
             <n-text depth="3" style="font-size: 13px;">
-              共 {{ filteredList.length }} 間企業
+              共 <n-text strong style="color: #0f172a;">
+                {{ filteredList.length }}
+              </n-text> 間企業
             </n-text>
           </n-flex>
           <n-tooltip>
@@ -414,7 +545,6 @@ const StoreSubTable = defineComponent({
               <n-button
                 type="primary"
                 strong
-                style="background: linear-gradient(135deg, #b91c1c, #f59e0b);"
                 @click="openCreate"
               >
                 ＋ 新增企業
@@ -424,29 +554,30 @@ const StoreSubTable = defineComponent({
           </n-tooltip>
         </n-flex>
 
-        <n-data-table
-          :columns="columns"
-          :data="filteredList"
-          :row-key="(row: EnterpriseRow) => row.enterprise_id"
-          :bordered="false"
-          striped
-          size="medium"
-          :scroll-x="1200"
-        />
+        <n-spin :show="enterpriseQuery.isPending.value">
+          <n-data-table
+            :columns="columns"
+            :data="filteredList"
+            :row-key="(row: EnterpriseRow) => row.enterprise_id"
+            :bordered="false"
+            size="medium"
+            :scroll-x="1200"
+          />
+        </n-spin>
       </n-card>
 
-      <n-divider style="margin: 28px 0 12px;">
+      <n-flex justify="center" style="margin-top: 20px;">
         <n-text depth="3" style="font-size: 12px;">
           展開列以查看 / 管理該企業底下的門市
         </n-text>
-      </n-divider>
+      </n-flex>
     </n-layout-content>
 
     <n-modal
       v-model:show="state.feature.showFormModal"
       preset="card"
       :title="state.feature.mode === 'create' ? '新增企業' : '編輯企業'"
-      style="width: 480px;"
+      style="width: 480px; border-radius: 14px;"
       :bordered="false"
     >
       <n-form
@@ -461,16 +592,17 @@ const StoreSubTable = defineComponent({
         <n-form-item label="企業名稱" path="name">
           <n-input v-model:value="state.data.form.name" placeholder="例如：星耀餐飲集團" />
         </n-form-item>
-        <n-form-item label="聯絡 Email" path="contact">
-          <n-input v-model:value="state.data.form.contact" placeholder="ops@example.com" />
-        </n-form-item>
       </n-form>
       <template #footer>
         <n-flex justify="end" :size="8">
           <n-button @click="state.feature.showFormModal = false">
             取消
           </n-button>
-          <n-button type="primary" @click="handleSubmit">
+          <n-button
+            type="primary"
+            :loading="createMutation.isPending.value || editMutation.isPending.value"
+            @click="handleSubmit"
+          >
             {{ state.feature.mode === 'create' ? '建立' : '儲存' }}
           </n-button>
         </n-flex>
@@ -478,10 +610,48 @@ const StoreSubTable = defineComponent({
     </n-modal>
 
     <n-modal
+      v-model:show="state.feature.showAccessModal"
+      preset="card"
+      :title="`成員權限 · ${state.data.currentStoreName}`"
+      style="width: 720px; border-radius: 14px;"
+      :bordered="false"
+    >
+      <n-spin :show="accessQuery.isFetching.value">
+        <n-flex vertical :size="12">
+          <n-flex align="center" justify="space-between">
+            <n-text depth="3" style="font-size: 12px;">
+              Store ID
+              <n-text code depth="2" style="font-size: 12px; margin-left: 6px;">
+                {{ state.data.currentStoreId }}
+              </n-text>
+            </n-text>
+            <n-text depth="3" style="font-size: 12px;">
+              共 <n-text strong style="color: #0f172a;">{{ accessQuery.data.value?.length ?? 0 }}</n-text> 位成員
+            </n-text>
+          </n-flex>
+          <n-data-table
+            v-if="(accessQuery.data.value?.length ?? 0) > 0"
+            :columns="accessColumns"
+            :data="accessQuery.data.value ?? []"
+            :row-key="(row: MemberStoreAccessItem) => row.memberStoreAccessId"
+            :bordered="false"
+            size="small"
+          />
+          <n-empty
+            v-else-if="!accessQuery.isPending.value"
+            description="此門市尚未指派任何成員"
+            size="small"
+            style="padding: 24px 0;"
+          />
+        </n-flex>
+      </n-spin>
+    </n-modal>
+
+    <n-modal
       v-model:show="state.feature.showStoreModal"
       preset="card"
       :title="state.feature.storeMode === 'create' ? '新增門市' : '編輯門市'"
-      style="width: 460px;"
+      style="width: 460px; border-radius: 14px;"
       :bordered="false"
     >
       <n-form
@@ -519,7 +689,11 @@ const StoreSubTable = defineComponent({
           <n-button @click="state.feature.showStoreModal = false">
             取消
           </n-button>
-          <n-button type="primary" @click="handleSubmitStore">
+          <n-button
+            type="primary"
+            :loading="createStoreMutation.isPending.value || editStoreMutation.isPending.value"
+            @click="handleSubmitStore"
+          >
             {{ state.feature.storeMode === 'create' ? '建立' : '儲存' }}
           </n-button>
         </n-flex>

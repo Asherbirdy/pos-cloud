@@ -1,8 +1,8 @@
 package com.app.security.controller;
 
 import com.app.security.dto.Enterprise.EnterpriseCreateRequest;
+import com.app.security.dto.Enterprise.EnterpriseWithStoresResponse;
 import com.app.security.dto.Response;
-import com.app.security.model.Enterprise;
 import com.app.security.service.EnterpriseService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,8 +25,8 @@ public class EnterpriseController {
      * 用於後台 admin 檢視、選擇要操作的 enterprise。
      */
     @GetMapping("/")
-    public Response<List<Enterprise>> getAll() {
-        List<Enterprise> enterprises = enterpriseService.getAll();
+    public Response<List<EnterpriseWithStoresResponse>> getAll() {
+        List<EnterpriseWithStoresResponse> enterprises = enterpriseService.getAll();
         return new Response<>("Success", enterprises, HttpStatus.OK);
     }
 

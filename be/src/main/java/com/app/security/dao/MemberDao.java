@@ -14,5 +14,7 @@ public interface MemberDao {
 
     List<Member> getRoleMembers(String role);
 
+    List<Member> getAllMembers();
+
     void updateRole(String memberId, String role);
 }

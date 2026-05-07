@@ -125,6 +125,35 @@ public class MemberStoreAccessDaoImpl implements MemberStoreAccessDao {
     }
 
     @Override
+    public List<StoreAccessItem> getAllStoreAccessItemsByMemberId(String memberId) {
+        String sql = """
+                SELECT msa.store_id      AS store_id,
+                       msa.enterprise_id AS enterprise_id,
+                       s.name            AS store_name,
+                       s.is_active       AS store_active,
+                       msa.role          AS role,
+                       msa.is_active     AS access_active
+                FROM member_store_access msa
+                LEFT JOIN store s ON s.store_id = msa.store_id
+                WHERE msa.member_id = :memberId
+                """;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", memberId);
+
+        RowMapper<StoreAccessItem> mapper = (rs, rowNum) -> new StoreAccessItem(
+                rs.getString("store_id"),
+                rs.getString("enterprise_id"),
+                rs.getString("store_name"),
+                rs.getObject("store_active") == null ? null : rs.getBoolean("store_active"),
+                rs.getString("role"),
+                rs.getObject("access_active") == null ? null : rs.getBoolean("access_active")
+        );
+
+        return namedParameterJdbcTemplate.query(sql, map, mapper);
+    }
+
+    @Override
     public void updateById(String memberStoreAccessId, StoreRole role, Boolean isActive) {
         String sql = """
                 UPDATE member_store_access

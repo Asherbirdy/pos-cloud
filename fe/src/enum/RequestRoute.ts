@@ -11,6 +11,7 @@ export enum AuthApiRoute {
     MemberLogout = '/member/logout',
     Enterprise = '/enterprise/',
     MemberStoreAccess = '/member-store-access/',
+    AdminMember = '/admin/member/',
     Store = '/store/',
     Checkout = '/checkout/',
     StoreShift = '/storeShift/',

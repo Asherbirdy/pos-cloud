@@ -1,14 +1,26 @@
 import type { AxiosPromise } from 'axios'
 
 import { AuthApiRoute } from '@/enum/RequestRoute'
+import type { ApiResponse } from '@/types/common/ApiResponse'
 
 import { useApiRequest } from './http'
 
-interface EnterpriseItem {
+export interface EnterpriseStoreItem {
+  store_id: string
+  enterprise_id: string
+  name: string
+  active: boolean
+  running_devices_limit: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface EnterpriseItem {
   enterprise_id: string
   name: string
   createdAt: string
   updatedAt: string
+  stores: EnterpriseStoreItem[]
 }
 
 type EnterpriseGetAllResponse = EnterpriseItem[]
@@ -29,7 +41,7 @@ export const useEnterpriseApi = {
   /*
    * 取得所有企業清單
   */
-  getAll: (): AxiosPromise<EnterpriseGetAllResponse> => {
+  getAll: (): AxiosPromise<ApiResponse<EnterpriseGetAllResponse>> => {
     return useApiRequest.get({
       url: AuthApiRoute.Enterprise
     })
@@ -38,7 +50,7 @@ export const useEnterpriseApi = {
   /*
    * 建立新的企業
   */
-  create: (payload: EnterpriseCreatePayload): AxiosPromise<EnterpriseCreateResponse> => {
+  create: (payload: EnterpriseCreatePayload): AxiosPromise<ApiResponse<EnterpriseCreateResponse>> => {
     return useApiRequest.post({
       url: AuthApiRoute.Enterprise,
       data: payload
@@ -48,7 +60,7 @@ export const useEnterpriseApi = {
   /*
    * 編輯企業名稱
   */
-  edit: (enterpriseId: string, payload: EnterpriseEditPayload): AxiosPromise<EnterpriseEditResponse> => {
+  edit: (enterpriseId: string, payload: EnterpriseEditPayload): AxiosPromise<ApiResponse<EnterpriseEditResponse>> => {
     return useApiRequest.patch({
       url: `${AuthApiRoute.Enterprise}${enterpriseId}`,
       data: payload
