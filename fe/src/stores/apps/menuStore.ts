@@ -37,12 +37,6 @@ export const useMenuStore = defineStore('menuStore', () => {
           key: 'a-admin-enterprise',
           icon: renderIcon(BusinessOutline),
           onClick: () => router.push('/A/admin/enterprise')
-        },
-        {
-          label: 'Info',
-          key: 'a-admin-info',
-          icon: renderIcon(InformationCircleOutline),
-          onClick: () => router.push('/A/admin/info')
         }
       ]
     },

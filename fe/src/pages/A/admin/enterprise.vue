@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { NBadge, NButton, NCard, NDataTable, NEl, NEmpty, NFlex, NForm, NFormItem, NH2, NInput, NInputNumber, NLayout, NLayoutContent, NLayoutHeader, NModal, NPopconfirm, NSpace, NSwitch, NTag, NText, NTooltip } from 'naive-ui'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { NBadge, NButton, NCard, NDataTable, NEl, NEmpty, NFlex, NForm, NFormItem, NH2, NInput, NInputNumber, NLayout, NLayoutContent, NLayoutHeader, NModal, NSpace, NSpin, NSwitch, NTag, NText, NTooltip } from 'naive-ui'
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { h } from 'vue'
+
+import { useEnterpriseApi } from '@/api/useEnterpriseApi'
+import { useStoreApi } from '@/api/useStoreApi'
 
 interface StoreRow {
 	store_id: string
@@ -14,66 +18,105 @@ interface StoreRow {
 interface EnterpriseRow {
 	enterprise_id: string
 	name: string
-	contact: string
 	stores: StoreRow[]
 	createdAt: string
 	updatedAt: string
 }
 
 const message = useMessage()
+const queryClient = useQueryClient()
 
 const formRef = ref<FormInst | null>(null)
+
+const enterpriseQueryKey = ['enterprise', 'getAll']
+
+const enterpriseQuery = useQuery({
+	queryKey: enterpriseQueryKey,
+	queryFn: async (): Promise<EnterpriseRow[]> => {
+		const res = await useEnterpriseApi.getAll()
+		const payload = res.data.data ?? []
+		return payload.map(item => ({
+			enterprise_id: item.enterprise_id,
+			name: item.name,
+			createdAt: item.createdAt,
+			updatedAt: item.updatedAt,
+			stores: (item.stores ?? []).map(s => ({
+				store_id: s.store_id,
+				name: s.name,
+				active: s.active,
+				running_devices_limit: s.running_devices_limit,
+				createdAt: s.createdAt
+			}))
+		}))
+	}
+})
+
+const createMutation = useMutation({
+	mutationFn: async (payload: { name: string }) => {
+		await useEnterpriseApi.create(payload)
+	},
+	onSuccess: () => {
+		message.success('已新增企業')
+		queryClient.invalidateQueries({ queryKey: enterpriseQueryKey })
+		state.value.feature.showFormModal = false
+	},
+	onError: () => {
+		message.error('新增企業失敗')
+	}
+})
+
+const editMutation = useMutation({
+	mutationFn: async (payload: { enterpriseId: string, name: string }) => {
+		await useEnterpriseApi.edit(payload.enterpriseId, { name: payload.name })
+	},
+	onSuccess: () => {
+		message.success('已更新企業')
+		queryClient.invalidateQueries({ queryKey: enterpriseQueryKey })
+		state.value.feature.showFormModal = false
+	},
+	onError: () => {
+		message.error('更新企業失敗')
+	}
+})
+
+const createStoreMutation = useMutation({
+	mutationFn: async (payload: { enterpriseId: string, name: string }) => {
+		await useStoreApi.create(payload.enterpriseId, { name: payload.name })
+	},
+	onSuccess: () => {
+		message.success('已新增門市')
+		queryClient.invalidateQueries({ queryKey: enterpriseQueryKey })
+		state.value.feature.showStoreModal = false
+	},
+	onError: () => {
+		message.error('新增門市失敗')
+	}
+})
+
+const editStoreMutation = useMutation({
+	mutationFn: async (payload: { enterpriseId: string, storeId: string, name: string, isActive: boolean, running_devices_limit: number }) => {
+		await useStoreApi.edit(payload.enterpriseId, payload.storeId, {
+			name: payload.name,
+			isActive: payload.isActive,
+			running_devices_limit: payload.running_devices_limit
+		})
+	},
+	onSuccess: () => {
+		message.success('已更新門市')
+		queryClient.invalidateQueries({ queryKey: enterpriseQueryKey })
+		state.value.feature.showStoreModal = false
+	},
+	onError: () => {
+		message.error('更新門市失敗')
+	}
+})
 
 const state = ref({
 	data: {
 		keyword: '',
-		list: [
-			{
-				enterprise_id: 'ent_0001',
-				name: '星耀餐飲集團',
-				contact: 'ops@stardine.com',
-				createdAt: '2025-08-12 10:24',
-				updatedAt: '2026-04-18 09:11',
-				stores: [
-					{ store_id: 'st_1001', name: '星耀信義旗艦店', active: true, running_devices_limit: 8, createdAt: '2025-08-15 11:00' },
-					{ store_id: 'st_1002', name: '星耀內湖店', active: true, running_devices_limit: 4, createdAt: '2025-09-02 14:32' },
-					{ store_id: 'st_1003', name: '星耀板橋店', active: false, running_devices_limit: 4, createdAt: '2025-10-21 16:18' }
-				]
-			},
-			{
-				enterprise_id: 'ent_0002',
-				name: '甘茶手作飲品',
-				contact: 'hello@gantea.tw',
-				createdAt: '2025-09-03 14:02',
-				updatedAt: '2026-03-10 17:45',
-				stores: [
-					{ store_id: 'st_2001', name: '甘茶南港車站店', active: true, running_devices_limit: 2, createdAt: '2025-09-10 09:00' },
-					{ store_id: 'st_2002', name: '甘茶西門店', active: true, running_devices_limit: 2, createdAt: '2025-11-04 12:20' }
-				]
-			},
-			{
-				enterprise_id: 'ent_0003',
-				name: '木森麵包工坊',
-				contact: 'service@mosen.bakery',
-				createdAt: '2025-11-21 09:48',
-				updatedAt: '2026-04-29 22:01',
-				stores: [
-					{ store_id: 'st_3001', name: '木森大安總店', active: true, running_devices_limit: 3, createdAt: '2025-11-25 10:30' }
-				]
-			},
-			{
-				enterprise_id: 'ent_0004',
-				name: '海風日式食堂',
-				contact: 'admin@kaifu.co',
-				createdAt: '2026-01-09 18:20',
-				updatedAt: '2026-04-30 08:33',
-				stores: []
-			}
-		] as EnterpriseRow[],
 		form: {
 			enterprise_id: '',
-			name: '',
-			contact: ''
+			name: ''
 		},
 		storeForm: {
 			store_id: '',
@@ -92,10 +135,6 @@ const state = ref({
 		rules: {
 			name: [
 				{ required: true, message: '請輸入企業名稱', trigger: 'blur' }
-			],
-			contact: [
-				{ required: true, message: '請輸入聯絡 Email', trigger: 'blur' },
-				{ type: 'email', message: 'Email 格式錯誤', trigger: ['blur', 'input'] }
 			]
 		} as FormRules,
 		storeRules: {
@@ -106,18 +145,19 @@ const state = ref({
 	}
 })
 
+const enterpriseList = computed<EnterpriseRow[]>(() => enterpriseQuery.data.value ?? [])
+
 const filteredList = computed(() => {
 	const kw = state.value.data.keyword.trim().toLowerCase()
-	if (!kw) return state.value.data.list
-	return state.value.data.list.filter(item =>
+	if (!kw) return enterpriseList.value
+	return enterpriseList.value.filter(item =>
 		item.name.toLowerCase().includes(kw)
-		|| item.contact.toLowerCase().includes(kw)
 		|| item.enterprise_id.toLowerCase().includes(kw)
 	)
 })
 
 const stats = computed(() => {
-	const list = state.value.data.list
+	const list = enterpriseList.value
 	const totalStores = list.reduce((acc, e) => acc + e.stores.length, 0)
 	const activeStores = list.reduce((acc, e) => acc + e.stores.filter(s => s.active).length, 0)
 	return {
@@ -129,7 +169,7 @@ const stats = computed(() => {
 
 const openCreate = () => {
 	state.value.feature.mode = 'create'
-	state.value.data.form = { enterprise_id: '', name: '', contact: '' }
+	state.value.data.form = { enterprise_id: '', name: '' }
 	state.value.feature.showFormModal = true
 }
 
@@ -137,8 +177,7 @@ const openEdit = (row: EnterpriseRow) => {
 	state.value.feature.mode = 'edit'
 	state.value.data.form = {
 		enterprise_id: row.enterprise_id,
-		name: row.name,
-		contact: row.contact
+		name: row.name
 	}
 	state.value.feature.showFormModal = true
 }
@@ -151,34 +190,15 @@ const handleSubmit = async () => {
 		return
 	}
 
-	const now = new Date().toISOString().replace('T', ' ').slice(0, 16)
 	if (state.value.feature.mode === 'create') {
-		const newId = `ent_${String(state.value.data.list.length + 1).padStart(4, '0')}`
-		state.value.data.list.unshift({
-			enterprise_id: newId,
-			name: state.value.data.form.name,
-			contact: state.value.data.form.contact,
-			stores: [],
-			createdAt: now,
-			updatedAt: now
-		})
-		message.success('已新增企業')
+		createMutation.mutate({ name: state.value.data.form.name })
 	}
 	else {
-		const target = state.value.data.list.find(item => item.enterprise_id === state.value.data.form.enterprise_id)
-		if (target) {
-			target.name = state.value.data.form.name
-			target.contact = state.value.data.form.contact
-			target.updatedAt = now
-		}
-		message.success('已更新企業')
+		editMutation.mutate({
+			enterpriseId: state.value.data.form.enterprise_id,
+			name: state.value.data.form.name
+		})
 	}
-	state.value.feature.showFormModal = false
-}
-
-const handleDelete = (row: EnterpriseRow) => {
-	state.value.data.list = state.value.data.list.filter(item => item.enterprise_id !== row.enterprise_id)
-	message.success(`已刪除「${row.name}」`)
 }
 
 const openCreateStore = (row: EnterpriseRow) => {
@@ -200,35 +220,21 @@ const handleSubmitStore = () => {
 		message.error('請輸入門市名稱')
 		return
 	}
-	const target = state.value.data.list.find(item => item.enterprise_id === state.value.data.currentEnterpriseId)
-	if (!target) return
-
 	if (state.value.feature.storeMode === 'create') {
-		const newId = `st_${Date.now()}`
-		target.stores.push({
-			store_id: newId,
-			name: state.value.data.storeForm.name,
-			active: state.value.data.storeForm.active,
-			running_devices_limit: state.value.data.storeForm.running_devices_limit,
-			createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16)
+		createStoreMutation.mutate({
+			enterpriseId: state.value.data.currentEnterpriseId,
+			name: state.value.data.storeForm.name
 		})
-		message.success('已新增門市')
 	}
 	else {
-		const idx = target.stores.findIndex(s => s.store_id === state.value.data.storeForm.store_id)
-		if (idx >= 0) {
-			target.stores[idx] = { ...target.stores[idx], ...state.value.data.storeForm }
-			message.success('已更新門市')
-		}
+		editStoreMutation.mutate({
+			enterpriseId: state.value.data.currentEnterpriseId,
+			storeId: state.value.data.storeForm.store_id,
+			name: state.value.data.storeForm.name,
+			isActive: state.value.data.storeForm.active,
+			running_devices_limit: state.value.data.storeForm.running_devices_limit
+		})
 	}
-	state.value.feature.showStoreModal = false
-}
-
-const handleDeleteStore = (enterpriseId: string, storeId: string) => {
-	const target = state.value.data.list.find(item => item.enterprise_id === enterpriseId)
-	if (!target) return
-	target.stores = target.stores.filter(s => s.store_id !== storeId)
-	message.success('已刪除門市')
 }
 
 const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
@@ -239,8 +245,7 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 			default: () => h(StoreSubTable, {
 				enterprise: row,
 				onCreate: () => openCreateStore(row),
-				onEdit: (store: StoreRow) => openEditStore(row.enterprise_id, store),
-				onDelete: (storeId: string) => handleDeleteStore(row.enterprise_id, storeId)
+				onEdit: (store: StoreRow) => openEditStore(row.enterprise_id, store)
 			})
 		})
 	},
@@ -254,11 +259,6 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 		title: '企業名稱',
 		key: 'name',
 		render: row => h(NText, { strong: true, style: 'color: #0f172a;' }, { default: () => row.name })
-	},
-	{
-		title: '聯絡 Email',
-		key: 'contact',
-		render: row => h(NText, { depth: 2 }, { default: () => row.contact })
 	},
 	{
 		title: '門市數量',
@@ -292,15 +292,7 @@ const columns = computed<DataTableColumns<EnterpriseRow>>(() => [
 		render: row => h(NSpace, { size: 'small' }, {
 			default: () => [
 				h(NButton, { size: 'small', quaternary: true, type: 'primary', onClick: () => openEdit(row) }, { default: () => '編輯' }),
-				h(NButton, { size: 'small', quaternary: true, onClick: () => openCreateStore(row) }, { default: () => '＋門市' }),
-				h(NPopconfirm, {
-					onPositiveClick: () => handleDelete(row),
-					positiveText: '刪除',
-					negativeText: '取消'
-				}, {
-					trigger: () => h(NButton, { size: 'small', quaternary: true, type: 'error' }, { default: () => '刪除' }),
-					default: () => `確定要刪除企業「${row.name}」？此操作無法復原。`
-				})
+				h(NButton, { size: 'small', quaternary: true, onClick: () => openCreateStore(row) }, { default: () => '＋門市' })
 			]
 		})
 	}
@@ -310,7 +302,7 @@ const StoreSubTable = defineComponent({
 	props: {
 		enterprise: { type: Object as PropType<EnterpriseRow>, required: true }
 	},
-	emits: ['create', 'edit', 'delete'],
+	emits: ['create', 'edit'],
 	setup: (props, { emit }) => {
 		const subColumns = computed<DataTableColumns<StoreRow>>(() => [
 			{ title: 'Store ID', key: 'store_id', width: 140, render: row => h(NText, { code: true, depth: 3, style: 'font-size: 12px;' }, { default: () => row.store_id }) },
@@ -332,19 +324,7 @@ const StoreSubTable = defineComponent({
 				title: '操作',
 				key: 'actions',
 				width: 160,
-				render: row => h(NSpace, { size: 'small' }, {
-					default: () => [
-						h(NButton, { size: 'tiny', quaternary: true, type: 'primary', onClick: () => emit('edit', row) }, { default: () => '編輯' }),
-						h(NPopconfirm, {
-							onPositiveClick: () => emit('delete', row.store_id),
-							positiveText: '刪除',
-							negativeText: '取消'
-						}, {
-							trigger: () => h(NButton, { size: 'tiny', quaternary: true, type: 'error' }, { default: () => '刪除' }),
-							default: () => `確定要刪除門市「${row.name}」？`
-						})
-					]
-				})
+				render: row => h(NButton, { size: 'tiny', quaternary: true, type: 'primary', onClick: () => emit('edit', row) }, { default: () => '編輯' })
 			}
 		])
 
@@ -491,7 +471,7 @@ const StoreSubTable = defineComponent({
           <n-flex align="center" :size="12">
             <n-input
               v-model:value="state.data.keyword"
-              placeholder="搜尋企業名稱、Email 或 ID"
+              placeholder="搜尋企業名稱或 ID"
               clearable
               style="width: 320px;"
             />
@@ -515,14 +495,16 @@ const StoreSubTable = defineComponent({
           </n-tooltip>
         </n-flex>
 
-        <n-data-table
-          :columns="columns"
-          :data="filteredList"
-          :row-key="(row: EnterpriseRow) => row.enterprise_id"
-          :bordered="false"
-          size="medium"
-          :scroll-x="1200"
-        />
+        <n-spin :show="enterpriseQuery.isPending.value">
+          <n-data-table
+            :columns="columns"
+            :data="filteredList"
+            :row-key="(row: EnterpriseRow) => row.enterprise_id"
+            :bordered="false"
+            size="medium"
+            :scroll-x="1200"
+          />
+        </n-spin>
       </n-card>
 
       <n-flex justify="center" style="margin-top: 20px;">
@@ -551,16 +533,17 @@ const StoreSubTable = defineComponent({
         <n-form-item label="企業名稱" path="name">
           <n-input v-model:value="state.data.form.name" placeholder="例如：星耀餐飲集團" />
         </n-form-item>
-        <n-form-item label="聯絡 Email" path="contact">
-          <n-input v-model:value="state.data.form.contact" placeholder="ops@example.com" />
-        </n-form-item>
       </n-form>
       <template #footer>
         <n-flex justify="end" :size="8">
           <n-button @click="state.feature.showFormModal = false">
             取消
           </n-button>
-          <n-button type="primary" @click="handleSubmit">
+          <n-button
+            type="primary"
+            :loading="createMutation.isPending.value || editMutation.isPending.value"
+            @click="handleSubmit"
+          >
             {{ state.feature.mode === 'create' ? '建立' : '儲存' }}
           </n-button>
         </n-flex>
@@ -609,7 +592,11 @@ const StoreSubTable = defineComponent({
           <n-button @click="state.feature.showStoreModal = false">
             取消
           </n-button>
-          <n-button type="primary" @click="handleSubmitStore">
+          <n-button
+            type="primary"
+            :loading="createStoreMutation.isPending.value || editStoreMutation.isPending.value"
+            @click="handleSubmitStore"
+          >
             {{ state.feature.storeMode === 'create' ? '建立' : '儲存' }}
           </n-button>
         </n-flex>
