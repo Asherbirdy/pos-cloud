@@ -24,7 +24,6 @@
 - STORE_MANAGER  幫忙 STAFF創建帳號
 - STORE_MANAGER 建立商品表單
 
-
 ### 開班
 - 每個store都有自己獨立的帳號
 - STAFF 登入帳號 
