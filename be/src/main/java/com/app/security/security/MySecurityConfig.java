@@ -68,6 +68,12 @@ public class MySecurityConfig {
                         .configurationSource(createCorsConfig())
                 )
 
+                // 限流 Filter (只攔 /auth/**，依 IP 5 req/min)
+                .addFilterBefore(
+                        new RateLimitFilter(),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+
                 // 添加 JWT Filter
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtUtil, tokenDao, memberDao, memberStoreAccessDao),
