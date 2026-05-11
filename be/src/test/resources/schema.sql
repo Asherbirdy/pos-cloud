@@ -127,6 +127,17 @@ CREATE TABLE IF NOT EXISTS store_checkout
             REFERENCES member (member_id)
 );
 
+CREATE TABLE IF NOT EXISTS email_verification_code
+(
+    email_verification_code_id VARCHAR(36) PRIMARY KEY,
+    email                      VARCHAR(255) NOT NULL,
+    code_hash                  VARCHAR(255) NOT NULL,
+    expires_at                 TIMESTAMP    NOT NULL,
+    attempts                   INT          NOT NULL DEFAULT 0,
+    consumed                   BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at                 TIMESTAMP             DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS store_checkout_item
 (
     store_checkout_item_id VARCHAR(36) PRIMARY KEY,

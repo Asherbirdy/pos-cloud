@@ -2,3 +2,9 @@ DB_URL=jdbc:postgresql://localhost:5432/poscloud
 DB_USERNAME=
 DB_PASSWORD=
 CORS_ALLOWED_ORIGINS=http://localhost:1207
+
+# Gmail SMTP (寄送 Email 驗證碼)
+# Gmail 需開啟兩步驟驗證後產生 App Password，將該 16 碼填入 MAIL_PASSWORD
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM=

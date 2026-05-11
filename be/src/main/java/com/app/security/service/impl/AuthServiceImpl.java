@@ -1,18 +1,23 @@
 package com.app.security.service.impl;
 
+import com.app.security.dao.EmailVerificationCodeDao;
 import com.app.security.dao.MemberDao;
 import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.dao.TokenDao;
 import com.app.security.dto.Auth.*;
+import com.app.security.enums.StoreRole;
+import com.app.security.model.EmailVerificationCode;
 import com.app.security.model.MemberStoreAccess;
 import com.app.security.model.Member;
 import com.app.security.model.Token;
 import com.app.security.security.JwtUtil;
 import com.app.security.service.AuthService;
+import com.app.security.service.EmailService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +27,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.SecureRandom;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,15 +43,33 @@ public class AuthServiceImpl implements AuthService {
 
     private final MemberStoreAccessDao memberStoreAccessDao;
 
+    private final EmailVerificationCodeDao emailVerificationCodeDao;
+
+    private final EmailService emailService;
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtUtil jwtUtil;
 
+    private final SecureRandom secureRandom = new SecureRandom();
+
+    @Value("${auth.email-code.ttl-seconds:300}")
+    private long emailCodeTtlSeconds;
+
+    @Value("${auth.email-code.resend-cooldown-seconds:60}")
+    private long emailCodeResendCooldownSeconds;
+
+    @Value("${auth.email-code.max-attempts:5}")
+    private int emailCodeMaxAttempts;
+
     public AuthServiceImpl(MemberDao memberDao, TokenDao tokenDao, MemberStoreAccessDao memberStoreAccessDao,
+                           EmailVerificationCodeDao emailVerificationCodeDao, EmailService emailService,
                            PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.memberDao = memberDao;
         this.tokenDao = tokenDao;
         this.memberStoreAccessDao = memberStoreAccessDao;
+        this.emailVerificationCodeDao = emailVerificationCodeDao;
+        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -81,41 +106,113 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthLoginResponse login(LoginRequest loginRequest) {
-        String email = loginRequest.getEmail();
-        String password = loginRequest.getPassword();
+    public AuthLoginStep1Response loginStep1(LoginStep1Request request) {
+        Member member = authenticate(request.getEmail(), request.getPassword());
 
-        // 查詢會員
+        if (requiresOtp(member)) {
+            issueAndSendOtp(member.getEmail());
+            return new AuthLoginStep1Response(true, member.getEmail(), null);
+        }
+
+        AuthLoginResponse loginResponse = issueTokens(member);
+        return new AuthLoginStep1Response(false, member.getEmail(), loginResponse);
+    }
+
+    @Override
+    public AuthLoginResponse login(LoginRequest loginRequest) {
+        Member member = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
+
+        // 一律驗 OTP（/auth/login 是「帳密 + OTP」入口；不需 OTP 的帳號走 /auth/login/step1）
+        verifyOtp(member.getEmail(), loginRequest.getCode());
+
+        return issueTokens(member);
+    }
+
+    private Member authenticate(String email, String password) {
         Member member = memberDao.getMemberByEmail(email);
         if (member == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "WRONG_EMAIL_OR_PASSWORD");
         }
-
-        // 驗證密碼
         if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "WRONG_EMAIL_OR_PASSWORD");
         }
+        return member;
+    }
 
+    private boolean requiresOtp(Member member) {
+        if ("admin".equals(member.getRole())) {
+            return true;
+        }
+        List<MemberStoreAccess> accesses = memberStoreAccessDao.getActiveAccessByMemberId(member.getMemberId());
+        for (MemberStoreAccess access : accesses) {
+            if (access.getRole() == StoreRole.STORE_MANAGER) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private AuthLoginResponse issueTokens(Member member) {
         String memberId = member.getMemberId();
-        String name = member.getName();
-        String role = member.getRole();
-
-        // 檢查是否有有效的 refresh token
         String refreshTokenStr;
         Token existingToken = tokenDao.getValidTokenByMemberId(memberId);
-
         if (existingToken != null) {
             refreshTokenStr = existingToken.getRefreshToken();
         } else {
-            // 建立新的 refresh token
             refreshTokenStr = createRefreshToken(memberId);
         }
 
-        // 產生 JWT 並設定 Cookie
-        TokenPair token = attachCookieToResponse(memberId, name, email, role, refreshTokenStr);
-
+        TokenPair token = attachCookieToResponse(memberId, member.getName(), member.getEmail(), member.getRole(), refreshTokenStr);
         List<StoreAccessItem> storeAccessItems = memberStoreAccessDao.getStoreAccessItemsByMemberId(memberId);
-        return new AuthLoginResponse(name, memberId, role, storeAccessItems, token);
+        return new AuthLoginResponse(member.getName(), memberId, member.getRole(), storeAccessItems, token);
+    }
+
+    private void issueAndSendOtp(String email) {
+        // 60 秒節流：如果最近一筆 active OTP 是 cooldown 內建立的，擋掉
+        EmailVerificationCode latest = emailVerificationCodeDao.getLatestActiveByEmail(email);
+        if (latest != null && latest.getCreatedAt() != null) {
+            long ageMs = System.currentTimeMillis() - latest.getCreatedAt().getTime();
+            if (ageMs < emailCodeResendCooldownSeconds * 1000L) {
+                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "OTP_RESEND_COOLDOWN");
+            }
+        }
+
+        // 作廢同 email 所有未用的舊 OTP
+        emailVerificationCodeDao.invalidateAllByEmail(email);
+
+        String code = generateSixDigitCode();
+        EmailVerificationCode record = new EmailVerificationCode();
+        record.setEmail(email);
+        record.setCodeHash(passwordEncoder.encode(code));
+        record.setExpiresAt(new Date(System.currentTimeMillis() + emailCodeTtlSeconds * 1000L));
+        emailVerificationCodeDao.createCode(record);
+
+        emailService.sendVerificationCode(email, code);
+    }
+
+    private void verifyOtp(String email, String code) {
+        EmailVerificationCode record = emailVerificationCodeDao.getLatestActiveByEmail(email);
+        if (record == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP_NOT_FOUND");
+        }
+        if (record.getExpiresAt().getTime() < System.currentTimeMillis()) {
+            emailVerificationCodeDao.consume(record.getEmailVerificationCodeId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP_EXPIRED");
+        }
+        if (record.getAttempts() != null && record.getAttempts() >= emailCodeMaxAttempts) {
+            emailVerificationCodeDao.consume(record.getEmailVerificationCodeId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP_ATTEMPTS_EXCEEDED");
+        }
+        if (!passwordEncoder.matches(code, record.getCodeHash())) {
+            emailVerificationCodeDao.incrementAttempts(record.getEmailVerificationCodeId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP_INVALID");
+        }
+        emailVerificationCodeDao.consume(record.getEmailVerificationCodeId());
+    }
+
+    private String generateSixDigitCode() {
+        int n = secureRandom.nextInt(1_000_000);
+        return String.format("%06d", n);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class StoreShiftServiceImpl implements StoreShiftService {
         }
 
         List<StoreShift> openShifts = storeShiftDao.getOpenByStoreId(storeId);
-        if (openShifts.size() >= store.getRunning_devices_limit()) {
+        if (openShifts.size() >= store.getRunningDevicesLimit()) {
             throw new ShiftLimitReachedException(openShifts);
         }
 

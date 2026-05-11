@@ -30,12 +30,12 @@ public class StoreServiceImpl implements StoreService {
         List<StoreWithMembersResponse> result = new ArrayList<>();
         for (Store store : stores) {
             List<StoreMemberAccessItem> members = memberStoreAccessDao
-                    .getStoreMembersByStoreId(store.getStore_id());
+                    .getStoreMembersByStoreId(store.getStoreId());
             result.add(new StoreWithMembersResponse(
-                    store.getStore_id(),
+                    store.getStoreId(),
                     store.getName(),
                     store.getActive(),
-                    store.getRunning_devices_limit(),
+                    store.getRunningDevicesLimit(),
                     store.getCreatedAt(),
                     store.getUpdatedAt(),
                     members
