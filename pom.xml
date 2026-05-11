@@ -12,7 +12,7 @@
     <groupId>com.kucw.security</groupId>
     <artifactId>jwt-template</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>lesson-8-13</name>
+    <name>pos-cloud</name>
     <description>Spring Security Course lesson-8-13</description>
 
     <properties>
