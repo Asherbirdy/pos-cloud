@@ -29,3 +29,7 @@
 - STAFF 登入帳號 
 - STAFF 開班 (並記錄LOG)
 - STAFF 關班 (並記錄LOG)
+
+-----------
+EMAIL 登入驗證：
+admin 和 STORE_MANAGER 登入 需要email 驗證碼，STORE_STAFF不需要
