@@ -1,9 +1,11 @@
 package com.app.security.controller;
 
 import com.app.security.dto.Auth.AuthLoginResponse;
+import com.app.security.dto.Auth.AuthLoginStep1Response;
 import com.app.security.dto.Auth.AuthRefreshTokenResponse;
 import com.app.security.dto.Auth.AuthRegisterResponse;
 import com.app.security.dto.Auth.LoginRequest;
+import com.app.security.dto.Auth.LoginStep1Request;
 import com.app.security.dto.Auth.RegisterRequest;
 import com.app.security.dto.Response;
 import com.app.security.service.AuthService;
@@ -40,8 +42,19 @@ public class AuthController {
     }
 
     /**
-     * 使用 email + 密碼登入，成功後將 access / refresh token 寫入 HttpOnly cookie。
-     * 用於前台、後台共用登入入口。
+     * Step1：使用 email + 密碼。若該帳號（admin / 任一店為 store_manager）需要 Email OTP，
+     * 後端會寄驗證碼到 email 並回 requireOtp=true（loginResponse=null），前端再帶 code 打 /auth/login；
+     * 否則直接回完整登入結果（含 tokenPair）。
+     */
+    @PostMapping("/login/step1")
+    public ResponseEntity<AuthLoginStep1Response> loginStep1(@Valid @RequestBody LoginStep1Request request) {
+        AuthLoginStep1Response response = authService.loginStep1(request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * 使用 email + 密碼 + Email OTP 驗證碼登入，成功後將 access / refresh token 寫入 HttpOnly cookie。
+     * 僅供 step1 觸發 requireOtp=true 的帳號使用；其他帳號 step1 已直接拿到 token。
      */
     @PostMapping("/login")
     public ResponseEntity<AuthLoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {

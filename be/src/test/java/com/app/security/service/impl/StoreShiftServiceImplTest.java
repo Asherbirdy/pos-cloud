@@ -60,7 +60,7 @@ public class StoreShiftServiceImplTest {
     private Store store(int limit) {
         Store store = new Store();
         store.setStoreId(STORE_ID);
-        store.setRunning_devices_limit(limit);
+        store.setRunningDevicesLimit(limit);
         return store;
     }
 

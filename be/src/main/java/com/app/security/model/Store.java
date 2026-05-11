@@ -3,27 +3,27 @@ package com.app.security.model;
 import java.util.Date;
 
 public class Store {
-    private String store_id;
+    private String storeId;
     private String name;
     private Boolean isActive;
-    private Integer running_devices_limit;
+    private Integer runningDevicesLimit;
     private Date createdAt;
     private Date updatedAt;
 
-    public Integer getRunning_devices_limit() {
-        return running_devices_limit;
+    public Integer getRunningDevicesLimit() {
+        return runningDevicesLimit;
     }
 
-    public void setRunning_devices_limit(Integer running_devices_limit) {
-        this.running_devices_limit = running_devices_limit;
+    public void setRunningDevicesLimit(Integer runningDevicesLimit) {
+        this.runningDevicesLimit = runningDevicesLimit;
     }
 
-    public String getStore_id() {
-        return store_id;
+    public String getStoreId() {
+        return storeId;
     }
 
-    public void setStore_id(String store_id) {
-        this.store_id = store_id;
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
     }
 
     public String getName() {
