@@ -4,6 +4,7 @@ import com.app.security.dao.MemberDao;
 import com.app.security.dao.MemberStoreAccessDao;
 import com.app.security.dao.TokenDao;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,9 @@ public class MySecurityConfig {
     private final MemberDao memberDao;
 
     private final MemberStoreAccessDao memberStoreAccessDao;
+
+    @Value("${cors.allowed-origins}")
+    private List<String> allowedOrigins;
 
     public MySecurityConfig(JwtUtil jwtUtil, TokenDao tokenDao, MemberDao memberDao,
                             MemberStoreAccessDao memberStoreAccessDao) {
@@ -114,7 +118,7 @@ public class MySecurityConfig {
 
     private CorsConfigurationSource createCorsConfig() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:1207"));
+        config.setAllowedOrigins(allowedOrigins);
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("*"));
         config.setAllowCredentials(true);
