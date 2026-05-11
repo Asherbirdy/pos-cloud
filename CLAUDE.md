@@ -2,150 +2,117 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repository Layout
-
-This directory is a monorepo-style container with two independent git repos:
-
-- `pos-cloud-be/` — Spring Boot 3.1.5 backend (Java 17, Maven, PostgreSQL). Has its own `CLAUDE.md` with detailed conventions; **read it before editing backend code**.
-- `pos-cloud-fe/` — Vue 3 + Vite + TypeScript admin frontend (naive-ui, Pinia, UnoCSS).
-
-The two halves are developed and run separately. There is no top-level build.
-
-### Directory tree
-
-```
-pos/
-├── pos-cloud-be/                          # Spring Boot backend
-│   ├── pom.xml
-│   ├── postman/
-│   └── src/
-│       ├── main/
-│       │   ├── java/com/app/security/
-│       │   │   ├── aspect/                # @RequireStoreRole + StoreAccessAspect
-│       │   │   ├── controller/            # Auth, Member, Enterprise, Store, StoreCheckout(Item), StoreProductCategory/Item, StoreShift, MemberStoreAccess
-│       │   │   ├── dao/                   # interfaces + impl/ (NamedParameterJdbcTemplate)
-│       │   │   ├── dto/                   # request/response DTOs grouped per domain
-│       │   │   │   ├── Auth/  Member/  Enterprise/  Store/
-│       │   │   │   ├── MemberStoreAccess/  StoreCheckout/  StoreCheckoutItem/
-│       │   │   │   └── StoreProductCategory/  StoreProductItem/
-│       │   │   ├── enums/                 # OrderStatus, ShiftStatus, StoreRole
-│       │   │   ├── exception/             # GlobalExceptionHandler, ShiftLimitReachedException
-│       │   │   ├── model/                 # domain entities (camelCase)
-│       │   │   ├── rowmapper/             # snake_case → model bridges
-│       │   │   ├── security/              # JwtAuthenticationFilter, JwtUtil, MySecurityConfig, RequestLoggingFilter
-│       │   │   └── service/               # interfaces + impl/
-│       │   └── resources/
-│       └── test/
-│           ├── java/com/app/security/{controller,service/impl,support}/
-│           └── resources/                 # schema.sql, data.sql (H2 seed)
-│
-└── pos-cloud-fe/                          # Vue 3 + Vite frontend
-    ├── index.html  vite.config.mts  uno.config.ts
-    ├── tsconfig.json  tsconfig.app.json  tsconfig.node.json  .eslintrc.cjs
-    ├── .env.development  .env.example  .env.production.example
-    ├── package.json  pnpm-lock.yaml  README.md
-    ├── public/
-    └── src/
-        ├── main.ts  App.vue  config.ts  theme.ts  env.d.ts
-        ├── auto-imports.ts  auto-components.ts   # generated, do not edit
-        ├── api/
-        │   ├── http/axios/                # axios instance + interceptors
-        │   ├── index.ts
-        │   ├── useAuthApi.ts  useDevApi.ts
-        │   ├── useMemberApi.ts  useEnterpriseApi.ts  useMemberStoreAccessApi.ts
-        │   ├── useStoreApi.ts  useStoreShiftApi.ts
-        │   ├── useStoreCheckoutApi.ts  useStoreCheckoutItemApi.ts
-        │   └── useStoreProductCategoryApi.ts  useStoreProductItemApi.ts
-        ├── assets/scss/
-        ├── components/
-        │   ├── index.ts
-        │   └── Layouts/                   # LayoutsHeader.vue, LayoutSidebar.vue
-        ├── composable/                    # (empty, .gitkeep)
-        ├── enum/                          # CookieEnum, RequestRoute, index
-        ├── layouts/default.vue            # vite-plugin-vue-layouts
-        ├── pages/                         # vite-plugin-pages (file-based routes)
-        │   ├── index.vue  [...all].vue
-        │   └── A/
-        │       ├── user.vue
-        │       ├── admin/                 # index, info, enterprise
-        │       ├── manager/               # index, account, performance
-        │       └── staff/                 # index, user, checkout
-        ├── plugins/vueQuery.ts            # @tanstack/vue-query setup
-        ├── router/index.ts
-        ├── stores/                        # Pinia
-        │   ├── index.ts
-        │   └── apps/productStore.ts
-        ├── types/
-        │   ├── apis/  apps/               # (.gitkeep)
-        │   └── common/ApiResponse.ts
-        └── utils/                         # cookie.ts, index.ts
-```
-
-## Backend (pos-cloud-be)
+## Build & Run Commands
 
 ```bash
-cd pos-cloud-be
-mvn spring-boot:run            # run on port 8083 (reads .env)
-mvn test                       # all tests (H2 in-memory)
-mvn test -Dtest=ClassName#method  # single test
-mvn clean package -DskipTests
+mvn clean package              # Build project
+mvn spring-boot:run            # Run application (port 8083)
+mvn test                       # Run all tests
+mvn clean package -DskipTests  # Build without tests
 ```
 
-See `pos-cloud-be/CLAUDE.md` for architecture (Controller → Service → DAO with Spring JDBC, no JPA), the **model / RowMapper / `schema.sql` three-way sync rule**, the SQL text-block convention, JWT auth flow, and the `member / enterprise / store / member_store_access` multi-tenancy model.
+- Requires Java 17 and PostgreSQL
+- Uses spring-dotenv: database config loaded from `.env` file (see `.envSample` for template)
+- Test database: H2 in-memory (no external DB needed for tests)
 
-CORS: `MySecurityConfig.createCorsConfig()` 的 `setAllowedOrigins` 必須包含前端 dev server origin（預設 `http://localhost:1207`），否則前端打 API 會回 403 `Invalid CORS request`。
+## Architecture
 
-## Frontend (pos-cloud-fe)
+Spring Boot 3.1.5 app with layered architecture using Spring JDBC (not JPA):
 
-```bash
-cd pos-cloud-fe
-pnpm i
-pnpm dev          # vite dev server, default port 1207 (VITE_PORT)
-pnpm build        # production build
-pnpm type-check   # vue-tsc
-pnpm lint         # eslint --fix
+```
+Controller → Service (interface + impl) → DAO (interface + impl) → PostgreSQL
 ```
 
-Env files: copy `.env.example` / `.env.development.example` / `.env.production.example` and fill `VITE_BASE`, `VITE_SERVER`, `VITE_PORT`. Backend base URL comes from `VITE_SERVER`.
+All code lives under `com.app.security`. DAO layer uses `NamedParameterJdbcTemplate` with raw SQL and `RowMapper` classes for result mapping.
 
-### Frontend conventions
+### Model / RowMapper / schema.sql 同步規則
 
-- **UI components**: Always use `naive-ui` components instead of native HTML tags (e.g. `<n-button>` not `<button>`, `<n-input>` not `<input>`, `<n-card>` not `<div>` for card-like containers).
-- **Import style**: Always write multi-name imports on a single line (horizontal), not one per line. E.g. `import { NAvatar, NBadge, NButton } from 'naive-ui'`. Even with many names, keep them on one line — let the editor soft-wrap if needed. Do not split into multi-line `import { A, B, C } from '…'` blocks.
-- **No native HTML tags**: `.vue` templates must not contain raw `<div>`, `<header>`, `<main>`, `<footer>`, `<section>`, `<span>`, `<p>`, `<h1>`–`<h6>` etc. Replace with their naive-ui equivalents:
-  - Layout containers → `<n-layout>`, `<n-layout-header>`, `<n-layout-content>`, `<n-layout-footer>`, `<n-flex>`, `<n-grid>` / `<n-gi>`, `<n-space>`, or `<n-el>` for a generic themed box.
-  - Headings → `<n-h1>` … `<n-h6>`.
-  - Body text / inline text → `<n-text>` (use `depth` and `strong` props), or `<n-p>` for paragraphs.
-  - Card-like containers → `<n-card>`.
-  Only `<svg>` / `<path>` (inside `<n-icon>`) and similar non-layout primitives are exempt.
-- **naive-ui imports**: naive-ui uses tree-shaking, so every naive-ui component must be explicitly imported into the `.vue` file that uses it (e.g. `import { NButton, NInput } from 'naive-ui'`). Do not rely on global registration.
-- **Reactivity**: Always use `ref` for reactive state, never `reactive`. This applies even to object/form state (e.g. `const form = ref({ email: '', password: '' })`, accessed as `form.value.email` in script). Keep the codebase consistent with a single style.
-- **Functions**: Always use arrow functions (`const fn = () => {}` / `const fn = async () => {}`) instead of `function` declarations in `.vue` files and frontend `.ts` files. Keep a single consistent style across the codebase.
-- **Page state**: Every `.vue` file groups its reactive state into a single `state` ref with two buckets:
-  ```ts
-  const state = ref({
-    data: {},     // page data (form fields, API results, displayed entities)
-    feature: {}   // UI/feature flags (loading, dialog open, rules, pagination, etc.)
-  })
-  ```
-  Access in script as `state.value.data.xxx` / `state.value.feature.xxx`, in template as `state.data.xxx` / `state.feature.xxx`. Template refs (e.g. `formRef`) stay outside `state`.
+當改動到下列任一檔案時，必須同步檢查並更新另外兩個，保持三者一致：
 
-### Frontend architecture notes
+- `src/main/java/com/app/security/model/*.java`（model 欄位、型別）
+- `src/main/java/com/app/security/rowmapper/*.java`（DB 欄位 → model setter 的對應）
+- `src/test/resources/schema.sql`（DB 表結構、欄位名、型別、約束）
 
-- **File-based routing** via `vite-plugin-pages` over `src/pages/` plus `vite-plugin-vue-layouts` over `src/layouts/`. Adding a `.vue` file under `src/pages/` creates a route automatically — do not hand-edit a route table. `src/router/index.ts` wires the generated routes and guards.
-- **Auto-imports** via `unplugin-auto-import` (Vue, vue-router, selected naive-ui composables) and `unplugin-vue-components` (Vue components). Generated declaration files `src/auto-imports.ts` and `src/auto-components.ts` are committed and regenerated by Vite — do not edit by hand, and do not add manual `import` statements for things that are already auto-imported.
-- **Path alias**: `@/` → `src/`.
-- **Styling**: UnoCSS with `presetUno` + `presetAttributify` (see `uno.config.ts`); attributify syntax (e.g. `<div text="sm gray-500">`) is enabled.
-- **API layer**: `src/api/http` (axios wrapper) + per-feature modules like `src/api/useAuthApi.ts`. State in `src/stores/` (Pinia).
-- **Response shape**: 後端統一回傳 `{ msg, data }`，前端用共用型別 `ApiResponse<T>`（`src/types/common/ApiResponse.ts`）。API 模組型別寫 `AxiosPromise<ApiResponse<TPayload>>`；**不**在 interceptor 統一拆包，呼叫端（`.vue` / composable / store）自己取 `res.data.data`，例如 `const res = await xxxApi.yyy(); const payload = res.data.data`。
-- **Server state / mutations**: 用 `@tanstack/vue-query` 的 `useQuery` / `useMutation` 包 API 呼叫；不要在 `.vue` 內直接 `await` API 並自己維護 `loading` flag。loading 綁 `mutation.isPending.value`，成功/失敗在 `onSuccess` / `onError` 處理。
-- **API URL enum**: 所有 API URL 統一寫進 `src/enum/RequestRoute.ts`，依後端 `MySecurityConfig` 的權限分成兩個 enum：
-  - `PublicApiRoute` — 後端 `permitAll` 路徑（`/auth/**`、`/dev/test`）。
-  - `AuthApiRoute` — 需要登入或角色驗證的路徑（`/member/**`、`/enterprise/**`、`/member-store-access/**`、`/storeShift/**`、`/product-category/**`、`/product-item/**`、`/store/`、`/checkout/` 等）。
-  Enum 命名照 API 路徑（`/auth/login` → `AuthLogin`、`/member-store-access/` → `MemberStoreAccess`）。靜態路徑直接用 enum 值，含 path param 時用 template literal 組合（例如 `` `${AuthApiRoute.Enterprise}${enterpriseId}` ``）。新增 API 時要先把 URL 補到對應 enum 再使用。
-- **Auth flow（前後端分離）**:
-  - 前後端透過 CORS 跨網域；前端 dev server 在 `http://localhost:1207`，後端在 `http://localhost:8083`。
-  - 登入成功時後端在 `AuthLoginResponse.tokenPair` 回傳 `{ accessToken, refreshToken }`；前端把這兩個值寫入 cookie（`CookieEnum.AccessToken` / `CookieEnum.RefreshToken`）。
-  - 後續請求由 `src/api/http/axios/Axios.ts` 的 request interceptor 從 cookie 讀 `accessToken`，掛 `Authorization: Bearer <token>` header。
-  - accessToken 不存在時自動打 `/auth/refreshToken`（用 refreshToken）換新 accessToken。**`PublicApiRoute` 內的 URL 不會走 refresh 流程也不掛 Authorization**，避免登入/註冊頁無 token 時被多打一次 refresh。
-  - cookie 由前端 JS（`utils/cookie.ts`，`js-cookie`）讀寫，**不是** HttpOnly。`axios` 的 `withCredentials` 維持 `false`，因為 auth 走 Bearer header，不靠 cookie 傳輸。
+慣例：DB 欄位用 snake_case（如 `product_category_id`），Java model 欄位用 camelCase（如 `productCategoryId`），RowMapper 負責橋接兩者。新增欄位、改名、改型別、加減約束時都要三邊一起改。
+
+### DAO SQL 字串慣例
+
+DAO 內所有 SQL 字串一律使用 Java text block (`"""..."""`)，不要用 `"..." + "..."` 字串串接或單行字串。需要動態插入欄位常數（例如 `COLUMNS`）時用 `.formatted(...)`。
+
+範例：
+
+```java
+String sql = """
+        UPDATE store_checkout
+        SET order_status = :orderStatus,
+            updated_at = NOW()
+        WHERE store_checkout_id = :storeCheckoutId
+        """;
+
+String sql = """
+        SELECT %s
+        FROM store_checkout
+        WHERE store_id = :storeId
+        ORDER BY checkout_at DESC
+        """.formatted(COLUMNS);
+```
+
+### Controller 註解排列慣例
+
+Controller 方法上的註解一律將 Spring mapping 註解（`@GetMapping`、`@PostMapping`、`@PutMapping`、`@DeleteMapping` 等）放在最上方，權限相關註解（如 `@RequireStoreRole`）放在下方。
+
+範例：
+
+```java
+@GetMapping("/")
+@RequireStoreRole({StoreRole.STORE_MANAGER})
+```
+
+### Authentication & Security
+
+- Stateless JWT auth, **前後端分離**：登入成功時於 `AuthLoginResponse.tokenPair` 回傳 `{ accessToken, refreshToken }`，前端自行存進非 HttpOnly cookie；後續請求由前端在 `Authorization: Bearer <accessToken>` header 帶上，後端不依賴 cookie 傳 token。
+- Access token (15 min) + refresh token (24 hr) stored in `token` table with IP/User-Agent tracking
+- `JwtAuthenticationFilter` auto-refreshes expired access tokens using valid refresh tokens
+- Route security in `MySecurityConfig`: `/auth/**` 與 `/dev/test` public、`/enterprise/**` 與 `/member-store-access/**` 需 `admin`、`/member/**`、`/storeShift/**`、`/product-category/**`、`/product-item/**`、`/logout` 需 authenticated，其餘 `denyAll`
+- CORS: `MySecurityConfig.createCorsConfig()` 的 `setAllowedOrigins` 必須包含前端 dev server origin（預設 `http://localhost:1207`）；新增環境（staging/prod 等）時要在這裡補上對應 origin，否則前端會拿到 403 `Invalid CORS request`
+- Passwords hashed with BCrypt
+
+### Multi-Tenancy Model
+
+- `member` → system-level users with global role (admin/user)
+- `enterprise` → organizations
+- `store` → retail locations under an enterprise
+- `member_store_access` → per-store role assignment (STORE_MANAGER, STORE_STAFF) with status tracking
+- One member can have access to multiple enterprises/stores
+
+### Response Pattern
+
+All endpoints return `Response<T>` which wraps `ApiResponse<T>` (message + data) in a `ResponseEntity`. Errors handled by `GlobalExceptionHandler`.
+
+## Testing
+
+- Integration tests use `@SpringBootTest` + `MockMvc` with H2 database
+- `AuthTestSupport` base class provides pre-authenticated `adminAccessToken` and `userAccessToken` helpers
+- Test data seeded via `src/test/resources/data.sql` (admin@gmail.com / user@gmail.com, password: "password")
+- Test suite runner: `ApplicationTest.java` using JUnit 5 Platform Suite
+
+### Test 註解慣例
+
+每個 `@Test` 方法上方都要加一段 Javadoc 註解說明該測試在驗證什麼（前置條件、行為、預期結果），讓人不用讀內容就知道目的。
+
+範例：
+
+```java
+/**
+ * 驗證：openShifts 數量已達 running_devices_limit → 丟 ShiftLimitReachedException，
+ * 且不應呼叫 dao.openShift。
+ */
+@Test
+@DisplayName("openShift: 達到上限應丟 SHIFT_LIMIT_REACHED")
+public void openShift_limitReached_throws() { ... }
+```
+
+## Roles
+
+System roles: `admin`, `user` (stored in `member.role`)
+Store-level roles: `store_manager`, `store_staff` (stored in `member_store_access.role`)
